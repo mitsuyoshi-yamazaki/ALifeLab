@@ -31,6 +31,6 @@
   "scripts": {
     "build": "webpack",
     "watch": "webpack -w",
-    "start": "webpack-dev-server --open --mode development"
+    "start": "webpack serve --open --mode development"
   }
 }
