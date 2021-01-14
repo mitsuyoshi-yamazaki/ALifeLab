@@ -1,0 +1,7 @@
+{
+ "editor.detectIndentation": false,
+ "editor.tabSize": 2,
+ "workbench.colorCustomizations": {
+  "activityBar.background": "#083658"
+ }
+}
