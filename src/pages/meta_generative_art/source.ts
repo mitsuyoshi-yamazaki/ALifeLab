@@ -1,4 +1,4 @@
-import * as p5 from "p5"
+import p5 from "p5"
 import { Vector } from "../../classes/physics"
 import { random } from "../../classes/utilities"
 
@@ -75,6 +75,7 @@ const rawQuery = document.location.search
 const queries = rawQuery
   .slice(rawQuery.indexOf("?") + 1)
   .split("&")
+// tslint:disable-next-line:no-any
 const parameters = {} as any
 
 for (const query of queries) {
@@ -86,7 +87,7 @@ console.log(parameters)
 // tslint:disable: no-string-literal
 const drawMode: DrawMode = parameters["draw_mode"] ? parameters["draw_mode"] : DrawMode.Artistic
 const numberOfObjects = parameters["objects"] ? parameters["objects"] : 50
-const behavior: Behavior[] = (() => {
+const givenBehavior: Behavior[] = (() => {
   const given = parameters["behavior"]
   if (given == undefined) {
     return [
@@ -105,6 +106,7 @@ const behavior: Behavior[] = (() => {
     B5: Behavior.B5,
     B6: Behavior.B6,
     B7: Behavior.B7,
+  // tslint:disable-next-line:no-any
   } as any
 
   return given.split(",")
@@ -115,12 +117,12 @@ const behavior: Behavior[] = (() => {
 // const interval = parameters["i"] ? parameters["i"] : 200
 // tslint:enable: no-string-literal
 
-const element1 = new Element(Form.F1, behavior)
+const element1 = new Element(Form.F1, givenBehavior)
 const element = element1
 
 let t = 0
-const size = 800
-const canvasSize = new Vector(size, size * 0.6)
+const canvasBaseSize = 800
+const canvasSize = new Vector(canvasBaseSize, canvasBaseSize * 0.6)
 const objects: Circle[] = []
 const objectMinSize = 20
 const objectMaxSize = objectMinSize * 2
@@ -222,8 +224,12 @@ const main = (p: p5) => {
 
           const normalizedDistance = ((minDistance - distance) / minDistance)
           const forceMagnitude = normalizedDistance * 1
-          obj.forces.push(obj.position.sub(other.position).sized(forceMagnitude))
-          other.forces.push(other.position.sub(obj.position).sized(forceMagnitude))
+          obj.forces
+            .push(obj.position.sub(other.position)
+            .sized(forceMagnitude))
+          other.forces
+            .push(other.position.sub(obj.position)
+            .sized(forceMagnitude))
 
           if (drawMode === DrawMode.Artistic || drawMode === DrawMode.Both) {
             p.noFill()
@@ -308,7 +314,7 @@ class Circle {
     p.stroke(255)
     p.strokeWeight(0.5)
 
-    const position = drawMode == DrawMode.Both ? new Vector(this.position.x, this.position.y + canvasSize.y) : this.position
+    const position = drawMode === DrawMode.Both ? new Vector(this.position.x, this.position.y + canvasSize.y) : this.position
 
     p.circle(position.x, position.y, this.size)
 
