@@ -4,6 +4,7 @@ module.exports = {
   mode: 'development',
   entry: {
     index: './src/pages/index.tsx',
+    meta_generative_art: './src/pages/meta_generative_art/index.tsx',
   },
   output: {
     path: path.resolve(__dirname, 'dist'),
