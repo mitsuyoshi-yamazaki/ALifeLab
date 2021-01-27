@@ -1,4 +1,5 @@
 import p5 from "p5"
+import { Screenshot } from "../../classes/downloader"
 import { Vector } from "../../classes/physics"
 import { random } from "../../classes/utilities"
 
@@ -85,6 +86,7 @@ for (const query of queries) {
 console.log(parameters)
 
 // tslint:disable: no-string-literal
+const screenshotInterval = parseInt(parameters["screenshot_interval"] ?? "0", 10)
 const drawMode: DrawMode = parameters["draw_mode"] ? parameters["draw_mode"] : DrawMode.Artistic
 const numberOfObjects = parameters["objects"] ? parameters["objects"] : 50
 const givenBehavior: Behavior[] = (() => {
@@ -142,6 +144,10 @@ const main = (p: p5) => {
   }
 
   p.draw = () => {
+    if (screenshotInterval > 0 && t % screenshotInterval === 0) {
+      Screenshot.saveScreenshot(t)
+    }
+
     t += 1
     next()
     draw()
