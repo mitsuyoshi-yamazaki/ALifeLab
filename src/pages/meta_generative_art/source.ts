@@ -1,5 +1,5 @@
 import p5 from "p5"
-import { Screenshot } from "../../classes/downloader"
+import { ScreenshotDownloader } from "../../classes/downloader"
 import { Vector } from "../../classes/physics"
 import { random } from "../../classes/utilities"
 
@@ -128,6 +128,7 @@ const canvasSize = new Vector(canvasBaseSize, canvasBaseSize * 0.6)
 const objects: Circle[] = []
 const objectMinSize = 20
 const objectMaxSize = objectMinSize * 2
+let screenshotDownloader: ScreenshotDownloader
 
 const main = (p: p5) => {
   p.setup = () => {
@@ -135,6 +136,7 @@ const main = (p: p5) => {
     const canvas = p.createCanvas(canvasSize.x, canvasHeight)
     canvas.id("canvas")
     canvas.parent("canvas-parent")
+    screenshotDownloader = new ScreenshotDownloader(document.getElementById("canvas") as HTMLCanvasElement)
 
     createObjects()
 
@@ -145,7 +147,7 @@ const main = (p: p5) => {
 
   p.draw = () => {
     if (screenshotInterval > 0 && t % screenshotInterval === 0) {
-      Screenshot.saveScreenshot(t)
+      screenshotDownloader.saveScreenshot(t)
     }
 
     t += 1
