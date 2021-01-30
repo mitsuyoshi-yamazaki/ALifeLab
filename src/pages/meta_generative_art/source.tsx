@@ -1,7 +1,9 @@
 import p5 from "p5"
-import { ScreenshotDownloader } from "../../classes/downloader"
+import { ParameterDownloader, StringElementConvertible } from "../../classes/downloader"
 import { Vector } from "../../classes/physics"
 import { random } from "../../classes/utilities"
+import React from "react"
+import ReactDOM from "react-dom"
 
 /*
 * https://vimeo.com/22955812
@@ -70,6 +72,10 @@ class Element {
   public get B7(): boolean {
     return this.behavior.indexOf(Behavior.B7) >= 0
   }
+
+  public description(): string {
+    return String(this.behavior)  // TODO: 現状では "0,1,2,3" という表現なので改善する
+  }
 }
 
 const rawQuery = document.location.search
@@ -125,12 +131,25 @@ let t = 0
 const canvasBaseSize = 800
 const canvasSize = new Vector(canvasBaseSize, canvasBaseSize * 0.6)
 const objects: Circle[] = []
-let screenshotDownloader: ScreenshotDownloader
 
-interface ArtParameter {
-  element: Element
-  objectMinSize: number
-  objectMaxSize: number
+class ArtParameter implements StringElementConvertible {
+  public constructor(
+    public readonly element: Element,
+    public readonly objectMinSize: number,
+    public readonly objectMaxSize: number,
+  ) {
+
+  }
+
+  public stringElements(): React.ReactNode {
+    return (
+      <div>
+        {this.element.description()}<br />
+        Object Max Size: {this.objectMaxSize}<br />
+        Object Min Size: {this.objectMinSize}<br />
+      </div>
+    )
+  }
 }
 
 enum ArtConstraintRelation {
@@ -147,11 +166,8 @@ interface ArtConstraint {
   multiplier: number
 }
 
-const artParameter: ArtParameter = {
-  element: element1,
-  objectMinSize: 20,
-  objectMaxSize: 40,
-}
+let parameterDownloader: ParameterDownloader<ArtParameter>
+const artParameter = new ArtParameter(element1, 20, 40)
 
 const main = (p: p5) => {
   p.setup = () => {
@@ -159,7 +175,7 @@ const main = (p: p5) => {
     const canvas = p.createCanvas(canvasSize.x, canvasHeight)
     canvas.id("canvas")
     canvas.parent("canvas-parent")
-    screenshotDownloader = new ScreenshotDownloader(document.getElementById("canvas") as HTMLCanvasElement)
+    parameterDownloader = new ParameterDownloader(document.getElementById("canvas") as HTMLCanvasElement)
 
     createObjects()
 
@@ -170,7 +186,7 @@ const main = (p: p5) => {
 
   p.draw = () => {
     if (screenshotInterval > 0 && t % screenshotInterval === 0) {
-      screenshotDownloader.saveScreenshot(t)
+      parameterDownloader.saveParameters(t, artParameter)
     }
 
     t += 1
