@@ -5,7 +5,7 @@ module.exports = {
   entry: {
     index: './src/pages/index.tsx',
     meta_generative_art_layout: './src/pages/meta_generative_art/layout.tsx',
-    meta_generative_art_source: './src/pages/meta_generative_art/source.ts',
+    meta_generative_art_source: './src/pages/meta_generative_art/source.tsx',
   },
   output: {
     path: path.resolve(__dirname, 'dist'),

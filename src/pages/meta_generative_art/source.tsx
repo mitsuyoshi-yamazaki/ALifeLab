@@ -1,6 +1,9 @@
 import p5 from "p5"
+import { ParameterDownloader, StringElementConvertible } from "../../classes/downloader"
 import { Vector } from "../../classes/physics"
 import { random } from "../../classes/utilities"
+import React from "react"
+import ReactDOM from "react-dom"
 
 /*
 * https://vimeo.com/22955812
@@ -69,6 +72,10 @@ class Element {
   public get B7(): boolean {
     return this.behavior.indexOf(Behavior.B7) >= 0
   }
+
+  public description(): string {
+    return String(this.behavior)  // TODO: 現状では "0,1,2,3" という表現なので改善する
+  }
 }
 
 const rawQuery = document.location.search
@@ -85,6 +92,7 @@ for (const query of queries) {
 console.log(parameters)
 
 // tslint:disable: no-string-literal
+const screenshotInterval = parseInt(parameters["screenshot_interval"] ?? "0", 10)
 const drawMode: DrawMode = parameters["draw_mode"] ? parameters["draw_mode"] : DrawMode.Artistic
 const numberOfObjects = parameters["objects"] ? parameters["objects"] : 50
 const givenBehavior: Behavior[] = (() => {
@@ -118,14 +126,48 @@ const givenBehavior: Behavior[] = (() => {
 // tslint:enable: no-string-literal
 
 const element1 = new Element(Form.F1, givenBehavior)
-const element = element1
 
 let t = 0
 const canvasBaseSize = 800
 const canvasSize = new Vector(canvasBaseSize, canvasBaseSize * 0.6)
 const objects: Circle[] = []
-const objectMinSize = 20
-const objectMaxSize = objectMinSize * 2
+
+class ArtParameter implements StringElementConvertible {
+  public constructor(
+    public readonly element: Element,
+    public readonly objectMinSize: number,
+    public readonly objectMaxSize: number,
+  ) {
+
+  }
+
+  public stringElements(): React.ReactNode {
+    return (
+      <div>
+        {this.element.description()}<br />
+        Object Max Size: {this.objectMaxSize}<br />
+        Object Min Size: {this.objectMinSize}<br />
+      </div>
+    )
+  }
+}
+
+enum ArtConstraintRelation {
+  Equal,
+  LargerThan,
+  LesserThan,
+}
+
+interface ArtConstraint {
+  firstAttribute: string
+  secondAttribte: string | undefined
+  constant: number
+  relation: ArtConstraintRelation
+  multiplier: number
+}
+
+let parameterDownloader: ParameterDownloader<ArtParameter>
+const artParameter = new ArtParameter(element1, 20, 40)
 
 const main = (p: p5) => {
   p.setup = () => {
@@ -133,6 +175,7 @@ const main = (p: p5) => {
     const canvas = p.createCanvas(canvasSize.x, canvasHeight)
     canvas.id("canvas")
     canvas.parent("canvas-parent")
+    parameterDownloader = new ParameterDownloader(document.getElementById("canvas") as HTMLCanvasElement)
 
     createObjects()
 
@@ -142,6 +185,10 @@ const main = (p: p5) => {
   }
 
   p.draw = () => {
+    if (screenshotInterval > 0 && t % screenshotInterval === 0) {
+      parameterDownloader.saveParameters(t, artParameter)
+    }
+
     t += 1
     next()
     draw()
@@ -158,7 +205,7 @@ const main = (p: p5) => {
 
   function createObjects () {
     for (let i = 0; i < numberOfObjects; i += 1) {
-      const objectSize = random(objectMaxSize, objectMinSize)
+      const objectSize = random(artParameter.objectMaxSize, artParameter.objectMinSize)
       const position = canvasSize.randomized()
       const direction = random(Math.PI * 2)
       const obj = new Circle(objectSize, position, direction)
@@ -173,7 +220,7 @@ const main = (p: p5) => {
     objects.forEach(obj => {
       obj.next()
 
-      if (element.B2) {
+      if (artParameter.element.B2) {
         const radius = obj.size / 2
         const xMin = radius
         const xMax = canvasSize.x - radius
@@ -184,7 +231,7 @@ const main = (p: p5) => {
         const y = Math.max(Math.min(obj.position.y, yMax), yMin)
         obj.position = new Vector(x, y)
 
-      } else if (element.B5) {
+      } else if (artParameter.element.B5) {
         let x = obj.position.x
         let y = obj.position.y
 
@@ -242,7 +289,7 @@ const main = (p: p5) => {
         }
       }
 
-      if (element.B3 && obj.isColliding) {
+      if (artParameter.element.B3 && obj.isColliding) {
         obj.direction += Math.PI / 300
       }
     }
@@ -289,7 +336,7 @@ class Circle {
   public isColliding = false
   public forces: Vector[] = []
   public ignoreB4 = false
-  private readonly speed = (1 / 60) * objectMinSize
+  private readonly speed = (1 / 60) * artParameter.objectMinSize
 
   public constructor(public readonly size: number, position: Vector, direction: number) {
     this.position = position
@@ -298,8 +345,8 @@ class Circle {
 
   public next(): void {
     const directionalMove = new Vector(Math.cos(this.direction), Math.sin(this.direction)).sized(this.speed)
-    const separationForces: Vector[] = (element.B4 && !this.ignoreB4) ? this.forces : []
-    const affectedForces = element.B1 ? separationForces.concat(directionalMove) : separationForces
+    const separationForces: Vector[] = (artParameter.element.B4 && !this.ignoreB4) ? this.forces : []
+    const affectedForces = artParameter.element.B1 ? separationForces.concat(directionalMove) : separationForces
 
     const sumForces = (result: Vector, value: Vector) => {
       return result.add(value)
@@ -327,7 +374,7 @@ class Circle {
   }
 
   private drawDirectionArrow(p: p5, position: Vector): void {
-    if (!element.B1) {
+    if (!artParameter.element.B1) {
       return
     }
     const radius = this.size / 2
@@ -339,7 +386,7 @@ class Circle {
   }
 
   private drawChangingDirectionArrow(p: p5, position: Vector): void {
-    if (!element.B3) {
+    if (!artParameter.element.B3) {
       return
     }
 
@@ -351,7 +398,7 @@ class Circle {
   }
 
   private drawSeparationArrows(p: p5, position: Vector): void {
-    if (!element.B4 || this.ignoreB4) {
+    if (!artParameter.element.B4 || this.ignoreB4) {
       return
     }
     const arrowSize = this.size / 8
