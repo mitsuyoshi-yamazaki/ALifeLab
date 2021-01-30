@@ -16,7 +16,7 @@ class Downloader {
       .toString()
       .padStart(8, "0")
 
-    return `${launchTime}__${timestamp}.${extension}`
+    return `${launchTime}_${timestamp}.${extension}`
   }
 }
 
@@ -25,13 +25,19 @@ export class ScreenshotDownloader extends Downloader {
     super()
   }
 
-  public saveScreenshot(t: number) {
-    const filename = this.createFilename("", t, "png")
+  public screenshotFilename(t: number): string {
+    return this.createFilename("", t, "png")
+  }
+
+  public saveScreenshot(t: number): string {
+    const filename = this.screenshotFilename(t)
     this.linkElement.setAttribute("download", filename)
     this.linkElement.setAttribute("href", this.canvasElement.toDataURL("image/png")
       .replace("image/png", "image/octet-stream"))
     this.linkElement.click()
     console.log(`Saved: ${filename}`)
+
+    return filename
   }
 }
 
@@ -40,26 +46,39 @@ export interface StringElementConvertible {
 }
 
 export class ParameterDownloader<Parameters extends StringElementConvertible> extends Downloader {
+  private screenshotDownloader: ScreenshotDownloader
+
   public constructor(private readonly canvasElement: HTMLCanvasElement) {
     super()
+    this.screenshotDownloader = new ScreenshotDownloader(canvasElement)
   }
 
-  public saveParameters(t: number, parameters: Parameters) {
+  public saveParameters(t: number, parameters: Parameters): string {
     const element = parameters.stringElements()
     const html = ReactDOMServer.renderToStaticMarkup((
       <html>
         <head></head>
         <body>
+          <img src={`${this.screenshotDownloader.screenshotFilename(t)}`} />
           {element}
         </body>
       </html>
     ))
 
     const data = `data:text/html;charset=utf-8,${html}`
-    const filename = this.createFilename("", t, "html") // TODO: prefix
+    const filename = this.createFilename("parameter_", t, "html")
     this.linkElement.setAttribute("href", data)
     this.linkElement.setAttribute("download", filename)
     this.linkElement.click()
     console.log(`Saved: ${filename}`)
+
+    let intervalId: number | undefined
+    const delayed = () => { // Downloadin multiple files in exact same timing not working
+      this.screenshotDownloader.saveScreenshot(t)
+      clearInterval(intervalId)
+    }
+    intervalId = setInterval(delayed, 300)
+
+    return filename
   }
 }
