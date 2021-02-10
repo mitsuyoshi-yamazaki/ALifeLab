@@ -4,7 +4,7 @@ import ReactDOM from "react-dom"
 const App = () => {
   return (
     <div>
-      <h1>Body</h1>
+      <a href="/src/pages/meta_generative_art/index.html">Meta Generative Art</a>
     </div>
   )
 }
