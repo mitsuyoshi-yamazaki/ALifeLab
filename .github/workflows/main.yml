@@ -10,6 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      # shellで $cd $GITHUB_WORKSPACE を行いmerge→github.tokenを用いてpushすれば良いと思われる
       - uses: actions/checkout@v2
       - name: Deploy
         uses: devmasx/merge-branch@v1.3.1
