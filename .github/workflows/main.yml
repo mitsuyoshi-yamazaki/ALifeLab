@@ -1,0 +1,20 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+      - name: Deploy
+        uses: devmasx/merge-branch@v1.3.1
+        with:
+          type: now
+          from_branch: main # ここでfrom_branchを指定するならactions/checkout@v2要らないのでは？？
+          target_branch: gh-pages
+          github_token: ${{ github.token }}
