@@ -1,5 +1,5 @@
 import p5 from "p5"
-import { Terrain, FrictedTerrain } from "../../alife-game-jam/terrain"
+import { FrictedTerrain } from "../../alife-game-jam/terrain"
 import { Vector } from "../../classes/physics"
 import { Machine } from "./machine"
 import { MachineWorld } from "./machine_world"
