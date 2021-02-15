@@ -16,6 +16,7 @@ export class MachineWorld extends VanillaWorld {
 
   public next(): void {
     const newMachines: Machine[] = []
+    const used: Machine[] = []
     const _moved: Machine[] = []  // 接触するとしばらくconnectし続けるため // FixMe: そのようなことが起きないようにする: 分解する際に離れる力が加わるなど
 
     const sortedByX: Machine[] = [...this._machines].sort((lhs, rhs) => {
@@ -24,6 +25,10 @@ export class MachineWorld extends VanillaWorld {
 
     for (let i = 0; i < (sortedByX.length - 1); i += 1) {
       const machine = sortedByX[i]
+      if (used.indexOf(machine) >= 0) {
+        continue
+      }
+
       this.updatePosition(machine)
 
       for (let k = i + 1; k < sortedByX.length; k += 1) {
@@ -39,6 +44,7 @@ export class MachineWorld extends VanillaWorld {
         if (machine.canConnect(compareTo.tape) === false) {
           continue
         }
+        used.push(compareTo)
         _moved.push(machine)
         const offspring = machine.connect(compareTo.tape)
         if (offspring) {
@@ -49,11 +55,13 @@ export class MachineWorld extends VanillaWorld {
       }
     }
 
-    this._machines.filter(m => {
-      if (m.isAlive) {
+    this._machines = this._machines.filter(m => {
+      if (used.indexOf(m) >= 0) {
+        return false
+      } else if (m.isAlive) {
         return true
       } else {
-        const decomposed = m.die()
+        const decomposed = m.decompose()
         newMachines.push(decomposed[0])
         _moved.push(decomposed[0])
         if (decomposed[1] != undefined) {

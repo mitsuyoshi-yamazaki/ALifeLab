@@ -64,7 +64,7 @@ export class Machine extends Life {
     }
   }
 
-  public die(): [Machine, Machine | undefined] {
+  public decompose(): [Machine, Machine | undefined] {
     const tapes = this.tape.split()
     const createMachine = (tape: Tape | undefined): Machine | undefined => {
       if (tape == undefined) {
