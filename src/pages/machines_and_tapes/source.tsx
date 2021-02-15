@@ -212,7 +212,8 @@ class Gene {
   }
 
   public static hex(value: number): string {
-    return `${value.toString(16).padStart(Math.ceil(Gene.geneLength / 4), "0")}`
+    return `${value.toString(16)
+      .padStart(Math.ceil(Gene.geneLength / 4), "0")}`
   }
 
   public static random(): Gene {
