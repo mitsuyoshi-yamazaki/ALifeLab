@@ -62,12 +62,8 @@ export class MachineWorld extends VanillaWorld {
         return true
       } else {
         const decomposed = m.decompose()
-        newMachines.push(decomposed[0])
-        _moved.push(decomposed[0])
-        if (decomposed[1] != undefined) {
-          newMachines.push(decomposed[1])
-          _moved.push(decomposed[1])
-        }
+        newMachines.push(...decomposed)
+        _moved.push(...decomposed)
 
         return false
       }

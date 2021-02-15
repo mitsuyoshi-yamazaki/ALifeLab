@@ -65,9 +65,9 @@ export class Tape {
     return new Tape(this.value)
   }
 
-  public split(): [Tape, Tape | undefined] {
+  public split(): Tape[] {
     if (this.bits.length <= 1) {
-      return [this.copy(), undefined]
+      return [this.copy()]
     }
 
     const center = Math.floor(this.bits.length / 2)

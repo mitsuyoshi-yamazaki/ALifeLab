@@ -64,17 +64,13 @@ export class Machine extends Life {
     }
   }
 
-  public decompose(): [Machine, Machine | undefined] {
-    const tapes = this.tape.split()
-    const createMachine = (tape: Tape | undefined): Machine | undefined => {
-      if (tape == undefined) {
-        return undefined
-      }
-
-      return new Machine(this.position, tape)
+  public decompose(): Machine[] {
+    const decomposedTapes: Tape[] = this.tape.split()
+    if (this._workingTape.length > 0) {
+      decomposedTapes.push(new Tape(this._workingTape))
     }
 
-    return [new Machine(this.position, tapes[0]), createMachine(tapes[1])]
+    return decomposedTapes.map(t => new Machine(this.position, t))
   }
 
   public draw(p: p5) {
