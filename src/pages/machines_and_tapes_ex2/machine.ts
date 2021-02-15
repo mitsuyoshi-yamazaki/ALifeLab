@@ -5,21 +5,30 @@ import { Bit, Tape, canConnect } from "./tape"
 import { Life } from "../../alife-game-jam/life"
 
 export class Machine extends Life {
-  private _pointer: number
-  private _life = 100
+  private _pointer = 0
+  private _life: number
   private _workingTape: Bit[] = []
 
   public constructor(public position: Vector, public readonly tape: Tape) {
     super(position)
-    this._size =  tape.bits.length
+    this._size = tape.bits.length
+    this._life = Math.max(Math.min((tape.bits.length - 1) * 20, 100), 0)
   }
 
   public get size(): number {
     return this._size
   }
 
+  public get pointer(): number {
+    return this._pointer
+  }
+
   public get isAlive(): boolean {
     return this._life > 0
+  }
+
+  public get workingTape(): Bit[] {
+    return this._workingTape
   }
 
   public get color(): Color {
@@ -33,8 +42,7 @@ export class Machine extends Life {
   }
 
   public canConnect(tape: Tape): boolean {
-    const target = tape.bits[0]
-    const canConnectBits = canConnect(tape.bits[0], (this.nextBit() ^ 1) as Bit)
+    const canConnectBits = canConnect(tape.bits[0], this.nextBit())
     if (canConnectBits === false) {
       this._life -= 1 // FixMe: 副作用が起きることが明示的なメソッドの中に移す
     }
@@ -42,7 +50,8 @@ export class Machine extends Life {
     return canConnectBits
   }
 
-  public connect(tape: Tape): Machine | undefined {
+  // canConnect() == true である前提
+  public connect(tape: Tape): Machine | undefined { // TODO: tapeの変換を行う
     this._workingTape = this._workingTape.concat(tape.bits)
     tape.bits.forEach((x: Bit, index: number) => {
       const canConnectBit = canConnect(x, this.nextBit(index))

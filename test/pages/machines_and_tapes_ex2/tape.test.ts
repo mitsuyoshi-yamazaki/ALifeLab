@@ -1,13 +1,26 @@
-import { Bit, Tape } from "../../../src/pages/machines_and_tapes_ex2/tape"
-
-function createTape(binaryString: string): Tape {
-  return new Tape(binaryToBits(binaryString))
-}
+import { Bit, Tape, canConnect } from "../../../src/pages/machines_and_tapes_ex2/tape"
 
 function binaryToBits(binaryString: string): Bit[] {
   return binaryString.split("")
     .map(x => x === "1" ? 1 : 0)
 }
+
+function createTape(binaryString: string): Tape {
+  return new Tape(binaryToBits(binaryString))
+}
+
+describe("canConnect", () => {
+  test("", () => {
+    expect(canConnect(0, 0))
+      .toBe(false)
+    expect(canConnect(0, 1))
+      .toBe(true)
+    expect(canConnect(1, 0))
+      .toBe(true)
+    expect(canConnect(1, 1))
+      .toBe(false)
+  })
+})
 
 describe("Construct Tape", () => {
   test("Value", () => {
