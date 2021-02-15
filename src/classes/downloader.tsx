@@ -21,7 +21,9 @@ class Downloader {
 }
 
 export class ScreenshotDownloader extends Downloader {
-  public constructor(private readonly canvasElement: HTMLCanvasElement) {
+  private _canvasElement: HTMLCanvasElement
+
+  public constructor() {
     super()
   }
 
@@ -30,14 +32,27 @@ export class ScreenshotDownloader extends Downloader {
   }
 
   public saveScreenshot(t: number): string {
+    if (this._canvasElement == undefined) {
+      this._canvasElement = this.getCanvas()
+    }
+
     const filename = this.screenshotFilename(t)
     this.linkElement.setAttribute("download", filename)
-    this.linkElement.setAttribute("href", this.canvasElement.toDataURL("image/png")
+    this.linkElement.setAttribute("href", this._canvasElement.toDataURL("image/png")
       .replace("image/png", "image/octet-stream"))
     this.linkElement.click()
     console.log(`Saved: ${filename}`)
 
     return filename
+  }
+
+  private getCanvas(): HTMLCanvasElement {
+    const canvas = document.getElementById("canvas") as HTMLCanvasElement
+    if (canvas == undefined) {
+      throw new Error("Canvas element not found")
+    }
+
+    return canvas
   }
 }
 
@@ -48,9 +63,9 @@ export interface StringElementConvertible {
 export class ParameterDownloader<Parameters extends StringElementConvertible> extends Downloader {
   private screenshotDownloader: ScreenshotDownloader
 
-  public constructor(private readonly canvasElement: HTMLCanvasElement) {
+  public constructor() {
     super()
-    this.screenshotDownloader = new ScreenshotDownloader(canvasElement)
+    this.screenshotDownloader = new ScreenshotDownloader()
   }
 
   public saveParameters(t: number, parameters: Parameters): string {

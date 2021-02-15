@@ -40,7 +40,7 @@ const familyLifespanDecresement = parameters.float("family_lifespan_decresement"
 const familyVelocity = parameters.float("family_velocity", 0.1, "fv")     //
 const lifespanDecresement = parameters.float("lifespan_decresement", 0.001, "ld")     // 時間で減少する寿命
 
-function log (message: string): void {
+function log(message: string): void {
   if (DEBUG) {
     console.log(message)
   }
@@ -96,7 +96,11 @@ const main = (p: p5) => {
     if (parsedInitialGenes.length > 0) {
       initialGenes.push(...parsedInitialGenes)
     } else {
-      initialGenes.push(...[...Array(initialGeneType).keys()].map(_ => Gene.random()))
+      initialGenes.push(
+        ...[
+          ...Array(initialGeneType)
+            .keys()]
+          .map(_ => Gene.random()))
     }
 
     for (let i = 0; i < machineCount; i += 1) {
@@ -136,7 +140,7 @@ const main = (p: p5) => {
 
 const sketch = new p5(main)
 
-function parseInitialGenes (): Gene[] {
+function parseInitialGenes(): Gene[] {
   if (rawInitialGenes.length === 0) {
     return []
   }
@@ -155,7 +159,7 @@ function parseInitialGenes (): Gene[] {
   return result
 }
 
-function showStatistics (): void {
+function showStatistics(): void {
   const genesMap = new Map<number, number>() // {gene: number of genes}
 
   world.lives.forEach(m => {
@@ -164,6 +168,7 @@ function showStatistics (): void {
     genesMap.set(m.gene.value, numberOfMachines + 1)
   })
 
+  // tslint:disable-next-line:no-shadowed-variable
   const genes: [number, number][] = []
   genesMap.forEach((value, gene) => {
     genes.push([gene, value])
@@ -256,6 +261,7 @@ class Gene {
   /// i: number of bits to shift the table
   private decode(rawTable: number, i: number): number {
     const table = (((rawTable << Gene.geneLength) + rawTable) >> (Gene.geneLength - i)) & Gene.geneMask
+    // tslint:disable-next-line:max-line-length
     // log(`${this.transitionTable.toString(2)} ^ ${table.toString(2)}(${rawTable.toString(2)}, ${i}) -> ${(this.transitionTable ^ table).toString(2)}`)
 
     return this.transitionTable ^ table
@@ -351,6 +357,7 @@ class Machine extends Life {
           .sized(size * 0.3)
           .add(world.size.div(2))
 
+        // tslint:disable-next-line:no-shadowed-variable
         const movingForce = targetPosition
           .sub(this.position)
           .sized(attractForce)
@@ -365,6 +372,7 @@ class Machine extends Life {
         const targetY = world.size.y * 0.7 - t + (Math.floor(this.createdAt / normalized) * normalized)
         const targetPosition = new Vector(targetX, targetY)
 
+        // tslint:disable-next-line:no-shadowed-variable
         const movingForce = targetPosition
           .sub(this.position)
           .sized(attractForce)
@@ -434,8 +442,6 @@ class Family {
   private _velocity = Vector.zero()
   private genes: number[] = []
 
-  public constructor() {
-  }
   public get machines(): Machine[] {
     return this._machines
   }
@@ -577,6 +583,7 @@ class MachineWorld extends VanillaWorld {
       //   compareTo.push(sortedX[k])
       // }
 
+      // tslint:disable-next-line:prefer-for-of
       for (let j = 0; j < compareTo.length; j += 1) {
         const otherLife = compareTo[j]
         const distance = life.position.dist(otherLife.position)
@@ -659,6 +666,7 @@ class MachineWorld extends VanillaWorld {
 
     this._lives = this.lives.filter(l => l.isAlive)
 
+    // tslint:disable-next-line:prefer-for-of
     for (let i = 0; i < this.lives.length; i += 1) {
       const life = this.lives[i]
 
@@ -696,14 +704,14 @@ class MachineWorld extends VanillaWorld {
 
 // ----- TEST -----
 
-function assert (b: boolean, message: string): void {
+function assert(b: boolean, message: string): void {
   if (b !== true) {
     // FixMe: テストが最後まで実行されるようにする
     throw new Error(`[Failed] ${message}`)
   }
 }
 
-function tests (): void {
+function tests(): void {
   assert(Gene.geneLength === 10, `Expected gene length == 10`)
 
   const reproducibleValues = [

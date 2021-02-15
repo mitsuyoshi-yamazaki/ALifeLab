@@ -2,14 +2,15 @@ import p5 from "p5"
 import { Vector } from "../../classes/physics"
 import { Color } from "../../classes/color"
 import { Bit, Tape, canConnect } from "./tape"
+import { Life } from "../../alife-game-jam/life"
 
-export class Machine {
+export class Machine extends Life {
   private _pointer: number
-  private _size: number
   private _life = 100
   private _workingTape: Bit[] = []
 
-  public constructor(public readonly position: Vector, public readonly tape: Tape) {
+  public constructor(public position: Vector, public readonly tape: Tape) {
+    super(position)
     this._size =  tape.bits.length
   }
 

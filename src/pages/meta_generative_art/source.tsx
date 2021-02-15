@@ -175,7 +175,7 @@ const main = (p: p5) => {
     const canvas = p.createCanvas(canvasSize.x, canvasHeight)
     canvas.id("canvas")
     canvas.parent("canvas-parent")
-    parameterDownloader = new ParameterDownloader(document.getElementById("canvas") as HTMLCanvasElement)
+    parameterDownloader = new ParameterDownloader()
 
     createObjects()
 
@@ -203,7 +203,7 @@ const main = (p: p5) => {
     // }
   }
 
-  function createObjects () {
+  function createObjects() {
     for (let i = 0; i < numberOfObjects; i += 1) {
       const objectSize = random(artParameter.objectMaxSize, artParameter.objectMinSize)
       const position = canvasSize.randomized()
@@ -216,7 +216,7 @@ const main = (p: p5) => {
     }
   }
 
-  function next (): void {
+  function next(): void {
     objects.forEach(obj => {
       obj.next()
 
@@ -295,7 +295,7 @@ const main = (p: p5) => {
     }
   }
 
-  function draw (): void {
+  function draw(): void {
     switch (drawMode) {
       case DrawMode.Artistic:
         p.noStroke()
@@ -413,7 +413,7 @@ class Circle {
   }
 }
 
-function drawArrow (p: p5, from: Vector, to: Vector): void {
+function drawArrow(p: p5, from: Vector, to: Vector): void {
   p.noFill()
   p.stroke(255)
   p.strokeWeight(0.5)
@@ -422,7 +422,7 @@ function drawArrow (p: p5, from: Vector, to: Vector): void {
   // TODO:
 }
 
-function drawArcArrow (p: p5, center: Vector, radius: number, fromRadian: number, toRadian: number): void {
+function drawArcArrow(p: p5, center: Vector, radius: number, fromRadian: number, toRadian: number): void {
   p.noFill()
   p.stroke(255)
   p.strokeWeight(0.5)
