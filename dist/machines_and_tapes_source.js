@@ -92,7 +92,7 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpac
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"Color\": () => /* binding */ Color\n/* harmony export */ });\nclass Color {\n    constructor(r, g, b) {\n        this.r = r;\n        this.g = g;\n        this.b = b;\n    }\n    p5(p, alpha) {\n        return p.color(this.r, this.g, this.b, alpha !== null && alpha !== void 0 ? alpha : 0xFF);\n    }\n}\n\n\n//# sourceURL=webpack://alife-lab/./src/classes/color.ts?");
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"Color\": () => /* binding */ Color\n/* harmony export */ });\nclass Color {\n    constructor(r, g, b) {\n        this.r = r;\n        this.g = g;\n        this.b = b;\n    }\n    p5(p, alpha) {\n        return p.color(this.r, this.g, this.b, alpha !== null && alpha !== void 0 ? alpha : 0xFF);\n    }\n    toString() {\n        const rawColorToString = (value) => {\n            return value.toString(16)\n                .padStart(2, \"0\");\n        };\n        return `#${rawColorToString(this.r)}${rawColorToString(this.g)}${rawColorToString(this.b)}`;\n    }\n}\n\n\n//# sourceURL=webpack://alife-lab/./src/classes/color.ts?");
 
 /***/ }),
 

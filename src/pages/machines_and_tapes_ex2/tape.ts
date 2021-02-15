@@ -17,13 +17,13 @@ export class Tape {
     this._value = parseInt(binaryString, 2)
 
     const third = Math.floor(this.bits.length / 3)
-    const max = Math.pow(2, this.bits.length) - 1
+    const max = Math.pow(2, third) - 1
     const colorValueOf = (colorBits: Bit[]): number => {
       const colorBinaryString = colorBits.map(x => `${x}`)
         .join("")
       const colorValue = parseInt(colorBinaryString, 2)
 
-      return (Math.floor(0xF * (colorValue / max)) << 3) + 0x80
+      return Math.floor(0x7F * (colorValue / max)) + 0x80
     }
     const r = colorValueOf(this.bits.slice(0, third))
     const g = colorValueOf(this.bits.slice(third, third * 2))
@@ -31,20 +31,12 @@ export class Tape {
     this._color = new Color(r, g, b)
   }
 
-  public static hex(value: number): string {
-    return `${value.toString(16)}`
-  }
-
-  public get value(): number {
-    return this._value
-  }
-
   public get color(): Color {
     return this._color
   }
 
-  public get hex(): string {
-    return Tape.hex(this.value)
+  public get binary(): string {
+    return this._value.toString(2).padStart(this.bits.length, "0")
   }
 
   public copy(): Tape {
