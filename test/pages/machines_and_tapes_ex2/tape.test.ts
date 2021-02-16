@@ -69,14 +69,3 @@ describe("Split Tape", () => {
       .toBe("1010")
   })
 })
-
-describe("Concat Tape", () => {
-  test("Concat", () => {
-    expect(createTape("0").concat([0]).binary)
-      .toBe("00")
-    expect(createTape("0").concat([1]).binary)
-      .toBe("01")
-    expect(createTape("10").concat([1, 0, 1]).binary)
-      .toBe("10101")
-  })
-})

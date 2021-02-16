@@ -11,6 +11,10 @@ export class Tape {
   private _color: Color
 
   public constructor(public readonly bits: Bit[]) {
+    if (bits.length === 0) {
+      throw new Error(`bits is empty`)
+    }
+
     const binaryString = this.bits
       .map(x => `${x}`)
       .join("")
@@ -53,9 +57,5 @@ export class Tape {
     const tail = this.bits.slice(center, this.bits.length)
 
     return [new Tape(head), new Tape(tail)]
-  }
-
-  public concat(bits: Bit[]): Tape {
-    return new Tape(this.bits.concat(bits))
   }
 }

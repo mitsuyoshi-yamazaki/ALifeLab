@@ -2,6 +2,12 @@ import { WorldObject } from "src/alife-game-jam/object"
 import { VanillaWorld } from "../../alife-game-jam/world"
 import { Vector } from "../../classes/physics"
 import { Machine } from "./machine"
+import { Bit, Tape } from "./tape"
+
+export interface BitStatistics {
+  zero: number
+  one: number
+}
 
 export class MachineWorld extends VanillaWorld {
   private _machines: Machine[] = []
@@ -14,6 +20,31 @@ export class MachineWorld extends VanillaWorld {
     this._machines.push(...machines)
   }
 
+  public bitStatistics(): BitStatistics {
+    let zero = 0
+    let one = 0
+
+    const countBits = (bits: Bit[]) => {
+      bits.forEach(b => {
+        if (b === 1) {
+          one += 1
+        } else {
+          zero += 1
+        }
+      })
+    }
+
+    this._machines.forEach(m => {
+      countBits(m.tape.bits)
+      countBits(m.workingTape)
+    })
+
+    return {
+      zero,
+      one,
+    }
+  }
+
   public next(): void {
     const newMachines: Machine[] = []
     const used: Machine[] = []
@@ -23,16 +54,20 @@ export class MachineWorld extends VanillaWorld {
       return lhs.position.x - rhs.position.x
     })
 
-    for (let i = 0; i < (sortedByX.length - 1); i += 1) {
+    for (let i = 0; i < sortedByX.length; i += 1) {
       const machine = sortedByX[i]
       if (used.indexOf(machine) >= 0) {
         continue
       }
 
       this.updatePosition(machine)
+      let collided = false
 
       for (let k = i + 1; k < sortedByX.length; k += 1) {
         const compareTo = sortedByX[k]
+        if (used.indexOf(compareTo) >= 0) {
+          continue
+        }
 
         const distance = machine.position.dist(compareTo.position)
         const minDistance = (machine.size + compareTo.size) / 2
@@ -40,18 +75,27 @@ export class MachineWorld extends VanillaWorld {
         if (isColliding === false) {
           continue
         }
+        collided = true
 
         if (machine.canConnect(compareTo.tape) === false) {
           continue
         }
         used.push(compareTo)
-        _moved.push(machine)
         const offspring = machine.connect(compareTo.tape)
-        if (offspring) {
+        if (compareTo.workingTape.length > 0) {
+          const workingTapeMachine = new Machine(compareTo.position, new Tape(compareTo.workingTape))
+          newMachines.push(workingTapeMachine)
+          _moved.push(workingTapeMachine)
+        }
+        if (offspring != undefined) {
           _moved.push(offspring)
           newMachines.push(offspring)
         }
-        continue
+        break
+      }
+
+      if (collided) {
+        _moved.push(machine)
       }
     }
 

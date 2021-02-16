@@ -18,7 +18,6 @@ export class URLParameterParser {
       rawParameters[pair[0]] = pair[1]
       this.parameters.set(pair[0], pair[1])
     }
-    console.log(`parameters: ${rawParameters.toString()}`)
   }
 
   public hasKey(key: string, shortKey?: string): boolean {

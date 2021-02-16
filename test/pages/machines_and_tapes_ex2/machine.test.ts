@@ -71,7 +71,7 @@ describe("Connecting tapes", () => {
       .toBe("10")
   })
 
-  test("Connect multiple tape", () => {
+  test("Connect multiple tapes", () => {
     const machine = createMachine("01")
     expect(machine.pointer)
       .toBe(0)
@@ -104,6 +104,12 @@ describe("Connecting tapes", () => {
     expect(machine.workingTape.length)
       .toBe(0)
   })
+
+  test("test", () => {
+    const machine = createMachine("10101")
+    expect((machine.connect(createTape("000000")) as Machine).tape.binary)
+      .toBe("000000")
+  })
 })
 
 describe("Decompose", () => {
@@ -117,7 +123,7 @@ describe("Decompose", () => {
       .toBe("1100")
   })
 
-  test("Primitive", () => {
+  test("Decompose primitive tape", () => {
     const decomposed = createMachine("0").decompose()
     expect(decomposed.length)
       .toBe(1)
