@@ -7,7 +7,7 @@ import { MachineWorld } from "./machine_world"
 import { Bit, Tape } from "./tape"
 import { URLParameterParser } from "../../classes/url_parameter_parser"
 
-const parameterParser = new URLParameterParser()
+export const parameterParser = new URLParameterParser()
 
 const DEBUG = parameterParser.boolean("debug", true, "d")
 const numberOfMachines = parameterParser.int("number_of_machines", 100, "nm")
@@ -35,7 +35,7 @@ export const getTimestamp = (): number => {
   return t
 }
 
-const main = (p: p5) => {
+export const main = (p: p5) => {
   p.setup = () => {
     const canvas = p.createCanvas(fieldSize.x, fieldSize.y)
     canvas.id("canvas")
@@ -72,5 +72,3 @@ function createMachines(): Machine[] {
 
   return result
 }
-
-const sketch = new p5(main)
