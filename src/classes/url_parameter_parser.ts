@@ -2,19 +2,19 @@ export class URLParameterParser {
   public readonly parameters = new Map<string, string>()
   private readonly usedKeys: string[] = []
 
-  public constructor() {
-    const rawQuery = document.location.search
+  public constructor(query?: string) {
+    const rawQuery = query ?? document.location.search
     const pairs = rawQuery
       .slice(rawQuery.indexOf("?") + 1)
       .split("&")
     // tslint:disable-next-line:no-any
     const rawParameters = {} as any
 
-    for (const query of pairs) {
-      if (query === "") {
+    for (const keyValue of pairs) {
+      if (keyValue === "") {
         continue
       }
-      const pair = query.split("=")
+      const pair = keyValue.split("=")
       rawParameters[pair[0]] = pair[1]
       this.parameters.set(pair[0], pair[1])
     }
