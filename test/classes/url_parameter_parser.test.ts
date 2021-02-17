@@ -103,3 +103,19 @@ describe("String", () => {
       .toBe("3.14")
   })
 })
+
+describe("Parameter", () => {
+  test("", () => {
+    const parser = new URLParameterParser("?test1=hoge&t2=3.14")
+    parser.string("test1", "default_value", "t1")
+    parser.float("test2", 5, "t2")
+    parser.int("test3", 3244, "t3")
+
+    expect(parser.parameters.get("test1"))
+      .toBe("hoge")
+    expect(parser.parameters.get("test2"))
+      .toBe(3.14)
+    expect(parser.parameters.get("test3"))
+      .toBe(3244)
+  })
+})
