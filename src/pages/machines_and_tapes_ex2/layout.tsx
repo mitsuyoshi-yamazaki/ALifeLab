@@ -1,7 +1,8 @@
+import p5 from "p5"
 import React from "react"
 import ReactDOM from "react-dom"
 import { ScreenShotButton } from "../../react-components/screenshot_button"
-import { getTimestamp } from "./source"
+import { main, getTimestamp } from "./source"
 
 const App = () => {
   return (
@@ -13,3 +14,4 @@ const App = () => {
 }
 
 ReactDOM.render(<App />, document.getElementById("root"))
+const sketch = new p5(main)
