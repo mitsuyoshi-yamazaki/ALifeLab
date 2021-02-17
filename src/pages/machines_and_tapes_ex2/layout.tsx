@@ -6,17 +6,17 @@ import { ScreenShotButton } from "../../react-components/screenshot_button"
 import { main, getTimestamp } from "./source"
 
 const App = () => {
-  const mainPageTitle = 'ALifeLab'  // TODO: 動的に取得
+  const mainPageTitle = 'Artificial Life and Generative Art Lab'  // TODO: 動的に取得
   const breadcrumbsTextColor: CSSProperties = {
     color: "white",
   }
-  const style: CSSProperties = {
-    display: "table",
+  const bodyStyle: CSSProperties = {
+    display: "table", // horizontal center
     margin: "auto",
     marginTop: "4rem",
     border: "1px solid rgba(212, 214, 245, 1.0)",
     borderRadius: "6px",
-    overflow: "hidden", // to clip border-radius
+    overflow: "hidden", // clip border-radius
     position: "relative", // to make sure overflow works
   }
   const toolbarStyle: CSSProperties = {
@@ -37,7 +37,7 @@ const App = () => {
           </Breadcrumbs>
         </Toolbar>
       </AppBar>
-      <div style={style}>
+      <div style={bodyStyle}>
         <div id="canvas-parent"></div>
         <div style={toolbarStyle}>
           <div style={screenshotButtonStyle}>
