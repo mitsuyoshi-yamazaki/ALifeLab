@@ -33,7 +33,7 @@
     "react-dom": "^17.0.1"
   },
   "scripts": {
-    "build": "webpack",
+    "build": "webpack && python src/html-generator/generate.py",
     "watch": "webpack -w",
     "test": "jest",
     "start": "webpack serve --open --mode development"

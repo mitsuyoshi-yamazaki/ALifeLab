@@ -169,7 +169,7 @@ interface ArtConstraint {
 let parameterDownloader: ParameterDownloader<ArtParameter>
 const artParameter = new ArtParameter(element1, 20, 40)
 
-const main = (p: p5) => {
+export const main = (p: p5) => {
   p.setup = () => {
     const canvasHeight = drawMode === DrawMode.Both ? canvasSize.y * 2 : canvasSize.y
     const canvas = p.createCanvas(canvasSize.x, canvasHeight)
@@ -430,5 +430,3 @@ function drawArcArrow(p: p5, center: Vector, radius: number, fromRadian: number,
   p.arc(center.x, center.y, radius, radius, fromRadian, toRadian)
   // TODO:
 }
-
-const sketch = new p5(main)

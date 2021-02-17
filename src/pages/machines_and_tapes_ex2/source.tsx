@@ -10,8 +10,8 @@ import { URLParameterParser } from "../../classes/url_parameter_parser"
 export const parameterParser = new URLParameterParser()
 
 const DEBUG = parameterParser.boolean("debug", true, "d")
-const numberOfMachines = parameterParser.int("number_of_machines", 100, "nm")
-const size = parameterParser.int("field_size", 1200, "s")
+const numberOfMachines = parameterParser.int("number_of_machines", 200, "nm")
+const size = parameterParser.int("field_size", 800, "s")
 const temp = parameterParser.int("temp", 10, undefined)
 
 log(`number of machines: ${numberOfMachines}`)

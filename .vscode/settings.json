@@ -9,5 +9,6 @@
   "Gold",
   "Orchid",
   "LightSkyBlue"
-]
+],
+"python.formatting.provider": "black"
 }
