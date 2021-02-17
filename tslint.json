@@ -131,7 +131,7 @@
     ],
     "increment-decrement": true,
     "interface-over-type-literal": true,
-    "newline-per-chained-call": true,
+    "newline-per-chained-call": false,
     "no-angle-bracket-type-assertion": true,
     "no-unnecessary-initializer": true,
     "object-literal-key-quotes": [
@@ -148,7 +148,7 @@
       true,
       {
         "anonymous": "always",
-        "named": "always",
+        "named": "never",
         "asyncArrow": "always"
       }
     ],

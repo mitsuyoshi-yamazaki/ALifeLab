@@ -68,4 +68,11 @@ export class Vector {
 
     return new Vector(x, y)
   }
+
+  public truncate(another: Vector): Vector {
+    const x = Math.max(Math.min(this.x, another.x), 0)
+    const y = Math.max(Math.min(this.y, another.y), 0)
+
+    return new Vector(x, y)
+  }
 }

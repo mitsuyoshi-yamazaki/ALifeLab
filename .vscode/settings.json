@@ -3,5 +3,11 @@
  "editor.tabSize": 2,
  "workbench.colorCustomizations": {
   "activityBar.background": "#083658"
- }
+},
+"bracket-pair-colorizer-2.colors": [
+
+  "Gold",
+  "Orchid",
+  "LightSkyBlue"
+]
 }
