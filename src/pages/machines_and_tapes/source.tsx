@@ -51,7 +51,7 @@ let world: MachineWorld
 const genes: number[] = []
 const backgroundTransparency = artMode ? transparency : 0xFF
 
-const main = (p: p5) => {
+export const main = (p: p5) => {
   p.setup = () => {
     let fieldSize: Vector
     switch (mode) {
@@ -137,8 +137,6 @@ const main = (p: p5) => {
     // setTimestamp(t)
   }
 }
-
-const sketch = new p5(main)
 
 function parseInitialGenes(): Gene[] {
   if (rawInitialGenes.length === 0) {
