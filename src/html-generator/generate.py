@@ -23,7 +23,7 @@ def page_names():
   return [path.split('/')[-2] for path in glob(path)]
 
 def read_arguments(filepath):
-  log('reading... {}'.format(filepath))
+  log('read: {}'.format(filepath))
   import json
   with open(filepath, 'r') as file:
     return json.load(file)
@@ -45,7 +45,7 @@ def write_to(filepath, content):
 def generate_html(page_name, template, source_path, output_path):
   try:
     html_filepath = output_path + page_name + '.html'
-    log('\ngenerating... {}'.format(html_filepath))
+    log('\ngenerate: {}'.format(html_filepath))
     arguments = read_arguments(source_path + page_name + '/' + arguments_filename)
     content = set_arguments(template, arguments)
     write_to(html_filepath, content)
