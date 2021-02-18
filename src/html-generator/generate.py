@@ -2,7 +2,7 @@ import os, sys
 
 DEBUG = True
 root_path = '../../'
-source_path = root_path + 'src/pages/' # TODO: simulations へリネーム
+source_path = root_path + 'src/simulations/'
 output_path = root_path + 'pages/'
 index_page_name = 'index'
 index_page_source_path = root_path + 'src/'

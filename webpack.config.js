@@ -4,9 +4,9 @@ module.exports = {
   mode: 'development',
   entry: {
     index: './src/index/index.tsx',
-    meta_generative_art: './src/pages/meta_generative_art/layout.tsx',
-    machines_and_tapes: './src/pages/machines_and_tapes/layout.tsx',
-    machines_and_tapes_ex2: './src/pages/machines_and_tapes_ex2/layout.tsx'
+    meta_generative_art: './src/simulations/meta_generative_art/layout.tsx',
+    machines_and_tapes: './src/simulations/machines_and_tapes/layout.tsx',
+    machines_and_tapes_ex2: './src/simulations/machines_and_tapes_ex2/layout.tsx'
   },
   output: {
     path: path.resolve(__dirname, 'dist'),
