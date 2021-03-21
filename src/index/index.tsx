@@ -25,6 +25,7 @@ const App = () => {
       </AppBar>
       <div style={bodyStyle}>
         <LinkCard title="Meta Generative Art" link="pages/meta_generative_art.html" />
+        <LinkCard title="Meta Generative Art v2" link="pages/meta_generative_art_v2.html" />
         <LinkCard title="Extended Machines and Tapes" link="pages/machines_and_tapes.html" />
         <LinkCard title="Extended Machines and Tapes v2" link="pages/machines_and_tapes_ex2.html" />
       </div>
