@@ -12,6 +12,8 @@ const constants = {
   numberOfObjects: parameters.int("number_of_objects", 100, "o"),
   minSize: parameters.float("size_min", 10, "min"),
   maxSize: parameters.float("size_max", 50, "max"),
+  repulsiveForce: parameters.float("repulsive_force", 1, "fr"),
+  surfaceRepulsiveForce: parameters.float("surface_repulsive_force", 1, "fs"),
 }
 
 const fieldSize = new Vector(fieldBaseSize, fieldBaseSize * 0.6)
@@ -22,7 +24,8 @@ function log(message: string) {
   }
 }
 
-const constraints: Constraint<Circle>[] = []
+const constraints: Constraint<Circle>[] = []  // TODO: Tを定義せずConstraint[]と書きたい
+const limits: Limit<Circle>[] = []
 const allObjects: Obj[] = []
 
 export const main = (p: p5) => {
@@ -31,7 +34,7 @@ export const main = (p: p5) => {
     canvas.id("canvas")
     canvas.parent("canvas-parent")
 
-    setupConstraints()
+    setupRules()
     setupObjects()
 
     p.background(0, 0xFF)
@@ -56,13 +59,18 @@ export const main = (p: p5) => {
     allObjects.forEach(obj => {
       const force = obj.forces.reduce(
         (result: Vector, current: Vector) => {
-        return result.add(current)
+          return result.add(current)
         },
         Vector.zero(),
       )
       obj.velocity = obj.velocity.add(force)
       obj.position = obj.position.add(obj.velocity)
       obj.forces.splice(0, obj.forces.length)
+      limits.forEach(limit => {
+        if (obj instanceof Circle) {
+          limit.update(obj)
+        }
+      })
 
       obj.draw(p)
     })
@@ -70,8 +78,10 @@ export const main = (p: p5) => {
 }
 
 // --------------- //
-function setupConstraints() {
-  constraints.push(new RepulsiveConstraint(1))
+function setupRules() {
+  constraints.push(new RepulsiveConstraint(constants.repulsiveForce))
+  constraints.push(new SurfaceConstraint(constants.surfaceRepulsiveForce))
+  // limits.push(new SurfaceLimit())
 }
 
 function setupObjects() {
@@ -82,8 +92,13 @@ function setupObjects() {
 }
 
 // --------------- //
+// Rule ⊃ Constraint, Rule ⊃ Limit
 interface Constraint<T extends Obj> {
   update(anObject: T, other: T, distance: number): void
+}
+
+interface Limit<T extends Obj> {
+  update(anObject: T): void
 }
 
 interface Obj {
@@ -103,12 +118,49 @@ class RepulsiveConstraint implements Constraint<Circle> {
 
   public update(anObject: Circle, other: Circle, distance: number): void {
     const minimumDistance = (anObject.size + other.size) / 2
-    if (distance < minimumDistance) {
+    if (distance >= minimumDistance) {
       return
     }
     const forceSize = Math.min(Math.pow(minimumDistance / distance, 2) * this.force, this.maxForceSize)
     anObject.forces.push(anObject.position.sub(other.position).sized(forceSize))
     other.forces.push(other.position.sub(anObject.position).sized(forceSize))
+  }
+}
+
+class SurfaceConstraint implements Constraint<Circle> {
+  private maxForceSize: number
+
+  public constructor(public readonly force: number) {
+    this.maxForceSize = force * 2
+  }
+
+  public update(anObject: Circle, other: Circle, distance: number): void {  // FixMe: 配列の最後のひとつが実行されない
+    // TODO: 力の方向をいい感じにする
+    let dx = 0
+    let dy = 0
+    if (anObject.position.x < 0) {
+      dx = Math.min(Math.pow(anObject.position.x, 2) * this.force, this.maxForceSize)
+    } else if (anObject.position.x > fieldSize.x) {
+      dx = -Math.min(Math.pow(anObject.position.x - fieldSize.x, 2) * this.force, this.maxForceSize)
+    }
+    if (anObject.position.y < 0) {
+      dy = Math.min(Math.pow(anObject.position.y, 2) * this.force, this.maxForceSize)
+    } else if (anObject.position.y > fieldSize.y) {
+      dy = -Math.min(Math.pow(anObject.position.y - fieldSize.y, 2) * this.force, this.maxForceSize)
+    }
+
+    if (dx === 0 && dy === 0) {
+      return
+    }
+    anObject.forces.push(new Vector(dx, dy))
+  }
+}
+
+class SurfaceLimit implements Limit<Circle> {
+  public update(anObject: Circle): void {
+    const radius = anObject.size / 2
+    const objectSize = new Vector(radius, radius)
+    anObject.position = anObject.position.max(objectSize).min(fieldSize.sub(objectSize))
   }
 }
 
