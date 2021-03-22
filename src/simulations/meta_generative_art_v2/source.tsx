@@ -36,6 +36,7 @@ function log(message: string) {
   }
 }
 
+let t = 0
 const singleObjectConstraints: SingleObjectConstraint<Circle>[] = []  // TODO: Tを定義せずConstraint[]と書きたい
 const multipleObjectConstraints: MultipleObjectConstraint<Circle>[] = []  // TODO: Tを定義せずConstraint[]と書きたい
 const limits: Limit<Circle>[] = []
@@ -89,7 +90,13 @@ export const main = (p: p5) => {
     draw(singleObjectConstraints, p)
     draw(multipleObjectConstraints, p)
     draw(limits, p)
+
+    t += 1
   }
+}
+
+export const getTimestamp = (): number => {
+  return t
 }
 
 // --------------- //
