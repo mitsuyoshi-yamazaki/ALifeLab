@@ -4,7 +4,37 @@ import { constants } from "./constants"
 import { Drawable, Obj, Circle } from "./objects"
 
 // Rule ⊃ Constraint, Rule ⊃ Limit
+export class Rule implements Drawable {
+  public singleObjectConstraints: SingleObjectConstraint<Circle>[] = []  // TODO: Tを定義せずConstraint[]と書きたい
+  public multipleObjectConstraints: MultipleObjectConstraint<Circle>[] = []
+  public limits: Limit<Circle>[] = []
+
+  public draw(p: p5) {
+    this.drawRules(this.singleObjectConstraints, p)
+    this.drawRules(this.multipleObjectConstraints, p)
+    this.drawRules(this.limits, p)
+  }
+
+  // tslint:disable-next-line:no-any
+  private isDrawable(obj: any): obj is Drawable {
+    return obj != undefined && obj.draw != undefined
+  }
+
+  // tslint:disable-next-line:no-any
+  private drawRules(rules: any[], p: p5) {
+    if (constants.draw.general.debug === false) {
+      return
+    }
+    rules.forEach(rule => {
+      if (this.isDrawable(rule)) {
+        rule.draw(p)
+      }
+    })
+  }
+}
+
 export interface SingleObjectConstraint<T extends Obj> {
+  isFirstLevelConstraint: boolean
   update(anObject: T): void
 }
 
@@ -36,6 +66,7 @@ export class RepulsiveConstraint implements MultipleObjectConstraint<Circle> {
 }
 
 export class SurfaceConstraint implements SingleObjectConstraint<Circle> {
+  public isFirstLevelConstraint = true
   private maxForceSize: number
 
   public constructor(public readonly force: number) {
@@ -65,6 +96,7 @@ export class SurfaceConstraint implements SingleObjectConstraint<Circle> {
 }
 
 export class FrictionConstraint implements SingleObjectConstraint<Circle> {
+  public isFirstLevelConstraint = false
   public constructor(public readonly friction: number) { }
 
   public update(anObject: Circle): void {
@@ -73,6 +105,7 @@ export class FrictionConstraint implements SingleObjectConstraint<Circle> {
 }
 
 export class AttractorConstraint implements SingleObjectConstraint<Circle>, Drawable {
+  public isFirstLevelConstraint = true
   private maxForce: number
 
   public constructor(public readonly position: Vector, public readonly force: number) {

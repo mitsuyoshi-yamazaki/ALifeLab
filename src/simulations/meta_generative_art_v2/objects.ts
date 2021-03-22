@@ -2,32 +2,18 @@ import p5 from "p5"
 import { Vector } from "../../classes/physics"
 import { constants } from "./constants"
 import { log } from "./functions"
+import { Rule } from "./rules"
 
 export interface Drawable {
-  draw(p: p5): void
-}
-
-// tslint:disable-next-line:no-any
-export function isDrawable(obj: any): obj is Drawable {
-  return obj != undefined && obj.draw != undefined
-}
-
-// tslint:disable-next-line:no-any
-export function draw(rules: any[], p: p5) {
-  if (constants.draw.general.debug === false) {
-    return
-  }
-  rules.forEach(rule => {
-    if (isDrawable(rule)) {
-      rule.draw(p)
-    }
-  })
+  draw(p: p5, coordinate?: Vector): void
 }
 
 export interface Obj extends Drawable {
   position: Vector
-  velocity: Vector
   forces: Vector[]
+  velocity: Vector
+  localObjects: Obj[]
+  localRule: Rule | undefined
   isCollided(other: Obj): boolean
   update(): void
 }
@@ -35,6 +21,8 @@ export interface Obj extends Drawable {
 export class Circle implements Obj {
   public forces: Vector[] = []
   public velocity = Vector.zero()
+  public localObjects: Obj[] = []
+  public localRule: Rule | undefined
   public mass: number
   public shouldDraw = true
 
@@ -66,11 +54,16 @@ export class Circle implements Obj {
     this.forces.splice(0, this.forces.length)
   }
 
-  public draw(p: p5): void {
+  public draw(p: p5, coordinate?: Vector): void {
+    const relativePosition = coordinate ? coordinate.add(this.position) : this.position
     if (constants.draw.general.debug) {
       p.noFill()
-      p.stroke(0xFF, 0x5F)
-      p.circle(this.position.x, this.position.y, this.size)
+      if (this.localObjects.length > 0) {
+        p.stroke(0xFF, 0x80, 0x80, 0x5F)
+      } else {
+        p.stroke(0xFF, 0x5F)
+      }
+      p.circle(relativePosition.x, relativePosition.y, this.size)
     }
     if (this.shouldDraw === false) {
       return
@@ -78,7 +71,7 @@ export class Circle implements Obj {
     if (constants.draw.circle.centerPoint) {
       p.fill(0xFF, 0x7F)
       p.noStroke()
-      p.circle(this.position.x, this.position.y, 4)
+      p.circle(relativePosition.x, relativePosition.y, 4)
     }
   }
 }

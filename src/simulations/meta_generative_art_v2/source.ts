@@ -2,10 +2,9 @@ import p5 from "p5"
 import { random, toggleFullscreen } from "../../classes/utilities"
 import { constants } from "./constants"
 import { log } from "./functions"
-import { Obj, Circle, draw } from "./objects"
+import { Obj, Circle } from "./objects"
 import {
-  SingleObjectConstraint,
-  MultipleObjectConstraint,
+Rule,
   Limit,
   SurfaceConstraint,
   FrictionConstraint,
@@ -15,8 +14,7 @@ import {
 
 let t = 0
 const canvasId = "canvas"
-const singleObjectConstraints: SingleObjectConstraint<Circle>[] = []  // TODO: Tを定義せずConstraint[]と書きたい
-const multipleObjectConstraints: MultipleObjectConstraint<Circle>[] = []
+const rule = new Rule()
 const limits: Limit<Circle>[] = []
 const allObjects: Obj[] = []
 
@@ -38,7 +36,7 @@ export const main = (p: p5) => {
     for (let i = 0; i < (allObjects.length - 1); i += 1) {
       const anObject = allObjects[i]
       if (anObject instanceof Circle) {
-        singleObjectConstraints.forEach(constraint => {
+        rule.singleObjectConstraints.forEach(constraint => {
           constraint.update(anObject)
         })
       }
@@ -47,7 +45,7 @@ export const main = (p: p5) => {
         const other = allObjects[j]
         const distance = anObject.position.dist(other.position)
         if (anObject instanceof Circle && other instanceof Circle) {
-          multipleObjectConstraints.forEach(constraint => {
+          rule.multipleObjectConstraints.forEach(constraint => {
             constraint.update(anObject, other, distance)
           })
         }
@@ -65,9 +63,7 @@ export const main = (p: p5) => {
       obj.draw(p)
     })
 
-    draw(singleObjectConstraints, p)
-    draw(multipleObjectConstraints, p)
-    draw(limits, p)
+    rule.draw(p)
 
     t += 1
   }
@@ -86,9 +82,9 @@ export const getTimestamp = (): number => {
 
 // --------------- //
 function setupRules() {
-  singleObjectConstraints.push(new SurfaceConstraint(constants.simulation.surfaceRepulsiveForce))
-  singleObjectConstraints.push(new FrictionConstraint(Math.max(Math.min(constants.simulation.frictionForce, 1), 0)))
-  multipleObjectConstraints.push(new RepulsiveConstraint(constants.simulation.repulsiveForce))
+  rule.singleObjectConstraints.push(new SurfaceConstraint(constants.simulation.surfaceRepulsiveForce))
+  rule.singleObjectConstraints.push(new FrictionConstraint(Math.max(Math.min(constants.simulation.frictionForce, 1), 0)))
+  rule.multipleObjectConstraints.push(new RepulsiveConstraint(constants.simulation.repulsiveForce))
   // limits.push(new SurfaceLimit())
   setupAttractors()
 }
@@ -97,7 +93,7 @@ function setupAttractors() {
   for (let i = 0; i < constants.simulation.numberOfAttractors; i += 1) {
     const position = constants.system.fieldSize.randomized()
     const force = random(constants.simulation.attractorMaxForce, 0.1)
-    singleObjectConstraints.push(new AttractorConstraint(position, force))
+    rule.singleObjectConstraints.push(new AttractorConstraint(position, force))
   }
 }
 

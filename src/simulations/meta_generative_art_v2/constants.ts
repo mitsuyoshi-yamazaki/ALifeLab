@@ -23,6 +23,7 @@ export const constants = {
     frictionForce: parameters.float("friction_force", 1, "ff"), // 0.0 ~ 1.0
     numberOfAttractors: parameters.int("number_of_attractors", 2, "a"),
     attractorMaxForce: parameters.float("attracter_max_force", 1, "fa"),
+    numberOfChildren: parameters.float("number_of_children", 3, "c"),
   },
   draw: {
     general: {
