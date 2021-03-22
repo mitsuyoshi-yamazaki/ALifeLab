@@ -2,7 +2,7 @@ import p5 from "p5"
 import { random, toggleFullscreen } from "../../classes/utilities"
 import { constants } from "./constants"
 import { log } from "./functions"
-import { Obj, Circle } from "./objects"
+import { Obj, Circle, CollisionTag } from "./objects"
 import {
 Rule,
   Limit,
@@ -98,8 +98,11 @@ function setupAttractors() {
 }
 
 function setupObjects() {
+  const collisionTags: CollisionTag[] = ["0"]
   for (let i = 0; i < constants.simulation.numberOfObjects; i += 1) {
-    const circle = new Circle(constants.system.fieldSize.randomized(), random(constants.simulation.maxSize, constants.simulation.minSize))
+    const position = constants.system.fieldSize.randomized()
+    const size = random(constants.simulation.maxSize, constants.simulation.minSize)
+    const circle = new Circle(position, size, collisionTags)
     circle.shouldDraw = random(1) < constants.draw.circle.filter
     allObjects.push(circle)
   }

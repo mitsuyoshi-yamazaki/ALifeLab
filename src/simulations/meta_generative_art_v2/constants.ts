@@ -24,6 +24,7 @@ export const constants = {
     numberOfAttractors: parameters.int("number_of_attractors", 2, "a"),
     attractorMaxForce: parameters.float("attracter_max_force", 1, "fa"),
     numberOfChildren: parameters.float("number_of_children", 3, "c"),
+    localAttracterForce: parameters.float("local_attracter_force", 0.1, "fl"),
   },
   draw: {
     general: {

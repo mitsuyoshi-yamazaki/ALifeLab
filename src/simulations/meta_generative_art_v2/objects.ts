@@ -8,10 +8,13 @@ export interface Drawable {
   draw(p: p5, coordinate?: Vector): void
 }
 
+export type CollisionTag = string
+
 export interface Obj extends Drawable {
   position: Vector
   forces: Vector[]
   velocity: Vector
+  collisionTags: CollisionTag[]
   localObjects: Obj[]
   localRule: Rule | undefined
   isCollided(other: Obj): boolean
@@ -26,11 +29,22 @@ export class Circle implements Obj {
   public mass: number
   public shouldDraw = true
 
-  public constructor(public position: Vector, public size: number) {
+  public constructor(public position: Vector, public size: number, public collisionTags: CollisionTag[]) {
     this.mass = Math.pow(size, 2)
   }
 
-  public isCollided(other: Obj): boolean {
+  public canCollideWith(other: Obj): boolean {
+    if (this.localObjects.includes(other) || other.localObjects.includes(this)) {
+      return false
+    }
+
+    return this.collisionTags.some(tag => other.collisionTags.includes(tag))
+  }
+
+  public isCollided(other: Obj): boolean {  // ※ 使用されていない
+    if (this.canCollideWith(other) === false) {
+      return false
+    }
     if (other instanceof Circle) {
       const distance = this.position.dist(other.position)
 

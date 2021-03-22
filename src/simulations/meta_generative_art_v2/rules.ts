@@ -58,6 +58,9 @@ export class RepulsiveConstraint implements MultipleObjectConstraint<Circle> {
     if (distance >= minimumDistance) {
       return
     }
+    if (anObject.canCollideWith(other) === false) {
+      return
+    }
     const forceSize = Math.min(Math.pow(minimumDistance / distance, 2) * this.force, this.maxForceSize)
     const totalMass = anObject.mass + other.mass
     anObject.forces.push(anObject.position.sub(other.position).sized(forceSize * other.mass / totalMass))
@@ -132,6 +135,31 @@ export class AttractorConstraint implements SingleObjectConstraint<Circle>, Draw
     const size = Math.pow(index, 3) * this.force * 0.0002
     p.circle(this.position.x, this.position.y, size)
     this.drawRecursive(index - 1, p)
+  }
+}
+
+export class ReverseAttractorConstraint implements SingleObjectConstraint<Circle> {
+  public isFirstLevelConstraint = false
+  private _position: (() => Vector)
+  private maxForce: number
+
+  public constructor(position: (() => Vector), public readonly force: number) {
+    this._position = position
+    this.maxForce = 1
+  }
+
+  public get position(): Vector {
+    if (this._position instanceof Vector) {
+      return this._position
+    } else {
+      return this._position()
+    }
+  }
+
+  public update(anObject: Circle): void {
+    const distance = this.position.dist(anObject.position)
+    const force = Math.min(Math.pow(distance / 100, 2) * this.force, this.maxForce)
+    anObject.forces.push(this.position.sub(anObject.position).sized(force))
   }
 }
 
