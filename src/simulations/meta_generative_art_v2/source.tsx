@@ -24,7 +24,8 @@ function log(message: string) {
   }
 }
 
-const constraints: Constraint<Circle>[] = []  // TODO: Tを定義せずConstraint[]と書きたい
+const singleObjectConstraints: SingleObjectConstraint<Circle>[] = []  // TODO: Tを定義せずConstraint[]と書きたい
+const multipleObjectConstraints: MultipleObjectConstraint<Circle>[] = []  // TODO: Tを定義せずConstraint[]と書きたい
 const limits: Limit<Circle>[] = []
 const allObjects: Obj[] = []
 
@@ -45,11 +46,17 @@ export const main = (p: p5) => {
 
     for (let i = 0; i < (allObjects.length - 1); i += 1) {
       const anObject = allObjects[i]
+      if (anObject instanceof Circle) {
+        singleObjectConstraints.forEach(constraint => {
+          constraint.update(anObject)
+        })
+      }
+
       for (let j = i + 1; j < allObjects.length; j += 1) {
         const other = allObjects[j]
         const distance = anObject.position.dist(other.position)
         if (anObject instanceof Circle && other instanceof Circle) {
-          constraints.forEach(constraint => {
+          multipleObjectConstraints.forEach(constraint => {
             constraint.update(anObject, other, distance)
           })
         }
@@ -79,8 +86,8 @@ export const main = (p: p5) => {
 
 // --------------- //
 function setupRules() {
-  constraints.push(new RepulsiveConstraint(constants.repulsiveForce))
-  constraints.push(new SurfaceConstraint(constants.surfaceRepulsiveForce))
+  singleObjectConstraints.push(new SurfaceConstraint(constants.surfaceRepulsiveForce))
+  multipleObjectConstraints.push(new RepulsiveConstraint(constants.repulsiveForce))
   // limits.push(new SurfaceLimit())
 }
 
@@ -93,7 +100,11 @@ function setupObjects() {
 
 // --------------- //
 // Rule ⊃ Constraint, Rule ⊃ Limit
-interface Constraint<T extends Obj> {
+interface SingleObjectConstraint<T extends Obj> {
+  update(anObject: T): void
+}
+
+interface MultipleObjectConstraint<T extends Obj> {
   update(anObject: T, other: T, distance: number): void
 }
 
@@ -109,7 +120,7 @@ interface Obj {
   draw(p: p5): void
 }
 
-class RepulsiveConstraint implements Constraint<Circle> {
+class RepulsiveConstraint implements MultipleObjectConstraint<Circle> {
   private maxForceSize: number
 
   public constructor(public readonly force: number) {
@@ -127,14 +138,14 @@ class RepulsiveConstraint implements Constraint<Circle> {
   }
 }
 
-class SurfaceConstraint implements Constraint<Circle> {
+class SurfaceConstraint implements SingleObjectConstraint<Circle> {
   private maxForceSize: number
 
   public constructor(public readonly force: number) {
     this.maxForceSize = force * 2
   }
 
-  public update(anObject: Circle, other: Circle, distance: number): void {  // FixMe: 配列の最後のひとつが実行されない
+  public update(anObject: Circle): void {
     // TODO: 力の方向をいい感じにする
     let dx = 0
     let dy = 0
