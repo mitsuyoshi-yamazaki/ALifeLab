@@ -8,6 +8,7 @@ const parameters = new URLParameterParser()
 const fieldBaseSize = parameters.int("size", 1200, "s")
 
 const debug = parameters.boolean("debug", true, "d")
+const fullscreenEnabled = parameters.boolean("fullscreen", false, "f")
 const constants = {
   numberOfObjects: parameters.int("number_of_objects", 100, "o"),
   minSize: parameters.float("size_min", 10, "min"),
@@ -29,7 +30,7 @@ const drawParameters = {
   },
 }
 
-const fieldSize = new Vector(fieldBaseSize, fieldBaseSize * 0.6)
+const fieldSize = fullscreenEnabled ? new Vector(window.screen.width, window.screen.height) : new Vector(fieldBaseSize, fieldBaseSize * 0.6)
 
 function log(message: string) {
   if (debug) {
@@ -38,6 +39,7 @@ function log(message: string) {
 }
 
 let t = 0
+const canvasId = "canvas"
 const singleObjectConstraints: SingleObjectConstraint<Circle>[] = []  // TODO: Tを定義せずConstraint[]と書きたい
 const multipleObjectConstraints: MultipleObjectConstraint<Circle>[] = []
 const limits: Limit<Circle>[] = []
@@ -46,7 +48,7 @@ const allObjects: Obj[] = []
 export const main = (p: p5) => {
   p.setup = () => {
     const canvas = p.createCanvas(fieldSize.x, fieldSize.y)
-    canvas.id("canvas")
+    canvas.id(canvasId)
     canvas.parent("canvas-parent")
 
     setupRules()
@@ -93,6 +95,39 @@ export const main = (p: p5) => {
     draw(limits, p)
 
     t += 1
+  }
+
+  p.mousePressed = () => {
+    if (fullscreenEnabled !== true) {
+      return
+    }
+    if (
+      document.fullscreenElement ||
+      document.webkitFullscreenElement ||
+      document.mozFullScreenElement ||
+      document.msFullscreenElement
+    ) {
+      if (document.exitFullscreen != undefined) {
+        document.exitFullscreen()
+      } else if (document.mozCancelFullScreen != undefined) {
+        document.mozCancelFullScreen()
+      } else if (document.webkitExitFullscreen != undefined) {
+        document.webkitExitFullscreen()
+      } else if (document.msExitFullscreen != undefined) {
+        document.msExitFullscreen()
+      }
+    } else {
+      const canvas = document.getElementById(canvasId)
+      if (canvas?.requestFullscreen !== undefined) {
+        canvas.requestFullscreen()
+      } else if (canvas?.mozRequestFullScreen !== undefined) {
+        canvas.mozRequestFullScreen()
+      } else if (canvas?.webkitRequestFullscreen !== undefined) {
+        canvas.webkitRequestFullscreen() // (Element.ALLOW_KEYBOARD_INPUT)
+      } else if (canvas?.msRequestFullscreen !== undefined) {
+        canvas.msRequestFullscreen()
+      }
+    }
   }
 }
 
