@@ -1,7 +1,7 @@
 import p5 from "p5"
 import { URLParameterParser } from "../../classes/url_parameter_parser"
 import { Vector } from "../../classes/physics"
-import { random } from "../../classes/utilities"
+import { random, toggleFullscreen } from "../../classes/utilities"
 
 const parameters = new URLParameterParser()
 
@@ -101,33 +101,7 @@ export const main = (p: p5) => {
     if (fullscreenEnabled !== true) {
       return
     }
-    if (
-      document.fullscreenElement ||
-      document.webkitFullscreenElement ||
-      document.mozFullScreenElement ||
-      document.msFullscreenElement
-    ) {
-      if (document.exitFullscreen != undefined) {
-        document.exitFullscreen()
-      } else if (document.mozCancelFullScreen != undefined) {
-        document.mozCancelFullScreen()
-      } else if (document.webkitExitFullscreen != undefined) {
-        document.webkitExitFullscreen()
-      } else if (document.msExitFullscreen != undefined) {
-        document.msExitFullscreen()
-      }
-    } else {
-      const canvas = document.getElementById(canvasId)
-      if (canvas?.requestFullscreen !== undefined) {
-        canvas.requestFullscreen()
-      } else if (canvas?.mozRequestFullScreen !== undefined) {
-        canvas.mozRequestFullScreen()
-      } else if (canvas?.webkitRequestFullscreen !== undefined) {
-        canvas.webkitRequestFullscreen() // (Element.ALLOW_KEYBOARD_INPUT)
-      } else if (canvas?.msRequestFullscreen !== undefined) {
-        canvas.msRequestFullscreen()
-      }
-    }
+    toggleFullscreen(canvasId)
   }
 }
 
