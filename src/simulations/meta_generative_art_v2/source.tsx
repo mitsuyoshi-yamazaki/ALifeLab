@@ -7,33 +7,38 @@ const parameters = new URLParameterParser()
 
 const fieldBaseSize = parameters.int("size", 1200, "s")
 
-const debug = parameters.boolean("debug", true, "d")
-const fullscreenEnabled = parameters.boolean("fullscreen", false, "f")
 const constants = {
-  numberOfObjects: parameters.int("number_of_objects", 100, "o"),
-  minSize: parameters.float("size_min", 10, "min"),
-  maxSize: parameters.float("size_max", 50, "max"),
-  repulsiveForce: parameters.float("repulsive_force", 1, "fr"),
-  surfaceRepulsiveForce: parameters.float("surface_repulsive_force", 1, "fs"),
-  frictionForce: parameters.float("friction_force", 1, "ff"), // 0.0 ~ 1.0
-  numberOfAttractors: parameters.int("number_of_attractors", 2, "a"),
-  attractorMaxForce: parameters.float("attracter_max_force", 1, "fa"),
-}
-const drawParameters = {
-  general: {
-    debug: parameters.boolean("draw.debug", false, "d.d"),
-    fade: parameters.float("draw.fade", 0, "d.f"), // 0.0 ~ 1.0
+  system: {
+    debug: parameters.boolean("debug", true, "d"),
+    fullscreenEnabled: parameters.boolean("fullscreen", false, "f"),
   },
-  circle: {
-    centerPoint: parameters.boolean("draw.center", false, "d.c"),
-    filter: parameters.float("draw.filter", 1, "d.fi"),  // 0.0 ~ 1.0
+  simulation: {
+    numberOfObjects: parameters.int("number_of_objects", 100, "o"),
+    minSize: parameters.float("size_min", 10, "min"),
+    maxSize: parameters.float("size_max", 50, "max"),
+    repulsiveForce: parameters.float("repulsive_force", 1, "fr"),
+    surfaceRepulsiveForce: parameters.float("surface_repulsive_force", 1, "fs"),
+    frictionForce: parameters.float("friction_force", 1, "ff"), // 0.0 ~ 1.0
+    numberOfAttractors: parameters.int("number_of_attractors", 2, "a"),
+    attractorMaxForce: parameters.float("attracter_max_force", 1, "fa"),
+  },
+  draw: {
+    general: {
+      debug: parameters.boolean("draw.debug", false, "d.d"),
+      fade: parameters.float("draw.fade", 0, "d.f"), // 0.0 ~ 1.0
+    },
+    circle: {
+      centerPoint: parameters.boolean("draw.center", false, "d.c"),
+      filter: parameters.float("draw.filter", 1, "d.fi"),  // 0.0 ~ 1.0
+    },
   },
 }
 
-const fieldSize = fullscreenEnabled ? new Vector(window.screen.width, window.screen.height) : new Vector(fieldBaseSize, fieldBaseSize * 0.6)
+const fieldSize = constants.system.fullscreenEnabled ?
+  new Vector(window.screen.width, window.screen.height) : new Vector(fieldBaseSize, fieldBaseSize * 0.6)
 
 function log(message: string) {
-  if (debug) {
+  if (constants.system.debug) {
     console.log(message)
   }
 }
@@ -58,7 +63,7 @@ export const main = (p: p5) => {
   }
 
   p.draw = () => {
-    p.background(0, 0xFF * drawParameters.general.fade)
+    p.background(0, 0xFF * constants.draw.general.fade)
 
     for (let i = 0; i < (allObjects.length - 1); i += 1) {
       const anObject = allObjects[i]
@@ -98,7 +103,7 @@ export const main = (p: p5) => {
   }
 
   p.mousePressed = () => {
-    if (fullscreenEnabled !== true) {
+    if (constants.system.fullscreenEnabled !== true) {
       return
     }
     toggleFullscreen(canvasId)
@@ -111,23 +116,23 @@ export const getTimestamp = (): number => {
 
 // --------------- //
 function setupRules() {
-  singleObjectConstraints.push(new SurfaceConstraint(constants.surfaceRepulsiveForce))
-  singleObjectConstraints.push(new FrictionConstraint(Math.max(Math.min(constants.frictionForce, 1), 0)))
-  multipleObjectConstraints.push(new RepulsiveConstraint(constants.repulsiveForce))
+  singleObjectConstraints.push(new SurfaceConstraint(constants.simulation.surfaceRepulsiveForce))
+  singleObjectConstraints.push(new FrictionConstraint(Math.max(Math.min(constants.simulation.frictionForce, 1), 0)))
+  multipleObjectConstraints.push(new RepulsiveConstraint(constants.simulation.repulsiveForce))
   // limits.push(new SurfaceLimit())
   setupAttractors()
 }
 
 function setupAttractors() {
-  for (let i = 0; i < constants.numberOfAttractors; i += 1) {
-    singleObjectConstraints.push(new AttractorConstraint(fieldSize.randomized(), random(constants.attractorMaxForce, 0.1)))
+  for (let i = 0; i < constants.simulation.numberOfAttractors; i += 1) {
+    singleObjectConstraints.push(new AttractorConstraint(fieldSize.randomized(), random(constants.simulation.attractorMaxForce, 0.1)))
   }
 }
 
 function setupObjects() {
-  for (let i = 0; i < constants.numberOfObjects; i += 1) {
-    const circle = new Circle(fieldSize.randomized(), random(constants.maxSize, constants.minSize))
-    circle.shouldDraw = random(1) < drawParameters.circle.filter
+  for (let i = 0; i < constants.simulation.numberOfObjects; i += 1) {
+    const circle = new Circle(fieldSize.randomized(), random(constants.simulation.maxSize, constants.simulation.minSize))
+    circle.shouldDraw = random(1) < constants.draw.circle.filter
     allObjects.push(circle)
   }
 }
@@ -139,7 +144,7 @@ function isDrawable(obj: any): obj is Drawable {
 
 // tslint:disable-next-line:no-any
 function draw(rules: any[], p: p5) {
-  if (drawParameters.general.debug === false) {
+  if (constants.draw.general.debug === false) {
     return
   }
   rules.forEach(rule => {
@@ -304,7 +309,7 @@ class Circle implements Obj {
   }
 
   public draw(p: p5): void {
-    if (drawParameters.general.debug) {
+    if (constants.draw.general.debug) {
       p.noFill()
       p.stroke(0xFF, 0x7F)
       p.circle(this.position.x, this.position.y, this.size)
@@ -312,7 +317,7 @@ class Circle implements Obj {
     if (this.shouldDraw === false) {
       return
     }
-    if (drawParameters.circle.centerPoint) {
+    if (constants.draw.circle.centerPoint) {
       p.fill(0xFF, 0x7F)
       p.noStroke()
       p.circle(this.position.x, this.position.y, 4)
