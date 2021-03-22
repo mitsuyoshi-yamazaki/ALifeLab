@@ -8,7 +8,7 @@ const App = () => {
   return (
     <div>
       <div id="canvas-parent"></div>
-      <ScreenShotButton getTimestamp={ () => getTimestamp() }/>
+      <ScreenShotButton getTimestamp={() => getTimestamp()} getDescription={() => document.location.search}/>
     </div>
   )
 }
