@@ -25,6 +25,7 @@ const drawParameters = {
   },
   circle: {
     centerPoint: parameters.boolean("draw.center", false, "d.c"),
+    filter: parameters.float("draw.filter", 1, "d.fi"),  // 0.0 ~ 1.0
   },
 }
 
@@ -117,6 +118,7 @@ function setupAttractors() {
 function setupObjects() {
   for (let i = 0; i < constants.numberOfObjects; i += 1) {
     const circle = new Circle(fieldSize.randomized(), random(constants.maxSize, constants.minSize))
+    circle.shouldDraw = random(1) < drawParameters.circle.filter
     allObjects.push(circle)
   }
 }
@@ -262,6 +264,7 @@ class Circle implements Obj {
   public forces: Vector[] = []
   public velocity = Vector.zero()
   public mass: number
+  public shouldDraw = true
 
   public constructor(public position: Vector, public size: number) {
     this.mass = Math.pow(size, 2)
@@ -296,6 +299,9 @@ class Circle implements Obj {
       p.noFill()
       p.stroke(0xFF, 0x7F)
       p.circle(this.position.x, this.position.y, this.size)
+    }
+    if (this.shouldDraw === false) {
+      return
     }
     if (drawParameters.circle.centerPoint) {
       p.fill(0xFF, 0x7F)
