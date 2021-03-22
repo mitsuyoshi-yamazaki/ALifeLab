@@ -1,15 +1,11 @@
 import p5 from "p5"
 import React, { CSSProperties } from "react"
 import ReactDOM from "react-dom"
-import { AppBar, Toolbar, Breadcrumbs, Link, Typography } from "@material-ui/core"
+import { Breadcrumbs } from "../../react-components/breadcrumbs"
 import { ScreenShotButton } from "../../react-components/screenshot_button"
 import { main, getTimestamp } from "./source"
 
 const App = () => {
-  const mainPageTitle = 'Artificial Life and Generative Art Lab'  // TODO: 動的に取得
-  const breadcrumbsTextColor: CSSProperties = {
-    color: "white",
-  }
   const bodyStyle: CSSProperties = {
     display: "table", // horizontal center
     margin: "auto",
@@ -27,16 +23,7 @@ const App = () => {
 
   return (
     <div>
-      <AppBar position="static">
-        <Toolbar>
-          <Breadcrumbs aria-label="breadcrumb" style={breadcrumbsTextColor}>
-            <Link color="inherit" href="/">
-              {mainPageTitle}
-            </Link>
-            <Typography>{document.title}</Typography>
-          </Breadcrumbs>
-        </Toolbar>
-      </AppBar>
+      <Breadcrumbs/>
       <div style={bodyStyle}>
         <div id="canvas-parent"></div>
         <div style={toolbarStyle}>
