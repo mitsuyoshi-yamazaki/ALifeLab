@@ -15,6 +15,8 @@ const constants = {
   repulsiveForce: parameters.float("repulsive_force", 1, "fr"),
   surfaceRepulsiveForce: parameters.float("surface_repulsive_force", 1, "fs"),
   frictionForce: parameters.float("friction_force", 1, "ff"), // 0.0 ~ 1.0
+  numberOfAttractors: parameters.int("number_of_attractors", 2, "a"),
+  attractorMaxForce: parameters.float("attracter_max_force", 1, "fa"),
 }
 
 const fieldSize = new Vector(fieldBaseSize, fieldBaseSize * 0.6)
@@ -65,15 +67,7 @@ export const main = (p: p5) => {
     }
 
     allObjects.forEach(obj => {
-      const force = obj.forces.reduce(
-        (result: Vector, current: Vector) => {
-          return result.add(current)
-        },
-        Vector.zero(),
-      )
-      obj.velocity = obj.velocity.add(force)
-      obj.position = obj.position.add(obj.velocity)
-      obj.forces.splice(0, obj.forces.length)
+      obj.update()
       limits.forEach(limit => {
         if (obj instanceof Circle) {
           limit.update(obj)
@@ -82,6 +76,10 @@ export const main = (p: p5) => {
 
       obj.draw(p)
     })
+
+    draw(singleObjectConstraints, p)
+    draw(multipleObjectConstraints, p)
+    draw(limits, p)
   }
 }
 
@@ -91,6 +89,13 @@ function setupRules() {
   singleObjectConstraints.push(new FrictionConstraint(Math.max(Math.min(constants.frictionForce, 1), 0)))
   multipleObjectConstraints.push(new RepulsiveConstraint(constants.repulsiveForce))
   // limits.push(new SurfaceLimit())
+  setupAttractors()
+}
+
+function setupAttractors() {
+  for (let i = 0; i < constants.numberOfAttractors; i += 1) {
+    singleObjectConstraints.push(new AttractorConstraint(fieldSize.randomized(), random(constants.attractorMaxForce, 0.1)))
+  }
 }
 
 function setupObjects() {
@@ -100,7 +105,25 @@ function setupObjects() {
   }
 }
 
+// tslint:disable-next-line:no-any
+function isDrawable(obj: any): obj is Drawable {
+  return obj != undefined && obj.draw != undefined
+}
+
+// tslint:disable-next-line:no-any
+function draw(rules: any[], p: p5) {
+  rules.forEach(rule => {
+    if (isDrawable(rule)) {
+      rule.draw(p)
+    }
+  })
+}
+
 // --------------- //
+interface Drawable {
+  draw(p: p5): void
+}
+
 // Rule ⊃ Constraint, Rule ⊃ Limit
 interface SingleObjectConstraint<T extends Obj> {
   update(anObject: T): void
@@ -114,12 +137,12 @@ interface Limit<T extends Obj> {
   update(anObject: T): void
 }
 
-interface Obj {
+interface Obj extends Drawable {
   position: Vector
   velocity: Vector
   forces: Vector[]
   isCollided(other: Obj): boolean
-  draw(p: p5): void
+  update(): void
 }
 
 class RepulsiveConstraint implements MultipleObjectConstraint<Circle> {
@@ -178,6 +201,36 @@ class FrictionConstraint implements SingleObjectConstraint<Circle> {
   }
 }
 
+class AttractorConstraint implements SingleObjectConstraint<Circle>, Drawable  {
+  private maxForce: number
+
+  public constructor(public readonly position: Vector, public readonly force: number) {
+    this.maxForce = 1
+  }
+
+  public update(anObject: Circle): void {
+    const distance = this.position.dist(anObject.position)
+    const force = Math.min(Math.pow(Math.min(1 / distance, 0.1), 2) * this.force, this.maxForce)
+    anObject.forces.push(this.position.sub(anObject.position).sized(force))
+  }
+
+  public draw(p: p5): void {
+    const index = 5
+    p.noStroke()
+    p.fill(0xFF, 0xFF / index)
+    this.drawRecursive(index, p)
+  }
+
+  private drawRecursive(index: number, p: p5) {
+    if (index <= 0) {
+      return
+    }
+    const size = Math.pow(index, 3) * this.force * 0.05
+    p.circle(this.position.x, this.position.y, size)
+    this.drawRecursive(index - 1, p)
+  }
+}
+
 class SurfaceLimit implements Limit<Circle> {
   public update(anObject: Circle): void {
     const radius = anObject.size / 2
@@ -205,6 +258,18 @@ class Circle implements Obj {
 
       return false
     }
+  }
+
+  public update(): void {
+    const force = this.forces.reduce(
+      (result: Vector, current: Vector) => {
+        return result.add(current)
+      },
+      Vector.zero(),
+    )
+    this.velocity = this.velocity.add(force)
+    this.position = this.position.add(this.velocity)
+    this.forces.splice(0, this.forces.length)
   }
 
   public draw(p: p5): void {
