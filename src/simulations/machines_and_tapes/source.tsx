@@ -138,6 +138,10 @@ export const main = (p: p5) => {
   }
 }
 
+export const getTimestamp = (): number => {
+  return t
+}
+
 function parseInitialGenes(): Gene[] {
   if (rawInitialGenes.length === 0) {
     return []
