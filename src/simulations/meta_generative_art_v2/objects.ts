@@ -69,6 +69,9 @@ export class Circle implements Obj {
   }
 
   public draw(p: p5, coordinate?: Vector): void {
+    if (constants.draw.general.line) {
+      return
+    }
     const relativePosition = coordinate ? coordinate.add(this.position) : this.position
     if (constants.draw.general.debug) {
       p.noFill()

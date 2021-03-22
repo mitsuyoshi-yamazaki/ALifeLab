@@ -34,6 +34,14 @@ export const main = (p: p5) => {
   p.draw = () => {
     p.background(0, 0xFF * constants.draw.general.fade)
 
+    if (t % constants.simulation.surpriseInterval === 0) {
+      const pickableObjects = firstObjects.filter(o => o.localObjects.length === 0)
+      for (let i = 0; i < 3; i += 1) {
+        const obj = pickableObjects[Math.floor(random(pickableObjects.length))]
+        obj.position = constants.system.fieldSize.randomized()
+      }
+    }
+
     const firstLevelSingleConstraints = rule.singleObjectConstraints.filter(constraint => constraint.isFirstLevelConstraint)
     const allLevelSingleConstraints = rule.singleObjectConstraints.filter(constraint => constraint.isFirstLevelConstraint === false)
     for (let i = 0; i < (allObjects.length - 1); i += 1) {
@@ -51,6 +59,14 @@ export const main = (p: p5) => {
           rule.multipleObjectConstraints.forEach(constraint => {
             constraint.update(anObject, other, distance)
           })
+          const minDistance = (anObject.size + other.size) / 2
+          if (constants.draw.general.line && distance <= minDistance) {
+            p.noFill()
+            const color = ((minDistance - distance) / minDistance) * 0xFF
+            p.stroke(color, 0xFF)
+            p.strokeWeight(0.5)
+            p.line(anObject.position.x, anObject.position.y, other.position.x, other.position.y)
+          }
         }
       }
     }
@@ -125,7 +141,7 @@ function setupObjects() {
       circle.localRule = localRule
       for (let j = 0; j < numberOfLocalObjects; j += 1) {
         const localPosition = localObjectPositionArea.randomized().add(circle.position)
-        const localSize = random(constants.simulation.maxSize / 2, constants.simulation.minSize)
+        const localSize = random(constants.simulation.maxSize, constants.simulation.minSize)
         const localObject = new Circle(localPosition, localSize, collisionTags)
         localObject.shouldDraw = true
         circle.localObjects.push(localObject)

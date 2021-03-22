@@ -122,6 +122,9 @@ export class AttractorConstraint implements SingleObjectConstraint<Circle>, Draw
   }
 
   public draw(p: p5): void {
+    if (constants.draw.general.line) {
+      return
+    }
     const index = 25
     p.noStroke()
     p.fill(0xFF, 0x7F / index)
