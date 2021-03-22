@@ -39,7 +39,7 @@ function log(message: string) {
 
 let t = 0
 const singleObjectConstraints: SingleObjectConstraint<Circle>[] = []  // TODO: Tを定義せずConstraint[]と書きたい
-const multipleObjectConstraints: MultipleObjectConstraint<Circle>[] = []  // TODO: Tを定義せずConstraint[]と書きたい
+const multipleObjectConstraints: MultipleObjectConstraint<Circle>[] = []
 const limits: Limit<Circle>[] = []
 const allObjects: Obj[] = []
 
