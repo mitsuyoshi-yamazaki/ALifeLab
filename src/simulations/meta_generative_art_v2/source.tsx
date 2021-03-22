@@ -14,6 +14,7 @@ const constants = {
   maxSize: parameters.float("size_max", 50, "max"),
   repulsiveForce: parameters.float("repulsive_force", 1, "fr"),
   surfaceRepulsiveForce: parameters.float("surface_repulsive_force", 1, "fs"),
+  frictionForce: parameters.float("friction_force", 1, "ff"), // 0.0 ~ 1.0
 }
 
 const fieldSize = new Vector(fieldBaseSize, fieldBaseSize * 0.6)
@@ -87,6 +88,7 @@ export const main = (p: p5) => {
 // --------------- //
 function setupRules() {
   singleObjectConstraints.push(new SurfaceConstraint(constants.surfaceRepulsiveForce))
+  singleObjectConstraints.push(new FrictionConstraint(Math.max(Math.min(constants.frictionForce, 1), 0)))
   multipleObjectConstraints.push(new RepulsiveConstraint(constants.repulsiveForce))
   // limits.push(new SurfaceLimit())
 }
@@ -133,8 +135,9 @@ class RepulsiveConstraint implements MultipleObjectConstraint<Circle> {
       return
     }
     const forceSize = Math.min(Math.pow(minimumDistance / distance, 2) * this.force, this.maxForceSize)
-    anObject.forces.push(anObject.position.sub(other.position).sized(forceSize))
-    other.forces.push(other.position.sub(anObject.position).sized(forceSize))
+    const totalMass = anObject.mass + other.mass
+    anObject.forces.push(anObject.position.sub(other.position).sized(forceSize * other.mass / totalMass))
+    other.forces.push(other.position.sub(anObject.position).sized(forceSize * anObject.mass / totalMass))
   }
 }
 
@@ -146,7 +149,7 @@ class SurfaceConstraint implements SingleObjectConstraint<Circle> {
   }
 
   public update(anObject: Circle): void {
-    // TODO: 力の方向をいい感じにする
+    // TODO: 力の方向をcanvasの中心に向ける
     let dx = 0
     let dy = 0
     if (anObject.position.x < 0) {
@@ -167,6 +170,14 @@ class SurfaceConstraint implements SingleObjectConstraint<Circle> {
   }
 }
 
+class FrictionConstraint implements SingleObjectConstraint<Circle> {
+  public constructor(public readonly friction: number) { }
+
+  public update(anObject: Circle): void {
+    anObject.velocity = anObject.velocity.mult(this.friction)
+  }
+}
+
 class SurfaceLimit implements Limit<Circle> {
   public update(anObject: Circle): void {
     const radius = anObject.size / 2
@@ -178,8 +189,10 @@ class SurfaceLimit implements Limit<Circle> {
 class Circle implements Obj {
   public forces: Vector[] = []
   public velocity = Vector.zero()
+  public mass: number
 
   public constructor(public position: Vector, public size: number) {
+    this.mass = Math.pow(size, 2)
   }
 
   public isCollided(other: Obj): boolean {
