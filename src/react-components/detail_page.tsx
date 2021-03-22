@@ -4,6 +4,7 @@ import { ScreenShotButton } from "./screenshot_button"
 
 interface Props {
   getTimestamp(): number
+  getDescription?(): string
 }
 
 export class DetailPage extends React.Component<Props> {
@@ -30,11 +31,19 @@ export class DetailPage extends React.Component<Props> {
           {this.props.children}
           <div style={toolbarStyle}>
             <div style={screenshotButtonStyle}>
-              <ScreenShotButton getTimestamp={() => this.props.getTimestamp()} />
+              <ScreenShotButton getTimestamp={() => this.props.getTimestamp()} getDescription={() => this.getDescription()} />
             </div>
           </div>
         </div>
       </div>
     )
+  }
+
+  private getDescription(): string | undefined {
+    if (this.props.getDescription == undefined) {
+      return undefined
+    }
+
+    return this.props.getDescription()
   }
 }
