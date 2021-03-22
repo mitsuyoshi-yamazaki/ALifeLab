@@ -86,9 +86,9 @@ export class AttractorConstraint implements SingleObjectConstraint<Circle>, Draw
   }
 
   public draw(p: p5): void {
-    const index = 5
+    const index = 25
     p.noStroke()
-    p.fill(0xFF, 0xFF / index)
+    p.fill(0xFF, 0x7F / index)
     this.drawRecursive(index, p)
   }
 
@@ -96,7 +96,7 @@ export class AttractorConstraint implements SingleObjectConstraint<Circle>, Draw
     if (index <= 0) {
       return
     }
-    const size = Math.pow(index, 3) * this.force * 0.05
+    const size = Math.pow(index, 3) * this.force * 0.0002
     p.circle(this.position.x, this.position.y, size)
     this.drawRecursive(index - 1, p)
   }

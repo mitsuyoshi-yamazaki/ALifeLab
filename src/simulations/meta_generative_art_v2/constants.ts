@@ -3,14 +3,15 @@ import { Vector } from "../../classes/physics"
 
 const parameters = new URLParameterParser()
 
-const fullscreenEnabledFlag = parameters.boolean("fullscreen", false, "f")
+const debug = parameters.boolean("draw.debug", false, "d.d")
+const fullscreenEnabled = parameters.boolean("fullscreen", false, "f")
 const fieldBaseSize = parameters.int("size", 1200, "s")
 
 export const constants = {
   system: {
     debug: parameters.boolean("debug", true, "d"),
-    fullscreenEnabled: fullscreenEnabledFlag,
-    fieldSize: fullscreenEnabledFlag ?
+    fullscreenEnabled,
+    fieldSize: fullscreenEnabled ?
       new Vector(window.screen.width, window.screen.height) : new Vector(fieldBaseSize, fieldBaseSize * 0.6),
   },
   simulation: {
@@ -25,8 +26,8 @@ export const constants = {
   },
   draw: {
     general: {
-      debug: parameters.boolean("draw.debug", false, "d.d"),
-      fade: parameters.float("draw.fade", 0, "d.f"), // 0.0 ~ 1.0
+      debug,
+      fade: debug ? 1 : parameters.float("draw.fade", 1, "d.f"), // 0.0(no refresh) ~ 1.0(refresh every tick)
     },
     circle: {
       centerPoint: parameters.boolean("draw.center", false, "d.c"),

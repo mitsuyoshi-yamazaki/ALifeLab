@@ -69,7 +69,7 @@ export class Circle implements Obj {
   public draw(p: p5): void {
     if (constants.draw.general.debug) {
       p.noFill()
-      p.stroke(0xFF, 0x7F)
+      p.stroke(0xFF, 0x5F)
       p.circle(this.position.x, this.position.y, this.size)
     }
     if (this.shouldDraw === false) {
