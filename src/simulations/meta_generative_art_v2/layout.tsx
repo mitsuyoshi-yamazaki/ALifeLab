@@ -1,15 +1,14 @@
 import p5 from "p5"
 import React from "react"
 import ReactDOM from "react-dom"
-import { ScreenShotButton } from "../../react-components/screenshot_button"
+import { DetailPage } from "../../react-components/detail_page"
 import { main, getTimestamp } from "./source"
 
 const App = () => {
   return (
-    <div>
+    <DetailPage getTimestamp={() => getTimestamp()} getDescription={() => document.location.search}>
       <div id="canvas-parent"></div>
-      <ScreenShotButton getTimestamp={() => getTimestamp()} getDescription={() => document.location.search}/>
-    </div>
+    </DetailPage>
   )
 }
 

@@ -330,6 +330,10 @@ export const main = (p: p5) => {
   }
 }
 
+export const getTimestamp = (): number => {
+  return t
+}
+
 class Circle {
   public position: Vector
   public direction: number  // 0 ~ 2pi

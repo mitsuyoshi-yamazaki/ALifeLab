@@ -4,7 +4,7 @@ import { ScreenshotDownloader } from "../classes/downloader"
 
 interface Props {
   getTimestamp(): number
-  getDescription?(): string
+  getDescription?(): string | undefined
 }
 
 export class ScreenShotButton extends React.Component<Props> {
