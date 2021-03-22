@@ -18,6 +18,15 @@ const constants = {
   numberOfAttractors: parameters.int("number_of_attractors", 2, "a"),
   attractorMaxForce: parameters.float("attracter_max_force", 1, "fa"),
 }
+const drawParameters = {
+  general: {
+    debug: parameters.boolean("draw.debug", false, "d.d"),
+    fade: parameters.float("draw.fade", 0, "d.f"), // 0.0 ~ 1.0
+  },
+  circle: {
+    centerPoint: parameters.boolean("draw.center", false, "d.c"),
+  },
+}
 
 const fieldSize = new Vector(fieldBaseSize, fieldBaseSize * 0.6)
 
@@ -45,7 +54,7 @@ export const main = (p: p5) => {
   }
 
   p.draw = () => {
-    p.background(0, 0xFF)
+    p.background(0, 0xFF * drawParameters.general.fade)
 
     for (let i = 0; i < (allObjects.length - 1); i += 1) {
       const anObject = allObjects[i]
@@ -112,6 +121,9 @@ function isDrawable(obj: any): obj is Drawable {
 
 // tslint:disable-next-line:no-any
 function draw(rules: any[], p: p5) {
+  if (drawParameters.general.debug === false) {
+    return
+  }
   rules.forEach(rule => {
     if (isDrawable(rule)) {
       rule.draw(p)
@@ -273,8 +285,15 @@ class Circle implements Obj {
   }
 
   public draw(p: p5): void {
-    p.noFill()
-    p.stroke(0xFF, 0x7F)
-    p.circle(this.position.x, this.position.y, this.size)
+    if (drawParameters.general.debug) {
+      p.noFill()
+      p.stroke(0xFF, 0x7F)
+      p.circle(this.position.x, this.position.y, this.size)
+    }
+    if (drawParameters.circle.centerPoint) {
+      p.fill(0xFF, 0x7F)
+      p.noStroke()
+      p.circle(this.position.x, this.position.y, 4)
+    }
   }
 }
