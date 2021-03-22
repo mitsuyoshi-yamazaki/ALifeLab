@@ -4,6 +4,7 @@ import { ScreenshotDownloader } from "../classes/downloader"
 
 interface Props {
   getTimestamp(): number
+  getDescription?(): string
 }
 
 export class ScreenShotButton extends React.Component<Props> {
@@ -20,6 +21,7 @@ export class ScreenShotButton extends React.Component<Props> {
 
   private saveScreenshot() {
     const t = this.props.getTimestamp()
-    this._screenshotDownloader.saveScreenshot(t)
+    const description = this.props.getDescription != undefined ? this.props.getDescription() : undefined
+    this._screenshotDownloader.saveScreenshot(t, description)
   }
 }

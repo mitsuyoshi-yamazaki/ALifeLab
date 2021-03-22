@@ -75,4 +75,12 @@ export class Vector {
 
     return new Vector(x, y)
   }
+
+  public min(vector: Vector): Vector {
+    return new Vector(Math.min(this.x, vector.x), Math.min(this.y, vector.y))
+  }
+
+  public max(vector: Vector): Vector {
+    return new Vector(Math.max(this.x, vector.x), Math.max(this.y, vector.y))
+  }
 }

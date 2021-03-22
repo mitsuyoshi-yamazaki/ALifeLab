@@ -11,12 +11,13 @@ class Downloader {
     return link
   })()
 
-  protected createFilename(prefix: string, t: number, extension: string): string {
+  protected createFilename(prefix: string, t: number, extension: string, description?: string): string {
     const timestamp = Math.floor(t)
       .toString()
       .padStart(8, "0")
+    const suffix = description == undefined ? "" : `_${description}`
 
-    return `${launchTime}_${timestamp}.${extension}`
+    return `${launchTime}_${timestamp}${suffix}.${extension}`
   }
 }
 
@@ -27,16 +28,16 @@ export class ScreenshotDownloader extends Downloader {
     super()
   }
 
-  public screenshotFilename(t: number): string {
-    return this.createFilename("", t, "png")
+  public screenshotFilename(t: number, description?: string): string {
+    return this.createFilename("", t, "png", description)
   }
 
-  public saveScreenshot(t: number): string {
+  public saveScreenshot(t: number, description?: string): string {
     if (this._canvasElement == undefined) {
       this._canvasElement = this.getCanvas()
     }
 
-    const filename = this.screenshotFilename(t)
+    const filename = this.screenshotFilename(t, description)
     this.linkElement.setAttribute("download", filename)
     this.linkElement.setAttribute("href", this._canvasElement.toDataURL("image/png")
       .replace("image/png", "image/octet-stream"))
