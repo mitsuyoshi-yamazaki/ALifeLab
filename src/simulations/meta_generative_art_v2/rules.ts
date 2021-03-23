@@ -143,26 +143,17 @@ export class AttractorConstraint implements SingleObjectConstraint<Circle>, Draw
 
 export class ReverseAttractorConstraint implements SingleObjectConstraint<Circle> {
   public isFirstLevelConstraint = false
-  private _position: (() => Vector)
   private maxForce: number
 
-  public constructor(position: (() => Vector), public readonly force: number) {
-    this._position = position
+  public constructor(private origin: Circle, public readonly force: number) {
     this.maxForce = 1
   }
 
-  public get position(): Vector {
-    if (this._position instanceof Vector) {
-      return this._position
-    } else {
-      return this._position()
-    }
-  }
-
   public update(anObject: Circle): void {
-    const distance = this.position.dist(anObject.position)
+    const distance = this.origin.position.dist(anObject.position)
     const force = Math.min(Math.pow(distance / 100, 2) * this.force, this.maxForce)
-    anObject.forces.push(this.position.sub(anObject.position).sized(force))
+    anObject.forces.push(this.origin.position.sub(anObject.position).sized(force))
+    this.origin.forces.push(anObject.position.sub(this.origin.position).sized(force / 4))
   }
 }
 

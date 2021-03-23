@@ -18,6 +18,7 @@ const canvasId = "canvas"
 const rule = new Rule()
 const allObjects: Obj[] = []
 const firstObjects: Obj[] = []
+const collisionTags: CollisionTag[] = ["0"]
 
 export const main = (p: p5) => {
   p.setup = () => {
@@ -97,10 +98,17 @@ export const main = (p: p5) => {
   }
 
   p.mousePressed = () => {
-    if (constants.system.fullscreenEnabled !== true) {
+    if (p.mouseX < 0 || p.mouseX > constants.system.fieldSize.x || p.mouseY < 0 || p.mouseY > constants.system.fieldSize.y) {
       return
     }
-    toggleFullscreen(canvasId)
+    if (constants.system.fullscreenEnabled) {
+      toggleFullscreen(canvasId)  // TODO: フルスクリーンは他のアクションで行うようにする
+    } else {
+      const circle = new Circle(new Vector(p.mouseX, p.mouseY), constants.simulation.maxSize, collisionTags)
+      circle.shouldDraw = false
+      allObjects.push(circle)
+      firstObjects.push(circle)
+    }
   }
 }
 
@@ -125,7 +133,6 @@ function setupAttractors() {
 }
 
 function setupObjects() {
-  const collisionTags: CollisionTag[] = ["0"]
   const localObjectPositionArea = new Vector(constants.simulation.maxSize * 2, constants.simulation.maxSize * 2)
   for (let i = 0; i < constants.simulation.numberOfObjects; i += 1) {
     const position = constants.system.fieldSize.randomized()
@@ -136,7 +143,7 @@ function setupObjects() {
     const numberOfLocalObjects = random(constants.simulation.numberOfChildren)
     if (hasLocalObjects && numberOfLocalObjects > 0) {
       const localRule = new Rule()
-      const localAttractor = new ReverseAttractorConstraint(() => circle.position, circle.mass * constants.simulation.localAttracterForce)
+      const localAttractor = new ReverseAttractorConstraint(circle, circle.mass * constants.simulation.localAttracterForce)
       localRule.singleObjectConstraints.push(localAttractor)
       circle.localRule = localRule
       for (let j = 0; j < numberOfLocalObjects; j += 1) {
