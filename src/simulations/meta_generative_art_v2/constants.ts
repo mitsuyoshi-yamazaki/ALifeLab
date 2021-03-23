@@ -41,7 +41,8 @@ export const constants = {
     },
     circle: {
       centerPoint: parameters.boolean("draw.center", false, "d.c"),
-      filter: parameters.float("draw.filter", 1, "d.fi"),  // 0.0 ~ 1.0
+      filter: parameters.float("draw.filter", 0.3, "d.fi"),  // 0.0 ~ 1.0
+      hasChild: parameters.float("draw.child", 0.1, "d.ch"),  // 0.0 ~ 1.0
     },
   },
 }

@@ -19,6 +19,7 @@ const rule = new Rule()
 const allObjects: Obj[] = []
 const firstObjects: Obj[] = []
 const collisionTags: CollisionTag[] = ["0"]
+const drawOnce: Obj[] = []
 
 export const main = (p: p5) => {
   p.setup = () => {
@@ -36,7 +37,13 @@ export const main = (p: p5) => {
     p.background(0, 0xFF * constants.draw.general.fade)
 
     if (t % constants.simulation.surpriseInterval === 0) {
-      const pickableObjects = firstObjects.filter(o => o.localObjects.length === 0)
+      const pickableObjects = firstObjects.filter(o => {
+        if (o instanceof Circle) {
+          return o.localObjects.length === 0 && o.shouldDraw === false
+        } else {
+          return true
+        }
+      })
       for (let i = 0; i < 3; i += 1) {
         const obj = pickableObjects[Math.floor(random(pickableObjects.length))]
         obj.position = constants.system.fieldSize.randomized()
@@ -92,6 +99,17 @@ export const main = (p: p5) => {
       })
     })
 
+    drawOnce.forEach(obj => {
+      if (obj instanceof Circle) {
+        p.noStroke()
+        p.fill(0xFF, 0x40, 0x40)
+        p.circle(obj.position.x, obj.position.y, obj.size)
+      } else {
+        obj.draw(p)
+      }
+    })
+    drawOnce.splice(0, drawOnce.length)
+
     rule.draw(p)
 
     t += 1
@@ -108,6 +126,7 @@ export const main = (p: p5) => {
       circle.shouldDraw = false
       allObjects.push(circle)
       firstObjects.push(circle)
+      drawOnce.push(circle)
     }
   }
 }
@@ -138,22 +157,28 @@ function setupObjects() {
     const position = constants.system.fieldSize.randomized()
     const size = random(constants.simulation.maxSize, constants.simulation.minSize)
     const circle = new Circle(position, size, collisionTags)
-    circle.shouldDraw = false
-    const hasLocalObjects = random(1) < constants.draw.circle.filter
+    const hasLocalObjects = random(1) < constants.draw.circle.hasChild
     const numberOfLocalObjects = random(constants.simulation.numberOfChildren)
     if (hasLocalObjects && numberOfLocalObjects > 0) {
       const localRule = new Rule()
       const localAttractor = new ReverseAttractorConstraint(circle, circle.mass * constants.simulation.localAttracterForce)
       localRule.singleObjectConstraints.push(localAttractor)
       circle.localRule = localRule
+      let totalSize = 0
       for (let j = 0; j < numberOfLocalObjects; j += 1) {
         const localPosition = localObjectPositionArea.randomized().add(circle.position)
         const localSize = random(constants.simulation.maxSize, constants.simulation.minSize)
         const localObject = new Circle(localPosition, localSize, collisionTags)
-        localObject.shouldDraw = true
+        localObject.shouldDraw = random(1) < constants.draw.circle.filter * 5
         circle.localObjects.push(localObject)
         allObjects.push(localObject)
+        totalSize += Math.pow(localSize, 2)
       }
+      circle.size = Math.max(circle.size, Math.sqrt(totalSize * 1.5))
+      circle.mass = Math.pow(circle.size / 5, 2)
+      circle.shouldDraw = false
+    } else {
+      circle.shouldDraw = random(1) < constants.draw.circle.filter
     }
     firstObjects.push(circle)
     allObjects.push(circle)

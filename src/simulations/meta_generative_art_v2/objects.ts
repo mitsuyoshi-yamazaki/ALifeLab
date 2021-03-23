@@ -5,7 +5,7 @@ import { log } from "./functions"
 import { Rule } from "./rules"
 
 export interface Drawable {
-  draw(p: p5, coordinate?: Vector): void
+  draw(p: p5): void
 }
 
 export type CollisionTag = string
@@ -68,11 +68,10 @@ export class Circle implements Obj {
     this.forces.splice(0, this.forces.length)
   }
 
-  public draw(p: p5, coordinate?: Vector): void {
+  public draw(p: p5): void {
     if (constants.draw.general.line) {
       return
     }
-    const relativePosition = coordinate ? coordinate.add(this.position) : this.position
     if (constants.draw.general.debug) {
       p.noFill()
       if (this.localObjects.length > 0) {
@@ -80,7 +79,7 @@ export class Circle implements Obj {
       } else {
         p.stroke(0xFF, 0x5F)
       }
-      p.circle(relativePosition.x, relativePosition.y, this.size)
+      p.circle(this.position.x, this.position.y, this.size)
     }
     if (this.shouldDraw === false) {
       return
@@ -88,7 +87,7 @@ export class Circle implements Obj {
     if (constants.draw.circle.centerPoint) {
       p.fill(0xFF, 0x7F)
       p.noStroke()
-      p.circle(relativePosition.x, relativePosition.y, 4)
+      p.circle(this.position.x, this.position.y, 4)
     }
   }
 }
