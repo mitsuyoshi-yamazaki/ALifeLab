@@ -100,11 +100,12 @@ function setupAttractors() {
 }
 
 function setupObjects() {
+  const fieldSize = constants.system.fieldSize
   const defaultCollisionTag: CollisionTag = "0"
   const visibleObjectCollisionTag: CollisionTag = "1"
 
   for (let i = 0; i < constants.simulation.numberOfObjects; i += 1) {
-    const position = constants.system.fieldSize.randomized()
+    const position = fieldSize.randomized()
     const size = random(constants.simulation.maxSize, constants.simulation.minSize)
     const isVisible = random(1) < constants.draw.circle.filter
     const collisionTags: CollisionTag[] = [defaultCollisionTag]
@@ -117,10 +118,13 @@ function setupObjects() {
   }
 
   const wallCollisionTags: CollisionTag[] = [visibleObjectCollisionTag]
+  const wallBaseSizeVector = fieldSize.mult(0.2)
+  const wallBaseSize = Math.max(wallBaseSizeVector.x, wallBaseSizeVector.y)
+  const wallMaxSize = new Vector(wallBaseSize, wallBaseSize)
 
-  for (let i = 0; i < 1; i += 1) {
-    const size = new Vector(50, 50)
-    const position = constants.system.fieldSize.div(2)
+  for (let i = 0; i < constants.simulation.numberOfWalls; i += 1) {
+    const position = fieldSize.randomized()
+    const size = wallMaxSize.randomized()
     const wall = new Wall(position, size, wallCollisionTags)
     allObjects.push(wall)
   }

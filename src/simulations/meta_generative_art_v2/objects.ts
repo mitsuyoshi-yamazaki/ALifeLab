@@ -154,9 +154,8 @@ export class Wall implements Obj {
   }
 
   public draw(p: p5): void {
-    p.noFill()
-    p.stroke(0xFF, 0xC0)
-    p.strokeWeight(0.5)
+    p.noStroke()
+    p.fill(0xFF, 0x30)
     p.rect(this.position.x - this.size.x / 2, this.position.y - this.size.y / 2, this.size.x, this.size.y)
   }
 }
