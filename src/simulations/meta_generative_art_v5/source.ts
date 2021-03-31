@@ -11,12 +11,14 @@ import {
   FrictionConstraint,
   RepulsiveConstraint,
   AttractorConstraint,
+  WallConstraint,
+  MultipleObjectConstraint,
 } from "../meta_generative_art_v2/rules"
 
 let t = 0
 const canvasId = "canvas"
 const rule = new Rule()
-const limits: Limit<Circle>[] = []
+const objectConstraints: MultipleObjectConstraint<Obj>[] = []
 const allObjects: Obj[] = []
 
 export const main = (p: p5) => {
@@ -49,18 +51,16 @@ export const main = (p: p5) => {
           rule.multipleObjectConstraints.forEach(constraint => {
             constraint.update(anObject, other, distance)
           })
+        } else {
+          objectConstraints.forEach(constraint => {
+            constraint.update(anObject, other, distance)
+          })
         }
       }
     }
 
     allObjects.forEach(obj => {
       obj.update()
-      limits.forEach(limit => {
-        if (obj instanceof Circle) {
-          limit.update(obj)
-        }
-      })
-
       obj.draw(p)
     })
 
@@ -86,6 +86,7 @@ function setupRules() {
   rule.singleObjectConstraints.push(new SurfaceConstraint(constants.simulation.surfaceRepulsiveForce))
   rule.singleObjectConstraints.push(new FrictionConstraint(Math.max(Math.min(constants.simulation.frictionForce, 1), 0)))
   rule.multipleObjectConstraints.push(new RepulsiveConstraint(constants.simulation.repulsiveForce))
+  objectConstraints.push(new WallConstraint(constants.simulation.wallRepulsiveForce))
   // limits.push(new SurfaceLimit())
   setupAttractors()
 }
@@ -119,7 +120,7 @@ function setupObjects() {
 
   for (let i = 0; i < 1; i += 1) {
     const size = new Vector(50, 50)
-    const position = constants.system.fieldSize.div(2).sub(size.div(2))
+    const position = constants.system.fieldSize.div(2)
     const wall = new Wall(position, size, wallCollisionTags)
     allObjects.push(wall)
   }

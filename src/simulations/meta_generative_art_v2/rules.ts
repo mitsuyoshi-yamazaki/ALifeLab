@@ -1,7 +1,7 @@
 import p5 from "p5"
 import { Vector } from "../../classes/physics"
 import { constants } from "./constants"
-import { Drawable, Obj, canCollideWith, Circle } from "./objects"
+import { Drawable, Obj, canCollideWith, Circle, Wall, isCollided } from "./objects"
 
 // Rule ⊃ Constraint, Rule ⊃ Limit
 export class Rule implements Drawable {
@@ -65,6 +65,36 @@ export class RepulsiveConstraint implements MultipleObjectConstraint<Circle> {
     const totalMass = anObject.mass + other.mass
     anObject.forces.push(anObject.position.sub(other.position).sized(forceSize * other.mass / totalMass))
     other.forces.push(other.position.sub(anObject.position).sized(forceSize * anObject.mass / totalMass))
+  }
+}
+
+export class WallConstraint implements MultipleObjectConstraint<Obj> {
+  public constructor(public readonly force: number) {
+  }
+
+  public update(anObject: Obj, other: Obj, distance: number): void {
+    let wall: Wall | undefined
+    let circle: Circle | undefined
+    if (anObject instanceof Wall) {
+      wall = anObject
+    } else if (anObject instanceof Circle) {
+      circle = anObject
+    }
+    if (other instanceof Wall) {
+      wall = other
+    } else if (other instanceof Circle) {
+      circle = other
+    }
+    if (wall == undefined || circle == undefined) {
+      return
+    }
+    if (isCollided(circle, wall) === false) {
+      return
+    }
+
+    const forceSize = this.force // TODO: WallとCircleの距離に応じたforceSizeを計算する
+    const force = circle.position.sub(wall.position).sized(forceSize)
+    circle.forces.push(force)
   }
 }
 

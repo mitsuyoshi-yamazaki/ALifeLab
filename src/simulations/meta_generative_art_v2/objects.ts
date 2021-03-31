@@ -72,15 +72,17 @@ function isCirclesCollided(circle1: Circle, circle2: Circle): boolean {
 
 function isWallAndCircleCollided(wall: Wall, circle: Circle): boolean {
   const radius = circle.size / 2
+  const halfWidth = wall.size.x / 2
+  const halfHeight = wall.size.y / 2
 
   // FixMe: 角のrが考慮されていない
-  if (circle.position.x < wall.position.x - radius) {
+  if (circle.position.x < wall.position.x - halfWidth - radius) {
     return false
-  } else if (circle.position.x > wall.position.x + wall.size.x + radius) {
+  } else if (circle.position.x > wall.position.x + halfWidth + radius) {
     return false
-  } else if (circle.position.y < wall.position.y - radius) {
+  } else if (circle.position.y < wall.position.y - halfHeight - radius) {
     return false
-  } else if (circle.position.y > wall.position.y + wall.size.y + radius) {
+  } else if (circle.position.y > wall.position.y + halfHeight + radius) {
     return false
   }
 
@@ -155,6 +157,6 @@ export class Wall implements Obj {
     p.noFill()
     p.stroke(0xFF, 0xC0)
     p.strokeWeight(0.5)
-    p.rect(this.position.x, this.position.y, this.size.x, this.size.y)
+    p.rect(this.position.x - this.size.x / 2, this.position.y - this.size.y / 2, this.size.x, this.size.y)
   }
 }

@@ -26,6 +26,7 @@ export const constants = {
     numberOfChildren: parameters.float("number_of_children", 3, "c"),
     localAttracterForce: parameters.float("local_attracter_force", 0.1, "fl"),
     surpriseInterval: parameters.float("surprise_interval", 200, "si"),
+    wallRepulsiveForce: parameters.float("wall_repullsive_force", 1, "fw"),
   },
   draw: {
     general: {
