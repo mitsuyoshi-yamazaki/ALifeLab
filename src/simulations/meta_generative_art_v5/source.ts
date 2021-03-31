@@ -1,8 +1,9 @@
 import p5 from "p5"
+import { Vector } from "../../classes/physics"
 import { random, toggleFullscreen } from "../../classes/utilities"
 import { constants } from "../meta_generative_art_v2/constants"
 import { log } from "../meta_generative_art_v2/functions"
-import { Obj, Circle, CollisionTag } from "../meta_generative_art_v2/objects"
+import { Obj, Circle, Wall, CollisionTag } from "../meta_generative_art_v2/objects"
 import {
   Rule,
   Limit,
@@ -98,12 +99,28 @@ function setupAttractors() {
 }
 
 function setupObjects() {
-  const collisionTags: CollisionTag[] = ["0"]
+  const defaultCollisionTag: CollisionTag = "0"
+  const visibleObjectCollisionTag: CollisionTag = "1"
+
   for (let i = 0; i < constants.simulation.numberOfObjects; i += 1) {
     const position = constants.system.fieldSize.randomized()
     const size = random(constants.simulation.maxSize, constants.simulation.minSize)
+    const isVisible = random(1) < constants.draw.circle.filter
+    const collisionTags: CollisionTag[] = [defaultCollisionTag]
+    if (isVisible) {
+      collisionTags.push(visibleObjectCollisionTag)
+    }
     const circle = new Circle(position, size, collisionTags)
-    circle.shouldDraw = random(1) < constants.draw.circle.filter
+    circle.shouldDraw = isVisible
     allObjects.push(circle)
+  }
+
+  const wallCollisionTags: CollisionTag[] = [visibleObjectCollisionTag]
+
+  for (let i = 0; i < 1; i += 1) {
+    const size = new Vector(50, 50)
+    const position = constants.system.fieldSize.div(2).sub(size.div(2))
+    const wall = new Wall(position, size, wallCollisionTags)
+    allObjects.push(wall)
   }
 }

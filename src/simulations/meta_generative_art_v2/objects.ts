@@ -91,3 +91,31 @@ export class Circle implements Obj {
     }
   }
 }
+
+export class Wall implements Obj {
+  public localObjects: Obj[] = []
+  public localRule: Rule | undefined = undefined
+
+  public constructor(public readonly position: Vector, public readonly size: Vector, public collisionTags: CollisionTag[]) {
+  }
+  public get forces(): Vector[] {
+    return []
+  }
+  public get velocity(): Vector {
+    return Vector.zero()
+  }
+
+  public isCollided(other: Obj): boolean {
+    return false  // TODO:
+  }
+
+  public update(): void {
+  }
+
+  public draw(p: p5): void {
+    p.noFill()
+    p.stroke(0xFF, 0xC0)
+    p.strokeWeight(0.5)
+    p.rect(this.position.x, this.position.y, this.size.x, this.size.y)
+  }
+}
