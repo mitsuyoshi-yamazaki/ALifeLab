@@ -152,7 +152,7 @@ export class ReverseAttractorConstraint implements SingleObjectConstraint<Circle
   public update(anObject: Circle): void {
     const distance = this.origin.position.dist(anObject.position)
     const force = Math.min(Math.pow(distance / 100, 2) * this.force, this.maxForce)
-    const reactionForce = Math.min(distance / 1000 * this.force, this.maxForce / 10)
+    const reactionForce = Math.min(Math.pow(distance / 1000, 2) * this.force, this.maxForce / 10)
     anObject.forces.push(this.origin.position.sub(anObject.position).sized(force))
     this.origin.forces.push(anObject.position.sub(this.origin.position).sized(reactionForce))
   }
