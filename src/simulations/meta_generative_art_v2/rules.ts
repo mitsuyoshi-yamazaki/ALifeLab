@@ -1,7 +1,7 @@
 import p5 from "p5"
 import { Vector } from "../../classes/physics"
 import { constants } from "./constants"
-import { Drawable, Obj, Circle } from "./objects"
+import { Drawable, Obj, canCollideWith, Circle } from "./objects"
 
 // Rule ⊃ Constraint, Rule ⊃ Limit
 export class Rule implements Drawable {
@@ -58,7 +58,7 @@ export class RepulsiveConstraint implements MultipleObjectConstraint<Circle> {
     if (distance >= minimumDistance) {
       return
     }
-    if (anObject.canCollideWith(other) === false) {
+    if (canCollideWith(anObject, other) === false) {
       return
     }
     const forceSize = Math.min(Math.pow(minimumDistance / distance, 2) * this.force, this.maxForceSize)

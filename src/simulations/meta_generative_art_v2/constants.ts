@@ -1,10 +1,6 @@
 import { URLParameterParser } from "../../classes/url_parameter_parser"
 import { Vector } from "../../classes/physics"
 
-/*
-http://localhost:8080/pages/meta_generative_art_v4.html?s=1200&o=50&a=2&c=4&si=200&fr=0.5&fs=0.1&ff=0.993&fa=100&fl=0.00005&d.d=0&d.f=0.1&d.c=1&d.fi=0.5&d.l=0
- */
-
 const parameters = new URLParameterParser()
 
 const debug = parameters.boolean("draw.debug", false, "d.d")
