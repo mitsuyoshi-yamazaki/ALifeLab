@@ -2,7 +2,8 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "types": [
-      "@types/jest"
+      "./src/@types/global",
+      "./node_modules/@types/jest"
     ]
   },
   "include": [

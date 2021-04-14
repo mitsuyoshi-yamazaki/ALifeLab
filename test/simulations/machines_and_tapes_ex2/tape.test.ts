@@ -1,4 +1,4 @@
-import { Bit, Tape, canConnect } from "../../../src/pages/machines_and_tapes_ex2/tape"
+import { Bit, Tape, canConnect } from "../../../src/simulations/machines_and_tapes_ex2/tape"
 
 function binaryToBits(binaryString: string): Bit[] {
   return binaryString.split("")
