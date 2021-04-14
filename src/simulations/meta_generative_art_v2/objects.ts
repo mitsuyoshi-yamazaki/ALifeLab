@@ -17,8 +17,76 @@ export interface Obj extends Drawable {
   collisionTags: CollisionTag[]
   localObjects: Obj[]
   localRule: Rule | undefined
-  isCollided(other: Obj): boolean
   update(): void
+}
+
+export function canCollideWith(object1: Obj, object2: Obj): boolean {
+  if (object1.localObjects.includes(object2) || object2.localObjects.includes(object1)) {
+    return false
+  }
+
+  return object1.collisionTags.some(tag => object2.collisionTags.includes(tag))
+}
+
+export function isCollided(object1: Obj, object2: Obj): boolean {  // ※ 使用されていない
+  if (canCollideWith(object1, object2) === false) {
+    return false
+  }
+
+  const notImplementedError = (): void => {
+    log(`${object1.constructor.name} and ${object2.constructor.name} collision not implemented`)
+  }
+
+  if (object1 instanceof Circle) {  // FixMe: もっと良い書き方があるはず
+    if (object2 instanceof Circle) {
+      return isCirclesCollided(object1, object2)
+    } else if (object2 instanceof Wall) {
+      return isWallAndCircleCollided(object2, object1)
+    } else {
+      notImplementedError()
+
+      return false
+    }
+  } else if (object1 instanceof Wall) {
+    if (object2 instanceof Circle) {
+      return isWallAndCircleCollided(object1, object2)
+    } else if (object2 instanceof Wall) {
+      return false
+    } else {
+      notImplementedError()
+
+      return false
+    }
+  } else {
+    notImplementedError()
+
+    return false
+  }
+}
+
+function isCirclesCollided(circle1: Circle, circle2: Circle): boolean {
+  const distance = circle1.position.dist(circle2.position)
+
+  return distance <= (circle1.size + circle2.size) / 2
+}
+
+function isWallAndCircleCollided(wall: Wall, circle: Circle): boolean {
+  const radius = circle.size / 2
+  const halfWidth = wall.size.x / 2
+  const halfHeight = wall.size.y / 2
+
+  // FixMe: 角のrが考慮されていない
+  if (circle.position.x < wall.position.x - halfWidth - radius) {
+    return false
+  } else if (circle.position.x > wall.position.x + halfWidth + radius) {
+    return false
+  } else if (circle.position.y < wall.position.y - halfHeight - radius) {
+    return false
+  } else if (circle.position.y > wall.position.y + halfHeight + radius) {
+    return false
+  }
+
+  return true
 }
 
 export class Circle implements Obj {
@@ -31,29 +99,6 @@ export class Circle implements Obj {
 
   public constructor(public position: Vector, public size: number, public collisionTags: CollisionTag[]) {
     this.mass = Math.pow(size, 2)
-  }
-
-  public canCollideWith(other: Obj): boolean {
-    if (this.localObjects.includes(other) || other.localObjects.includes(this)) {
-      return false
-    }
-
-    return this.collisionTags.some(tag => other.collisionTags.includes(tag))
-  }
-
-  public isCollided(other: Obj): boolean {  // ※ 使用されていない
-    if (this.canCollideWith(other) === false) {
-      return false
-    }
-    if (other instanceof Circle) {
-      const distance = this.position.dist(other.position)
-
-      return distance <= (this.size + other.size) / 2
-    } else {
-      log(`Circle and ${other.constructor.name} collision not implemented`)
-
-      return false
-    }
   }
 
   public update(): void {
@@ -89,5 +134,28 @@ export class Circle implements Obj {
       p.noStroke()
       p.circle(this.position.x, this.position.y, 4)
     }
+  }
+}
+
+export class Wall implements Obj {
+  public localObjects: Obj[] = []
+  public localRule: Rule | undefined = undefined
+
+  public constructor(public readonly position: Vector, public readonly size: Vector, public collisionTags: CollisionTag[]) {
+  }
+  public get forces(): Vector[] {
+    return []
+  }
+  public get velocity(): Vector {
+    return Vector.zero()
+  }
+
+  public update(): void {
+  }
+
+  public draw(p: p5): void {
+    p.noStroke()
+    p.fill(0xFF, 0x30)
+    p.rect(this.position.x - this.size.x / 2, this.position.y - this.size.y / 2, this.size.x, this.size.y)
   }
 }
