@@ -1,28 +1,13 @@
 import p5 from "p5"
 import { Vector } from "../../classes/physics"
-import { URLParameterParser } from "../../classes/url_parameter_parser"
-import { Action, Drawer, LSystemDrawer } from "./drawer"
+import { constants } from "./constants"
+import { Drawer, LSystemDrawer } from "./drawer"
 import { Line, isCollided } from "./object"
 
 let t = 0
 const canvasId = "canvas"
 const fieldSize = 600
 const centerPoint = new Vector(fieldSize / 2, fieldSize / 2)
-
-const parameters = new URLParameterParser()
-
-const fieldBaseSize = parameters.int("system.size", 600, "s.s")
-
-export const constants = {
-  system: {
-    fieldSize: new Vector(fieldBaseSize, fieldBaseSize * 0.6),
-  },
-  simulation: {
-    maxDrawerCount: parameters.int("simulation.max_drawer_count", 100, "s.d"),
-  },
-  draw: {
-  },
-}
 
 const position = new Vector(centerPoint.x, fieldSize - 100)
 const rule = new Map<string, string>()
@@ -96,6 +81,10 @@ export const getTimestamp = (): number => {
 }
 
 function isCollidedWithLines(line: Line): boolean {
+  if (constants.simulation.lineCollisionEnabled === false) {
+    return false
+  }
+
   return lines.some(other => isCollided(line, other))
 }
 

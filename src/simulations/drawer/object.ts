@@ -1,5 +1,4 @@
 import p5 from "p5"
-import { Color } from "../../classes/color"
 import { Vector } from "../../classes/physics"
 
 export function isCollided(line1: Line, line2: Line): boolean {
@@ -43,11 +42,10 @@ export class Line {
   }
 
   public draw(p: p5) {
-    const weight = this.numberOfLeaves / 2
+    const weight = (1 - 1 / (this.numberOfLeaves + 1)) * 5
 
     p.stroke(0x0, 0x80)
     p.strokeWeight(weight)
     p.line(this.start.x, this.start.y, this.end.x, this.end.y)
   }
 }
-
