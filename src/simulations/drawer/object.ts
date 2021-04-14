@@ -27,6 +27,9 @@ export function isCollided(line1: Line, line2: Line): boolean {
 }
 
 export class Line {
+  public numberOfLeaves = 0
+  public children: Line[] = []
+
   public constructor(
     public readonly start: Vector,
     public readonly end: Vector,
@@ -39,4 +42,12 @@ export class Line {
     p.strokeWeight(this.weight)
     p.line(this.start.x, this.start.y, this.end.x, this.end.y)
   }
+}
+
+export function calculateLeaves(root: Line): number {
+  if (root.children.length === 0) {
+    return 1
+  }
+
+  return root.children.reduce((result, child) => result + calculateLeaves(child), 0)
 }

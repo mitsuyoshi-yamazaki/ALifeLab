@@ -11,7 +11,7 @@ const centerPoint = new Vector(fieldSize / 2, fieldSize / 2)
 
 const parameters = new URLParameterParser()
 
-const fieldBaseSize = parameters.int("size", 600, "s")
+const fieldBaseSize = parameters.int("system.size", 600, "s.s")
 
 export const constants = {
   system: {
@@ -20,6 +20,7 @@ export const constants = {
   simulation: {
   },
   draw: {
+    refreshInterval: parameters.int("draw.refresh_interval", 100, "d.r"),
   },
 }
 
@@ -84,4 +85,8 @@ function setupDrawers() {
 
 function isCollidedWithLines(line: Line): boolean {
   return lines.some(other => isCollided(line, other))
+}
+
+function refresh(p: p5) {
+
 }
