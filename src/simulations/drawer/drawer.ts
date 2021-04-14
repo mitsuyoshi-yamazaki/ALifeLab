@@ -1,4 +1,3 @@
-import p5 from "p5"
 import { Color } from "../../classes/color"
 import { Vector } from "../../classes/physics"
 import { Line } from "./object"
@@ -8,6 +7,7 @@ export class Action {
 }
 
 export class Drawer {
+  public currentLine: Line | undefined
   protected _position: Vector
   protected _direction: number
 
@@ -16,7 +16,7 @@ export class Drawer {
     this._direction = direction
   }
 
-  public next(p: p5): Action {
+  public next(): Action {
     throw new Error("Not implemented")
   }
 }
@@ -36,12 +36,11 @@ export class LSystemDrawer extends Drawer {
     this._condition = condition
   }
 
-  public next(p: p5): Action {
+  public next(): Action {
     const length = 40 / this.n
-    const weight = 10 / this.n
     const radian = this._direction * (Math.PI / 180)
     const position = this._position.moved(radian, length)
-    const line = new Line(this._position, this._position.moved(radian, length - 1), weight, new Color(0x0, 0x0, 0x0, 0x80))
+    const line = new Line(this._position, this._position.moved(radian, length - 1))
 
     let newDirection = this._direction
 

@@ -1,9 +1,8 @@
-import { Color } from "../../../src/classes/color"
 import { Vector } from "../../../src/classes/physics"
-import { Line, calculateLeaves } from "../../../src/simulations/drawer/object"
+import { Line } from "../../../src/simulations/drawer/object"
 
 function createLine(n: number, i?: number): Line {
-  const line = new Line(Vector.zero(), Vector.zero(), 1, Color.white())
+  const line = new Line(Vector.zero(), Vector.zero())
   if (n <= 1) {
     return line
   }
@@ -14,17 +13,17 @@ function createLine(n: number, i?: number): Line {
   return line
 }
 
-describe("calculateLeaves", () => {
+describe("Number of leaves", () => {
   test("One leaf", () => {
-    expect(calculateLeaves(createLine(1))).toBe(1)
-    expect(calculateLeaves(createLine(2))).toBe(1)
-    expect(calculateLeaves(createLine(5))).toBe(1)
+    expect(createLine(1).numberOfLeaves).toBe(1)
+    expect(createLine(2).numberOfLeaves).toBe(1)
+    expect(createLine(5).numberOfLeaves).toBe(1)
   })
 
   test("Multiple leaves", () => {
-    expect(calculateLeaves(createLine(1, 2))).toBe(1)
-    expect(calculateLeaves(createLine(2, 2))).toBe(2)
-    expect(calculateLeaves(createLine(3, 2))).toBe(4)
-    expect(calculateLeaves(createLine(3, 3))).toBe(9)
+    expect(createLine(1, 2).numberOfLeaves).toBe(1)
+    expect(createLine(2, 2).numberOfLeaves).toBe(2)
+    expect(createLine(3, 2).numberOfLeaves).toBe(4)
+    expect(createLine(3, 3).numberOfLeaves).toBe(9)
   })
 })

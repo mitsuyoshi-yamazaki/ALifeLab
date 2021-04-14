@@ -27,27 +27,27 @@ export function isCollided(line1: Line, line2: Line): boolean {
 }
 
 export class Line {
-  public numberOfLeaves = 0
   public children: Line[] = []
 
   public constructor(
     public readonly start: Vector,
     public readonly end: Vector,
-    public readonly weight: number,
-    public readonly color: Color,
   ) { }
 
+  public get numberOfLeaves(): number {
+    if (this.children.length === 0) {
+      return 1
+    }
+
+    return this.children.reduce((result, child) => result + child.numberOfLeaves, 0)
+  }
+
   public draw(p: p5) {
-    p.stroke(this.color.p5(p))
-    p.strokeWeight(this.weight)
+    const weight = this.numberOfLeaves / 2
+
+    p.stroke(0x0, 0x80)
+    p.strokeWeight(weight)
     p.line(this.start.x, this.start.y, this.end.x, this.end.y)
   }
 }
 
-export function calculateLeaves(root: Line): number {
-  if (root.children.length === 0) {
-    return 1
-  }
-
-  return root.children.reduce((result, child) => result + calculateLeaves(child), 0)
-}
