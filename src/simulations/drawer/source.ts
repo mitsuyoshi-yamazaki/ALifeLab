@@ -8,7 +8,7 @@ const canvasId = "canvas"
 const fieldSize = 600
 const centerPoint = new Vector(fieldSize / 2, fieldSize / 2)
 
-const drawers: Drawer[] = []
+let drawers: Drawer[] = []
 const lines: Line[] = []
 
 export const main = (p: p5) => {
@@ -24,12 +24,17 @@ export const main = (p: p5) => {
 
   p.draw = () => {
     if (drawers.length < 100) {
+      const deads: Drawer[] = []
       const newDrawers: Drawer[] = []
       const newLines: Line[] = []
       drawers.forEach(drawer => {
         const action = drawer.next(p)
-        newDrawers.push(...action.drawers)
-        newLines.push(...action.lines)
+        if (isCollidedWithLines(action.line) === true) {
+          deads.push(drawer)
+        } else {
+          newDrawers.push(...action.drawers)
+          newLines.push(action.line)
+        }
       })
 
       drawers.push(...newDrawers)
@@ -37,6 +42,10 @@ export const main = (p: p5) => {
         line.draw(p)
       })
       lines.push(...newLines)
+
+      drawers = drawers.filter(drawer => {
+        return deads.includes(drawer) === false
+      })
     }
 
     t += 1
@@ -45,6 +54,34 @@ export const main = (p: p5) => {
 
 export const getTimestamp = (): number => {
   return t
+}
+
+function isCollidedWithLines(line: Line): boolean {
+  return lines.some(other => isCollided(line, other))
+}
+
+function isCollided(line1: Line, line2: Line): boolean {
+  // http://www.jeffreythompson.org/collision-detection/line-line.php
+
+    // calculate the distance to intersection point
+  const uA = ((line2.end.x - line2.start.x) * (line1.start.y - line2.start.y)
+    - (line2.end.y - line2.start.y) * (line1.start.x - line2.start.x))
+    / ((line2.end.y - line2.start.y) * (line1.end.x - line1.start.x)
+      - (line2.end.x - line2.start.x) * (line1.end.y - line1.start.y))
+  const uB = ((line1.end.x - line1.start.x) * (line1.start.y - line2.start.y)
+    - (line1.end.y - line1.start.y) * (line1.start.x - line2.start.x))
+    / ((line2.end.y - line2.start.y) * (line1.end.x - line1.start.x)
+      - (line2.end.x - line2.start.x) * (line1.end.y - line1.start.y))
+
+    // if uA and uB are between 0-1, lines are colliding
+  if (uA >= 0 && uA <= 1 && uB >= 0 && uB <= 1) {
+      // const intersectionX = line1.start.x + (uA * (line1.end.x - line1.start.x))
+      // const intersectionY = line1.start.y + (uA * (line1.end.y - line1.start.y))
+
+      return true
+    }
+
+  return false
 }
 
 class Line {
@@ -64,16 +101,17 @@ class Line {
 
 class Action {
   // tslint:disable-next-line:no-shadowed-variable
-  public constructor(public readonly lines: Line[], public readonly drawers: Drawer[]) { }
+  public constructor(public readonly line: Line, public readonly drawers: Drawer[]) { }
 }
 
 function setupDrawers() {
+  const position = new Vector(centerPoint.x, fieldSize - 100)
   const rule = new Map<string, string>()
   rule.set("A", "A+B")
   rule.set("B", "A")
   const constants = new Map<string, number>()
   constants.set("+", 30)
-  const drawer = new LSystemDrawer(centerPoint, Math.PI / 2, "A", rule, constants)
+  const drawer = new LSystemDrawer(position, 270, "A", 1, rule, constants)
   drawers.push(drawer)
 }
 
@@ -98,6 +136,7 @@ class LSystemDrawer extends Drawer {
     position: Vector,
     direction: number,
     condition: string,
+    public readonly n: number,
     public readonly rule: Map<string, string>,
     public readonly constants: Map<string, number>,
   ) {
@@ -106,10 +145,11 @@ class LSystemDrawer extends Drawer {
   }
 
   public next(p: p5): Action {
-    const length = 20
+    const length = 40 / this.n
+    const weight = 10 / this.n
     const radian = this._direction * (Math.PI / 180)
     const position = this._position.moved(radian, length)
-    const line = new Line(this._position, position, 0.5, new Color(0x0, 0x0, 0x0, 0x80))
+    const line = new Line(this._position, this._position.moved(radian, length - 1), weight, new Color(0x0, 0x0, 0x0, 0x80))
 
     let newDirection = this._direction
 
@@ -132,11 +172,11 @@ class LSystemDrawer extends Drawer {
         this._position = position
         this._direction = newDirection
       } else {
-        const child = new LSystemDrawer(position, newDirection, c, this.rule, this.constants)
+        const child = new LSystemDrawer(position, newDirection, c, this.n + 1, this.rule, this.constants)
         children.push(child)
       }
     }
 
-    return new Action([line], children)
+    return new Action(line, children)
   }
 }
