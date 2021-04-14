@@ -1,4 +1,5 @@
 import p5 from "p5"
+import { Color } from "../../classes/color"
 import { Vector } from "../../classes/physics"
 import { random } from "../../classes/utilities"
 
@@ -8,6 +9,7 @@ const fieldSize = 600
 const centerPoint = new Vector(fieldSize / 2, fieldSize / 2)
 
 const drawers: Drawer[] = []
+const lines: Line[] = []
 
 export const main = (p: p5) => {
   p.setup = () => {
@@ -23,10 +25,18 @@ export const main = (p: p5) => {
   p.draw = () => {
     if (drawers.length < 100) {
       const newDrawers: Drawer[] = []
+      const newLines: Line[] = []
       drawers.forEach(drawer => {
-        newDrawers.push(...drawer.next(p))
+        const action = drawer.next(p)
+        newDrawers.push(...action.drawers)
+        newLines.push(...action.lines)
       })
+
       drawers.push(...newDrawers)
+      newLines.forEach(line => {
+        line.draw(p)
+      })
+      lines.push(...newLines)
     }
 
     t += 1
@@ -35,6 +45,26 @@ export const main = (p: p5) => {
 
 export const getTimestamp = (): number => {
   return t
+}
+
+class Line {
+  public constructor(
+    public readonly start: Vector,
+    public readonly end: Vector,
+    public readonly weight: number,
+    public readonly color: Color,
+  ) { }
+
+  public draw(p: p5) {
+    p.stroke(this.color.p5(p))
+    p.strokeWeight(this.weight)
+    p.line(this.start.x, this.start.y, this.end.x, this.end.y)
+  }
+}
+
+class Action {
+  // tslint:disable-next-line:no-shadowed-variable
+  public constructor(public readonly lines: Line[], public readonly drawers: Drawer[]) { }
 }
 
 function setupDrawers() {
@@ -56,7 +86,7 @@ class Drawer {
     this._direction = direction
   }
 
-  public next(p: p5): Drawer[] {
+  public next(p: p5): Action {
     throw new Error("Not implemented")
   }
 }
@@ -75,13 +105,11 @@ class LSystemDrawer extends Drawer {
     this._condition = condition
   }
 
-  public next(p: p5): Drawer[] {
+  public next(p: p5): Action {
     const length = 20
     const radian = this._direction * (Math.PI / 180)
     const position = this._position.moved(radian, length)
-    p.strokeWeight(0.5)
-    p.stroke(0x0, 0x80)
-    p.line(this._position.x, this._position.y, position.x, position.y)
+    const line = new Line(this._position, position, 0.5, new Color(0x0, 0x0, 0x0, 0x80))
 
     let newDirection = this._direction
 
@@ -109,6 +137,6 @@ class LSystemDrawer extends Drawer {
       }
     }
 
-    return children
+    return new Action([line], children)
   }
 }
