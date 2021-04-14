@@ -9,6 +9,7 @@ index_page_source_path = root_path + 'src/'
 index_page_output_path = root_path
 template_filepath = 'template.html'
 arguments_filename = 'html_arguments.json'
+excluded_paths = ['template']
 
 def log(message):
   if DEBUG:
@@ -20,7 +21,7 @@ def log_error(message):
 def page_names():
   from glob import glob
   path = source_path + '*/'
-  return [path.split('/')[-2] for path in glob(path)]
+  return list(filter(lambda x: x not in excluded_paths, [path.split('/')[-2] for path in glob(path)]))
 
 def read_arguments(filepath):
   log('read: {}'.format(filepath))
