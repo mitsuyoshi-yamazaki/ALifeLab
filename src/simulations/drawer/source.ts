@@ -11,7 +11,7 @@ const fieldSize = 600
 const firstRule: string | undefined = constants.system.run ? undefined : constants.simulation.lSystemRule
 let currentModel = createModel(firstRule)
 
-export const main = (p: p5) => {
+export const main = (p: p5): void => {
   const downloader = new Downloader()
 
   p.setup = () => {
@@ -99,7 +99,7 @@ class Downloader {
     this._saved = Date.now()
     this._screenshotDownloader.saveScreenshot(timestamp, filename)
 
-    let intervalId: number | undefined
+    let intervalId: number | undefined = undefined
     const json = {
       t,
       rules: rules.map(rule => rule.encoded),

@@ -114,13 +114,11 @@ export class Model {
       }
     }
 
-    let parent: Line | undefined
     points.forEach(p => {
       const line = new Line(p[0], p[1])
       line.isHidden = !this.showsBorderLine
 
       this._lines.push(line)
-      parent = line
     })
   }
 
@@ -134,10 +132,10 @@ export class Model {
 
   private completedReason(): string | undefined { // TODO: 適切な終了条件を設定する
     if (this._lines.length > this.maxLineCount) {
-      return `Filled`
+      return "Filled"
     }
     if (this._drawers.length === 0) {
-      return `All died`
+      return "All died"
     }
 
     return undefined

@@ -1,4 +1,4 @@
-import React, { CSSProperties } from "react"
+import React, { CSSProperties, ReactNode } from "react"
 import { Breadcrumbs } from "./breadcrumbs"
 import { ScreenShotButton } from "./screenshot_button"
 
@@ -8,7 +8,7 @@ interface Props {
 }
 
 export class DetailPage extends React.Component<Props> {
-  public render() {
+  public render(): ReactNode {
     const bodyStyle: CSSProperties = {
       display: "table", // horizontal center
       margin: "auto",

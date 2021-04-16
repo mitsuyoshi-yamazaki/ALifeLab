@@ -1,10 +1,10 @@
 import p5 from "p5"
+import { Vector } from "../classes/physics"
 import { random } from "../classes/utilities"
+import { Force } from "./force"
 import { ActiveLife, GeneticLife, Life } from "./life"
 import { WorldObject } from "./object"
-import { Vector } from "../classes/physics"
 import { Terrain } from "./terrain"
-import { Force } from "./force"
 
 export interface World {
   size: Vector
