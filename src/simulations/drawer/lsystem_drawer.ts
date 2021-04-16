@@ -39,6 +39,10 @@ export class LSystemRule {
       const nextConditions = keyValue[1].split(',').map((stringValue: string): LSystemCondition => {
         const numberValue = parseInt(stringValue, 10)
         if (isNaN(numberValue) === true) {
+          if (stringValue.length <= 0) {
+            throw new Error(`Invalid condition: empty string ${pair}`)
+          }
+
           return stringValue
         }
 

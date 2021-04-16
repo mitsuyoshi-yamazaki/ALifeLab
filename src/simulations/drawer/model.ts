@@ -26,9 +26,10 @@ export class Model {
   public constructor(
     public readonly fieldSize: Vector,
     public readonly maxDrawerCount: number,
+    lSystemRule: LSystemRule,
   ) {
     this._rootLine = this.setupRootLine()
-    const firstDrawer = this.setupFirstDrawer(this._rootLine)
+    const firstDrawer = this.setupFirstDrawer(this._rootLine, lSystemRule)
     this._drawers.push(firstDrawer)
   }
 
@@ -77,9 +78,8 @@ export class Model {
     draw(this._rootLine)
   }
 
-  private setupFirstDrawer(rootLine: Line): Drawer {
+  private setupFirstDrawer(rootLine: Line, rule: LSystemRule): Drawer {
     const position = new Vector(this.fieldSize.x / 2, this.fieldSize.y - 100)
-    const rule = new LSystemRule("A:-30,A,60,B&B:A")
     const direction = 270
 
     return new LSystemDrawer(position, direction, "A", 1, rule, rootLine)
