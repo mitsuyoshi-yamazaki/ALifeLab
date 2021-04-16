@@ -49,6 +49,8 @@ export const main = (p: p5): void => {
 }
 
 export const getTimestamp = (): number => {
+  const message = currentModel.lSystemRules.map(rule => rule.encoded).join("\n")
+  console.log(message) // FixMe: 現状では寿命モードのルールを知る術がないためコンソールに出力する
   return t
 }
 
