@@ -10,6 +10,8 @@ const canvasId = "canvas"
 const fieldSize = 600
 let currentModel = createModel(constants.simulation.lSystemRule)
 const screenshotDownloader = new ScreenshotDownloader()
+let saved = Date.now()
+const saveInteral = 2000  // ms
 
 export const main = (p: p5) => {
   p.setup = () => {
@@ -21,6 +23,10 @@ export const main = (p: p5) => {
   }
 
   p.draw = () => {
+    if (Date.now() - saved < saveInteral) {
+      return
+    }
+
     p.background(0xFF, 0xFF)
 
     if (t % constants.simulation.executionInteral === 0) {
@@ -33,6 +39,7 @@ export const main = (p: p5) => {
       console.log(`completed at ${t} (${result.t}, ${result.reason})\n${result.description}`)
       screenshotDownloader.saveScreenshot(t, `${result.description}`)
       currentModel = createModel()
+      saved = Date.now()
     }
 
     t += 1
