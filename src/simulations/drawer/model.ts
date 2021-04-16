@@ -9,6 +9,7 @@ export class Result {
   public constructor(
     public readonly t: number,
     public readonly reason: string,
+    public readonly status: string,
     public readonly description: string,
   ) { }
 }
@@ -26,7 +27,7 @@ export class Model {
 
   public constructor(
     public readonly fieldSize: Vector,
-    public readonly maxDrawerCount: number,
+    public readonly maxLineCount: number,
     public readonly lSystemRule: LSystemRule,
   ) {
     this._rootLine = this.setupRootLine()
@@ -51,7 +52,8 @@ export class Model {
     const completionReason = this.completedReason()
     if (completionReason != undefined) {
       this._isCompleted = true
-      this._result = new Result(this.t, completionReason, this.lSystemRule.encoded)
+      const status = `${this._lines.length} lines`
+      this._result = new Result(this.t, completionReason, status, this.lSystemRule.encoded)
 
       return
     }
@@ -127,11 +129,11 @@ export class Model {
   }
 
   private completedReason(): string | undefined { // TODO: 適切な終了条件を設定する
-    if (this._drawers.length > this.maxDrawerCount) {
-      return "Filled"
+    if (this._lines.length > this.maxLineCount) {
+      return `Filled`
     }
     if (this._drawers.length === 0) {
-      return "All died"
+      return `All died`
     }
 
     return undefined

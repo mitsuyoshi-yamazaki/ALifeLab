@@ -8,10 +8,11 @@ import { ScreenshotDownloader } from "../../classes/downloader"
 let t = 0
 const canvasId = "canvas"
 const fieldSize = 600
-let currentModel = createModel(constants.simulation.lSystemRule)
+const firstRule: string | undefined = constants.system.run ? undefined : constants.simulation.lSystemRule
+let currentModel = createModel(firstRule)
 const screenshotDownloader = new ScreenshotDownloader()
-let saved = Date.now()
-const saveInteral = 2000  // ms
+let saved = 0
+const saveInteral = 2500  // ms
 
 export const main = (p: p5) => {
   p.setup = () => {
@@ -36,7 +37,7 @@ export const main = (p: p5) => {
 
     if (constants.system.run && currentModel.result != undefined) {
       const result = currentModel.result
-      console.log(`completed at ${t} (${result.t}, ${result.reason})\n${result.description}`)
+      console.log(`completed at ${t} (${result.t}, ${result.reason}, ${result.status})\n${result.description}`)
       screenshotDownloader.saveScreenshot(t, `${result.description}`)
       currentModel = createModel()
       saved = Date.now()
@@ -53,7 +54,11 @@ export const getTimestamp = (): number => {
 function createModel(ruleString?: string): Model {
   try {
     const rule = ruleString != undefined ? new LSystemRule(ruleString) : LSystemRule.random()
-    const model = new Model(new Vector(fieldSize, fieldSize), constants.simulation.maxDrawerCount, rule)
+    const model = new Model(
+      new Vector(fieldSize, fieldSize),
+      constants.simulation.maxLineCount,
+      rule,
+    )
     model.showsBorderLine = constants.draw.showsBorderLine
     model.lineCollisionEnabled = constants.simulation.lineCollisionEnabled
 
