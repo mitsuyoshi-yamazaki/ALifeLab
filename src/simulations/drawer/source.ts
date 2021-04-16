@@ -61,6 +61,7 @@ function createModel(ruleString?: string): Model {
       new Vector(fieldSize, fieldSize),
       constants.simulation.maxLineCount,
       rule,
+      constants.simulation.mutationRate,
     )
     model.showsBorderLine = constants.draw.showsBorderLine
     model.lineCollisionEnabled = constants.simulation.lineCollisionEnabled

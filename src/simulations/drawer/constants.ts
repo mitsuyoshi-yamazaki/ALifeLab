@@ -15,10 +15,9 @@ export const constants = {
     maxLineCount: parameters.int("simulation.max_line_count", 5000, "s.l"),
     lineCollisionEnabled: parameters.boolean("simulation.line_collision_enabled", true, "s.c"),
     lSystemRule: parameters.string("simulation.lsystem_rule", "A:-30,A,60,B;B:A", "s.r"),
+    mutationRate: parameters.float("simulation.mutation_rate", 0, "s.m"),
   },
   draw: {
     showsBorderLine: parameters.boolean("draw.shows_border_line", false, "d.b"),
   },
 }
-
-// http://localhost:8080/pages/drawer.html?r=1&s.i=5&s.d=400

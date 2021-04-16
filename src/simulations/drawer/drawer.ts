@@ -17,4 +17,8 @@ export class Drawer {
   public next(): Action {
     throw new Error("Not implemented")
   }
+
+  public mutated(): Drawer {
+    return this
+  }
 }

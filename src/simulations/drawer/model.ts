@@ -1,5 +1,6 @@
 import p5 from "p5"
 import { Vector } from "../../classes/physics"
+import { random } from "../../classes/utilities"
 import { Drawer } from "./drawer"
 import { LSystemDrawer, LSystemRule } from "./lsystem_drawer"
 import { Line, isCollided } from "./line"
@@ -28,6 +29,7 @@ export class Model {
     public readonly fieldSize: Vector,
     public readonly maxLineCount: number,
     public readonly lSystemRule: LSystemRule,
+    public readonly mutationRate: number,
   ) {
     this.setupBorderLines()
     const firstDrawer = this.setupFirstDrawer(lSystemRule)
@@ -66,7 +68,13 @@ export class Model {
       }
     })
 
-    this._drawers = newDrawers
+    this._drawers = newDrawers.map(drawer => {
+      if (random(1) < this.mutationRate) {
+        return drawer.mutated()
+      }
+
+      return drawer
+    })
 
     this._t += 1
   }

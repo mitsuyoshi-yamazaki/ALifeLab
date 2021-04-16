@@ -31,7 +31,7 @@ export class LSystemRule {
     }
   }
 
-  public static random(): LSystemRule {
+  public static random(): LSystemRule { // FixMe: 適当に書いたので探索範囲が偏っているはず
     const alphabets = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("")
     const conditions = alphabets.slice(0, random(alphabets.length, 1))
     const map = new Map<string, LSystemCondition[]>()
@@ -102,6 +102,10 @@ export class LSystemRule {
     return map
   }
 
+  public get possibleConditions(): string[] {
+    return Array.from(this._map.keys())
+  }
+
   public get encoded(): string {
     return this._encoded
   }
@@ -155,5 +159,18 @@ export class LSystemDrawer extends Drawer {
     }
 
     return new Action(line, children)
+  }
+
+  public mutated(): LSystemDrawer {
+    const index = Math.floor(random(this.rule.possibleConditions.length))
+    const condition = this.rule.possibleConditions[index]
+
+    return new LSystemDrawer(
+      this._position,
+      this._direction,
+      condition,
+      this.n,
+      this.rule,
+    )
   }
 }
