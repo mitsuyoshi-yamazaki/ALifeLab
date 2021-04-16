@@ -6,12 +6,14 @@ export type LSystemCondition = string | number
 
 export class LSystemRule {
   private map = new Map<string, LSystemCondition[]>()
+  private endOfBranch = "."
 
   /*
    * Encoding:
      * <condition>:<next conditions>;<condition>:<next conditions>,...
        * condition: string
        * next condition: list of string | number
+       * special condition . has no next condition
    * Example:
      * A:-30,A,60,B;B:A
    */
@@ -22,6 +24,10 @@ export class LSystemRule {
   public nextConditions(currentCondition: string): LSystemCondition[] {
     const nextConditions = this.map.get(currentCondition)
     if (nextConditions == undefined) {
+      if (currentCondition === this.endOfBranch) {
+        return []
+      }
+
       throw new Error(`Invalid condition ${currentCondition} (rule: ${this.encoded})`)
     }
 
