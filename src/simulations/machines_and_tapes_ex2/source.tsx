@@ -7,12 +7,13 @@ import { MachineWorld } from "./machine_world"
 import { Bit, Tape } from "./tape"
 import { URLParameterParser } from "../../classes/url_parameter_parser"
 
-export const parameterParser = new URLParameterParser()
+export const parameters = new URLParameterParser()
 
-const DEBUG = parameterParser.boolean("debug", true, "d")
-const numberOfMachines = parameterParser.int("number_of_machines", 200, "nm")
-const size = parameterParser.int("field_size", 800, "s")
-const temp = parameterParser.int("temp", 10, undefined)
+const DEBUG = parameters.boolean("debug", true, "d")
+const numberOfMachines = parameters.int("number_of_machines", 200, "nm")
+const size = parameters.int("field_size", 800, "s")
+const temp = parameters.int("temp", 10, undefined)
+const isArtMode = parameters.boolean("art_mode", false, "a")
 
 log(`number of machines: ${numberOfMachines}`)
 
@@ -45,7 +46,9 @@ export const main = (p: p5) => {
   }
 
   p.draw = () => {
-    p.background(0)
+    if (isArtMode === false) {
+      p.background(0)
+    }
     world.next()
     world.draw(p)
 
