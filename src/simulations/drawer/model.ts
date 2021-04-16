@@ -7,6 +7,7 @@ import { Line, isCollided } from "./line"
 export class Result {
   public constructor(
     public readonly t: number,
+    public readonly reason: string,
   ) { }
 }
 
@@ -19,6 +20,7 @@ export class Model {
   private _drawers: Drawer[] = []
   private _lines: Line[] = []
   private _rootLine: Line
+  private _result: Result | undefined
 
   public constructor(public readonly fieldSize: Vector, public readonly maxDrawerCount: number) {
     this._rootLine = this.setupRootLine()
@@ -32,18 +34,18 @@ export class Model {
   public get isCompleted(): boolean {
     return this._isCompleted
   }
-
-  public completion?(result: Result): void
+  public get result(): Result | undefined {
+    return this._result
+  }
 
   public next(): void {
     if (this.isCompleted) {
       return
     }
-    if (this._drawers.length > this.maxDrawerCount) { // TODO: 適切な終了条件を設定する // TODO: 生存者なしによる終了
+    const completionReason = this.completedReason()
+    if (completionReason != undefined) {
       this._isCompleted = true
-      if (this.completion != undefined) {
-        this.completion(new Result(this.t))
-      }
+      this._result = new Result(this.t, completionReason)
 
       return
     }
@@ -122,5 +124,16 @@ export class Model {
     }
 
     return this._lines.some(other => isCollided(line, other))
+  }
+
+  private completedReason(): string | undefined { // TODO: 適切な終了条件を設定する
+    if (this._drawers.length > this.maxDrawerCount) {
+      return "Filled"
+    }
+    if (this._drawers.length === 0) {
+      return "All died"
+    }
+
+    return undefined
   }
 }
