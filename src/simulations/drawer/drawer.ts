@@ -1,6 +1,5 @@
-import { Color } from "../../classes/color"
 import { Vector } from "../../classes/physics"
-import { Line } from "./object"
+import { Line } from "./line"
 
 export class Action {
   public constructor(public readonly line: Line, public readonly drawers: Drawer[]) { }

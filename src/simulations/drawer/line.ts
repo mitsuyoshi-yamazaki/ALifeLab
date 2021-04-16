@@ -27,6 +27,8 @@ export function isCollided(line1: Line, line2: Line): boolean {
 
 export class Line {
   public children: Line[] = []
+  public fixedWeight: number | undefined
+  public isHidden = false
 
   public constructor(
     public readonly start: Vector,
@@ -42,7 +44,11 @@ export class Line {
   }
 
   public draw(p: p5) {
-    const weight = (1 - 1 / (this.numberOfLeaves + 1)) * 5
+    if (this.isHidden === true) {
+      return
+    }
+
+    const weight = this.fixedWeight ?? ((1 - 1 / (this.numberOfLeaves + 1)) * 5)
 
     p.stroke(0x0, 0x80)
     p.strokeWeight(weight)

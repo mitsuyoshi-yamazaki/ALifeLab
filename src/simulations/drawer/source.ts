@@ -2,7 +2,7 @@ import p5 from "p5"
 import { Vector } from "../../classes/physics"
 import { constants } from "./constants"
 import { Drawer, LSystemDrawer } from "./drawer"
-import { Line, isCollided } from "./object"
+import { Line, isCollided } from "./line"
 
 let t = 0
 const canvasId = "canvas"
@@ -19,10 +19,11 @@ ruleConstants.set("+", 30)
 const direction = 270
 const firstDrawer = new LSystemDrawer(position, direction, "A", 1, rule, ruleConstants)
 const radian = (360 - direction) * (Math.PI / 180)
-const rootLine = new Line(position.moved(radian, 20), position.moved(radian, 0.1))
-firstDrawer.currentLine = rootLine
+
 let drawers: Drawer[] = [firstDrawer]
 const lines: Line[] = []
+const rootLine = setupRootLine()
+firstDrawer.currentLine = rootLine
 
 export const main = (p: p5) => {
   p.setup = () => {
@@ -78,6 +79,38 @@ export const main = (p: p5) => {
 
 export const getTimestamp = (): number => {
   return t
+}
+
+function setupRootLine(): Line {
+  const points: [Vector, Vector][] = []
+  for (let i = 0; i < 2; i += 1) {
+    for (let j = 0; j < 2; j += 1) {
+      points.push([
+        new Vector(i * fieldSize, i * fieldSize),
+        new Vector(j * fieldSize, ((j + 1) % 2) * fieldSize),
+      ])
+    }
+  }
+
+  let root: Line | undefined
+  let parent: Line | undefined
+  points.forEach(p => {
+    const line = new Line(p[0], p[1])
+    line.fixedWeight = 4
+    line.isHidden = !constants.draw.showBorderLine
+
+    if (root == undefined) {
+      root = line
+    }
+    parent?.children.push(line)
+    lines.push(line)
+    parent = line
+  })
+  if (root == undefined) {
+    throw new Error()
+  }
+
+  return root
 }
 
 function isCollidedWithLines(line: Line): boolean {
