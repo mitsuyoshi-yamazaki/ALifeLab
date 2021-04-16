@@ -10,6 +10,7 @@ export class Result {
   ) { }
 }
 
+// TODO: 接触した枝も取り除く
 export class Model {
   public showsBorderLine = false
   public lineCollisionEnabled = true
@@ -21,12 +22,11 @@ export class Model {
   private _rootLine: Line
 
   public constructor(public readonly fieldSize: Vector, public readonly maxDrawerCount: number) {
-    const firstDrawer = this.setupFirstDrawer()
-    this._drawers.push(firstDrawer)
-    const lines: Line[] = []
     this._rootLine = this.setupRootLine()
-    firstDrawer.currentLine = this._rootLine
+    const firstDrawer = this.setupFirstDrawer(this._rootLine)
+    this._drawers.push(firstDrawer)
   }
+
   public get t(): number {
     return this._t
   }
@@ -57,42 +57,25 @@ export class Model {
       return
     }
 
-    const deads: Drawer[] = []
     const newDrawers: Drawer[] = []
     const newLines: Line[] = []
     this._drawers.forEach(drawer => {
       const action = drawer.next()
-      if (this.isCollidedWithLines(action.line) === true) {
-        deads.push(drawer)
-      } else {
+      if (this.isCollidedWithLines(action.line) === false) {
         newDrawers.push(...action.drawers)
         newLines.push(action.line)
-
-        drawer.currentLine?.children.push(action.line)
-        drawer.currentLine = action.line
-        action.drawers.forEach(d => {
-          d.currentLine?.children.push(action.line)
-          d.currentLine = action.line
-        })
       }
     })
 
-    this._drawers.push(...newDrawers)
-    newLines.forEach(line => {
-      line.draw(p)
-    })
+    this._drawers = newDrawers
     this._lines.push(...newLines)
-
-    this._drawers = this._drawers.filter(drawer => {
-      return deads.includes(drawer) === false
-    })
 
     draw(this._rootLine)
 
     this._t += 1
   }
 
-  private setupFirstDrawer(): Drawer {
+  private setupFirstDrawer(rootLine: Line): Drawer {
     const position = new Vector(this.fieldSize.x / 2, this.fieldSize.y - 100)
     const rule = new Map<string, string>()
     rule.set("A", "A+B")
@@ -102,7 +85,7 @@ export class Model {
 
     const direction = 270
 
-    return new LSystemDrawer(position, direction, "A", 1, rule, ruleConstants)
+    return new LSystemDrawer(position, direction, "A", 1, rule, ruleConstants, rootLine)
   }
 
   private setupRootLine(): Line {

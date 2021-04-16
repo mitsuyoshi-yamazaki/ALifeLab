@@ -6,11 +6,10 @@ export class Action {
 }
 
 export class Drawer {
-  public currentLine: Line | undefined
   protected _position: Vector
   protected _direction: number
 
-  public constructor(position: Vector, direction: number) {
+  public constructor(position: Vector, direction: number, public readonly parentLine: Line) {
     this._position = position
     this._direction = direction
   }
@@ -30,16 +29,18 @@ export class LSystemDrawer extends Drawer {
     public readonly n: number,
     public readonly rule: Map<string, string>,
     public readonly constants: Map<string, number>,
+    public readonly parentLine: Line,
   ) {
-    super(position, direction)
+    super(position, direction, parentLine)
     this._condition = condition
   }
 
   public next(): Action {
-    const length = 40 / this.n
+    const length = 40 / Math.pow(this.n, 0.5)
     const radian = this._direction * (Math.PI / 180)
     const position = this._position.moved(radian, length)
     const line = new Line(this._position, this._position.moved(radian, length - 1))
+    this.parentLine.children.push(line)
 
     let newDirection = this._direction
 
@@ -57,14 +58,8 @@ export class LSystemDrawer extends Drawer {
         continue
       }
 
-      if (c === this._condition || nextCondition.length === 1) {
-        this._condition = c
-        this._position = position
-        this._direction = newDirection
-      } else {
-        const child = new LSystemDrawer(position, newDirection, c, this.n + 1, this.rule, this.constants)
-        children.push(child)
-      }
+      const child = new LSystemDrawer(position, newDirection, c, this.n + 1, this.rule, this.constants, line)
+      children.push(child)
     }
 
     return new Action(line, children)
