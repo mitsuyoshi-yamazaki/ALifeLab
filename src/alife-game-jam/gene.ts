@@ -31,7 +31,7 @@ export class Gene {
     const r = shiftInt(this.predatorGene, 8 - geneLength)
     const g = shiftInt(this.preyGene, 8 - geneLength)
     const b = 0xFF
-    this._color = new Color(r, g, b)
+    this._color = new Color(r, g, b, 0xFF)
   }
 
   public static createWith(binary: number): Gene {

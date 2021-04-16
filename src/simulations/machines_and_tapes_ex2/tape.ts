@@ -32,7 +32,7 @@ export class Tape {
     const r = colorValueOf(this.bits.slice(0, third))
     const g = colorValueOf(this.bits.slice(third, third * 2))
     const b = colorValueOf(this.bits.slice(third * 2, this.bits.length))
-    this._color = new Color(r, g, b)
+    this._color = new Color(r, g, b, 0xFF)
   }
 
   public get color(): Color {

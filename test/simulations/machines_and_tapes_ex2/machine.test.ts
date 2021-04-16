@@ -1,6 +1,6 @@
-import { Machine } from "../../../src/pages/machines_and_tapes_ex2/machine"
+import { Machine } from "../../../src/simulations/machines_and_tapes_ex2/machine"
 import { Vector } from "../../../src/classes/physics"
-import { Bit, Tape } from "../../../src/pages/machines_and_tapes_ex2/tape"
+import { Bit, Tape } from "../../../src/simulations/machines_and_tapes_ex2/tape"
 
 function binaryToBits(binaryString: string): Bit[] {
   return binaryString.split("")

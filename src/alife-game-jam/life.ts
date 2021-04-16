@@ -110,7 +110,7 @@ export class GeneticResource extends GeneticLife {
 
   public draw(p: p5, anchor: Vector): void {
     p.noStroke()
-    p.fill(this.gene.color.p5(p, 0xFF))
+    p.fill(this.gene.color.p5(p))
     const diameter = this.size
     p.rect(this.position.x - this.size + anchor.x, this.position.y - this.size + anchor.y, diameter, diameter)
   }

@@ -24,6 +24,7 @@ const App = () => {
         </Toolbar>
       </AppBar>
       <div style={bodyStyle}>
+        <LinkCard title="Drawer" link="pages/drawer.html" />
         <LinkCard title="Meta Generative Art" link="pages/meta_generative_art.html" />
         <LinkCard title="Meta Generative Art v2" link="pages/meta_generative_art_v2.html?s=600&o=100&a=1&fr=0.5&fs=0.1&ff=0.999&fa=200&d.d=0&d.f=0.1&d.c=1&d.fi=0.5" />
         <LinkCard title="Meta Generative Art v4" link="pages/meta_generative_art_v4.html?s=600&o=100&a=1&fr=0.5&fs=0.1&ff=0.999&fa=200&d.d=0&d.f=0.1&d.c=1&d.fi=0.5" />

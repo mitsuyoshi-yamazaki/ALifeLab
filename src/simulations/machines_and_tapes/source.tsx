@@ -211,7 +211,7 @@ class Gene {
     const r = ((this.header << 4) / 2) + 0x80
     const g = ((rawTransitionTable & 0xF0) / 2) + 0x80
     const b = (((rawTransitionTable & 0xF) << 4) / 2) + 0x80
-    this._color = new Color(r, g, b)
+    this._color = new Color(r, g, b, 0xA0)
 
     if (genes.indexOf(value) === -1) {
       genes.push(value)
@@ -419,7 +419,7 @@ class Machine extends Life {
         return
       }
       p.noFill()
-      p.stroke(this.gene.color.p5(p, 0xA0))
+      p.stroke(this.gene.color.p5(p))
       p.strokeWeight(0.5)
       p.line(this.previousPosition.x, this.previousPosition.y, this.position.x, this.position.y)
 
@@ -430,7 +430,7 @@ class Machine extends Life {
         p.stroke(0x20, 0x80)
         p.strokeWeight(0.5)
       }
-      p.fill(this.gene.color.p5(p, 0xA0))
+      p.fill(this.gene.color.p5(p))
 
       const diameter = Math.min((this.age + 400) / 100, this.size)
       p.circle(this.position.x + anchor.x, this.position.y + anchor.y, diameter)
