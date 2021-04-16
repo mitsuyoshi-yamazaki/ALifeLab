@@ -9,17 +9,7 @@ const canvasId = "canvas"
 const fieldSize = 600
 const centerPoint = new Vector(fieldSize / 2, fieldSize / 2)
 
-const position = new Vector(centerPoint.x, fieldSize - 100)
-const rule = new Map<string, string>()
-rule.set("A", "A+B")
-rule.set("B", "A")
-const ruleConstants = new Map<string, number>()
-ruleConstants.set("+", 30)
-
-const direction = 270
-const firstDrawer = new LSystemDrawer(position, direction, "A", 1, rule, ruleConstants)
-const radian = (360 - direction) * (Math.PI / 180)
-
+const firstDrawer = setupFirstDrawer()
 let drawers: Drawer[] = [firstDrawer]
 const lines: Line[] = []
 const rootLine = setupRootLine()
@@ -111,6 +101,19 @@ function setupRootLine(): Line {
   }
 
   return root
+}
+
+function setupFirstDrawer(): Drawer {
+  const position = new Vector(centerPoint.x, fieldSize - 100)
+  const rule = new Map<string, string>()
+  rule.set("A", "A+B")
+  rule.set("B", "A")
+  const ruleConstants = new Map<string, number>()
+  ruleConstants.set("+", 30)
+
+  const direction = 270
+
+  return new LSystemDrawer(position, direction, "A", 1, rule, ruleConstants)
 }
 
 function isCollidedWithLines(line: Line): boolean {
