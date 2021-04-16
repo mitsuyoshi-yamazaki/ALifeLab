@@ -2,6 +2,54 @@ import { Vector } from "../../classes/physics"
 import { Drawer, Action } from "./drawer"
 import { Line } from "./line"
 
+export type LSystemCondition = string | number
+
+export class LSystemRule {
+  private map = new Map<string, LSystemCondition[]>()
+
+  /*
+   * Encoding:
+     * <condition>:<next conditions>&<condition>:<next conditions>,...
+       * condition: string
+       * next condition: list of string | number
+   * Example:
+     * A:-30,A,60,B&B:A
+   */
+  public constructor(public readonly encoded: string) {
+    this.decode()
+  }
+
+  public nextConditions(currentCondition: string): LSystemCondition[] {
+    const nextConditions = this.map.get(currentCondition)
+    if (nextConditions == undefined) {
+      throw new Error(`Invalid condition ${currentCondition} (rule: ${this.encoded})`)
+    }
+
+    return nextConditions
+  }
+
+  private decode() {
+    this.map.clear()
+    this.encoded.split('&').forEach(pair => {
+      const keyValue = pair.split(':')
+      if (keyValue.length !== 2) {
+        throw new Error(`Invalid condition: next-condition pair ${pair}`)
+      }
+      const condition = keyValue[0]
+      const nextConditions = keyValue[1].split(',').map((stringValue: string): LSystemCondition => {
+        const numberValue = parseInt(stringValue, 10)
+        if (isNaN(numberValue) === true) {
+          return stringValue
+        }
+
+        return numberValue
+      })
+
+      this.map.set(condition, nextConditions)
+    })
+  }
+}
+
 export class LSystemDrawer extends Drawer {
   private _condition: string
 
@@ -10,8 +58,7 @@ export class LSystemDrawer extends Drawer {
     direction: number,
     condition: string,
     public readonly n: number,
-    public readonly rule: Map<string, string>,
-    public readonly constants: Map<string, number>,
+    public readonly rule: LSystemRule,
     public readonly parentLine: Line,
   ) {
     super(position, direction, parentLine)
@@ -25,22 +72,16 @@ export class LSystemDrawer extends Drawer {
     const line = new Line(this._position, nextPosition)
 
     let newDirection = this._direction
-
-    const nextCondition = this.rule.get(this._condition)
-    if (nextCondition == undefined) {
-      throw new Error(`Cannot retrieve next condition (current: ${this._condition}, rule: ${String(this.rule)})`)
-    }
-
+    const nextCondition = this.rule.nextConditions(this._condition)
     const children: LSystemDrawer[] = []
 
-    for (const c of nextCondition) {
-      const directionChange = this.constants.get(c)
-      if (directionChange != undefined) {
-        newDirection += directionChange
+    for (const condition of nextCondition) {
+      if (typeof(condition) === 'number') {
+        newDirection += condition
         continue
       }
 
-      const child = new LSystemDrawer(nextPosition, newDirection, c, this.n + 1, this.rule, this.constants, line)
+      const child = new LSystemDrawer(nextPosition, newDirection, condition, this.n + 1, this.rule, line)
       children.push(child)
     }
 

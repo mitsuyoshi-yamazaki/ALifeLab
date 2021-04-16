@@ -1,7 +1,7 @@
 import p5 from "p5"
 import { Vector } from "../../classes/physics"
 import { Drawer } from "./drawer"
-import { LSystemDrawer } from "./lsystem_drawer"
+import { LSystemDrawer, LSystemRule } from "./lsystem_drawer"
 import { Line, isCollided } from "./line"
 // Do not import constants (pass constants via Model.constructor)
 
@@ -79,15 +79,10 @@ export class Model {
 
   private setupFirstDrawer(rootLine: Line): Drawer {
     const position = new Vector(this.fieldSize.x / 2, this.fieldSize.y - 100)
-    const rule = new Map<string, string>()
-    rule.set("A", "A+B")
-    rule.set("B", "A")
-    const ruleConstants = new Map<string, number>()
-    ruleConstants.set("+", 25)
-
+    const rule = new LSystemRule("A:-30,A,60,B&B:A")
     const direction = 270
 
-    return new LSystemDrawer(position, direction, "A", 1, rule, ruleConstants, rootLine)
+    return new LSystemDrawer(position, direction, "A", 1, rule, rootLine)
   }
 
   private setupRootLine(): Line {
