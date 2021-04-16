@@ -14,7 +14,7 @@ export const constants = {
     executionInteral: parameters.int("simulation.execution_interval", 1, "s.i"),
     maxDrawerCount: parameters.int("simulation.max_drawer_count", 100, "s.d"),
     lineCollisionEnabled: parameters.boolean("simulation.line_collision_enabled", true, "s.c"),
-    lSystemRule: parameters.string("simulation.lsystem_rule", "A:-30,A,60,B&B:A", "s.l"),
+    lSystemRule: parameters.string("simulation.lsystem_rule", "A:-30,A,60,B;B:A", "s.l"),
   },
   draw: {
     showsBorderLine: parameters.boolean("draw.shows_border_line", false, "d.b"),

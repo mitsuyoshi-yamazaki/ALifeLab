@@ -9,11 +9,11 @@ export class LSystemRule {
 
   /*
    * Encoding:
-     * <condition>:<next conditions>&<condition>:<next conditions>,...
+     * <condition>:<next conditions>;<condition>:<next conditions>,...
        * condition: string
        * next condition: list of string | number
    * Example:
-     * A:-30,A,60,B&B:A
+     * A:-30,A,60,B;B:A
    */
   public constructor(public readonly encoded: string) {
     this.decode()
@@ -30,7 +30,7 @@ export class LSystemRule {
 
   private decode() {
     this.map.clear()
-    this.encoded.split('&').forEach(pair => {
+    this.encoded.split(';').forEach(pair => {
       const keyValue = pair.split(':')
       if (keyValue.length !== 2) {
         throw new Error(`Invalid condition: next-condition pair ${pair}`)
