@@ -16,6 +16,7 @@ export const constants = {
     lineCollisionEnabled: parameters.boolean("simulation.line_collision_enabled", true, "s.c"),
     lSystemRule: parameters.string("simulation.lsystem_rule", "A:-30,A,60,B;B:A", "s.r"),
     mutationRate: parameters.float("simulation.mutation_rate", 0, "s.m"),
+    numberOfSeeds: parameters.int("simulation.number_of_seeds", 3, "s.s"),
   },
   draw: {
     showsBorderLine: parameters.boolean("draw.shows_border_line", false, "d.b"),

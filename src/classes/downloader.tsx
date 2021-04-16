@@ -98,3 +98,15 @@ export class ParameterDownloader<Parameters extends StringElementConvertible> ex
     return filename
   }
 }
+
+export class JSONDownloader extends Downloader {
+  public saveJson(json: object, filenamePrefix: string, timestamp: number) {
+    const link = this.linkElement
+    const data = `data:text/json;charset=utf-8,${encodeURIComponent(JSON.stringify(json, undefined, 2))}`
+    const filename = this.createFilename(filenamePrefix, timestamp, "json")
+    link.setAttribute("href", data)
+    link.setAttribute("download", filename)
+    link.click()
+    console.log(`Saved: ${filename}`)
+  }
+}
