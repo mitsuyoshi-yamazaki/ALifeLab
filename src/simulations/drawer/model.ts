@@ -28,14 +28,13 @@ export class Model {
   public constructor(
     public readonly fieldSize: Vector,
     public readonly maxLineCount: number,
-    public readonly lSystemRule: LSystemRule,
+    public readonly lSystemRules: LSystemRule[],
     public readonly mutationRate: number,
         public readonly lineLifeSpan: number,
         public readonly lineLengthType: number,
   ) {
     this.setupBorderLines()
-    const firstDrawer = this.setupFirstDrawer(lSystemRule)
-    this._drawers.push(firstDrawer)
+    this._drawers.push(...this.setupFirstDrawers(lSystemRules))
   }
 
   public get t(): number {
@@ -56,7 +55,8 @@ export class Model {
     if (completionReason != undefined) {
       this._isCompleted = true
       const status = { numberOfLines: this._lines.length }
-      this._result = new Result(this.t, completionReason, status, this.lSystemRule.encoded)
+      const description = this.lSystemRules.map(rule => `\n- ${rule.encoded}`).join("")
+      this._result = new Result(this.t, completionReason, status, description)
 
       return
     }
@@ -92,11 +92,15 @@ export class Model {
     this._lines.forEach(line => line.draw(p))
   }
 
-  private setupFirstDrawer(rule: LSystemRule): Drawer {
-    const position = new Vector(this.fieldSize.x / 2, this.fieldSize.y - 100)
-    const direction = 270
+  private setupFirstDrawers(rules: LSystemRule[]): Drawer[] {
+    const padding = 100
+    const randomPosition = (): Vector => {
+      return new Vector(random(this.fieldSize.x - padding, padding), random(this.fieldSize.y - padding, padding))
+    }
+    const randomDirection = (): number => (random(360) - 180)
+    const firstCondition = "A" // Since all random rule contains "A"
 
-        return new LSystemDrawer(position, direction, "A", 1, rule, this.lineLengthType)
+    return rules.map(rule => new LSystemDrawer(randomPosition(), randomDirection(), firstCondition, 1, rule, this.lineLengthType))
   }
 
   private setupBorderLines() {
