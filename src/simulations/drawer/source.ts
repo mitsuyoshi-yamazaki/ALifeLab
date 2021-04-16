@@ -62,6 +62,8 @@ function createModel(ruleString?: string): Model {
       constants.simulation.maxLineCount,
       rule,
       constants.simulation.mutationRate,
+            constants.simulation.lineLifeSpan,
+            constants.simulation.lineLengthType,
     )
     model.showsBorderLine = constants.draw.showsBorderLine
     model.lineCollisionEnabled = constants.simulation.lineCollisionEnabled

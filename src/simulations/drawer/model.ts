@@ -30,6 +30,8 @@ export class Model {
     public readonly maxLineCount: number,
     public readonly lSystemRule: LSystemRule,
     public readonly mutationRate: number,
+        public readonly lineLifeSpan: number,
+        public readonly lineLengthType: number,
   ) {
     this.setupBorderLines()
     const firstDrawer = this.setupFirstDrawer(lSystemRule)
@@ -59,6 +61,13 @@ export class Model {
       return
     }
 
+        if (this.lineLifeSpan > 0) {
+            if (this._lines.length > this.lineLifeSpan) {
+            const initLine = this._lines.slice(0, 4)
+                this._lines = initLine.concat(this._lines.slice(Math.floor(this._lines.length / this.lineLifeSpan) + 5, this._lines.length - 4))
+            }
+        }
+
     const newDrawers: Drawer[] = []
     this._drawers.forEach(drawer => {
       const action = drawer.next()
@@ -87,7 +96,7 @@ export class Model {
     const position = new Vector(this.fieldSize.x / 2, this.fieldSize.y - 100)
     const direction = 270
 
-    return new LSystemDrawer(position, direction, "A", 1, rule)
+        return new LSystemDrawer(position, direction, "A", 1, rule, this.lineLengthType)
   }
 
   private setupBorderLines() {
