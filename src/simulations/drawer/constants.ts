@@ -17,6 +17,8 @@ export const constants = {
     lSystemRule: parameters.string("simulation.lsystem_rule", "A:-30,A,60,B;B:A", "s.r"),
     mutationRate: parameters.float("simulation.mutation_rate", 0, "s.m"),
     numberOfSeeds: parameters.int("simulation.number_of_seeds", 3, "s.s"),
+    lineLifeSpan: parameters.int("simulation.line_life_span", 0, "s.ls"),
+    lineLengthType: parameters.int("simulation.line_line_length_type", 0, "s.ll"),
   },
   draw: {
     showsBorderLine: parameters.boolean("draw.shows_border_line", false, "d.b"),
