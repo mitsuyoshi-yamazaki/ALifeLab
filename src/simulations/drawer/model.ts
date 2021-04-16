@@ -22,7 +22,6 @@ export class Model {
   private _isCompleted = false
   private _drawers: Drawer[] = []
   private _lines: Line[] = []
-  private _rootLine: Line
   private _result: Result | undefined
 
   public constructor(
@@ -30,8 +29,8 @@ export class Model {
     public readonly maxLineCount: number,
     public readonly lSystemRule: LSystemRule,
   ) {
-    this._rootLine = this.setupRootLine()
-    const firstDrawer = this.setupFirstDrawer(this._rootLine, lSystemRule)
+    this.setupBorderLines()
+    const firstDrawer = this.setupFirstDrawer(lSystemRule)
     this._drawers.push(firstDrawer)
   }
 
@@ -64,7 +63,6 @@ export class Model {
       if (this.isCollidedWithLines(action.line) === false) {
         newDrawers.push(...action.drawers)
         this._lines.push(action.line)
-        // drawer.parentLine.children.push(action.line)
       }
     })
 
@@ -74,22 +72,17 @@ export class Model {
   }
 
   public draw(p: p5): void {
-    // const draw = (node: Line) => {
-    //   node.draw(p)
-    //   node.children.forEach(child => draw(child))
-    // }
-    // draw(this._rootLine)
     this._lines.forEach(line => line.draw(p))
   }
 
-  private setupFirstDrawer(rootLine: Line, rule: LSystemRule): Drawer {
+  private setupFirstDrawer(rule: LSystemRule): Drawer {
     const position = new Vector(this.fieldSize.x / 2, this.fieldSize.y - 100)
     const direction = 270
 
-    return new LSystemDrawer(position, direction, "A", 1, rule, rootLine)
+    return new LSystemDrawer(position, direction, "A", 1, rule)
   }
 
-  private setupRootLine(): Line {
+  private setupBorderLines() {
     const points: [Vector, Vector][] = []
     for (let i = 0; i < 2; i += 1) {
       for (let j = 0; j < 2; j += 1) {
@@ -100,25 +93,14 @@ export class Model {
       }
     }
 
-    let root: Line | undefined
     let parent: Line | undefined
     points.forEach(p => {
       const line = new Line(p[0], p[1])
-      // line.fixedWeight = 4
       line.isHidden = !this.showsBorderLine
 
-      if (root == undefined) {
-        root = line
-      }
-      // parent?.children.push(line)
       this._lines.push(line)
       parent = line
     })
-    if (root == undefined) {
-      throw new Error()
-    }
-
-    return root
   }
 
   private isCollidedWithLines(line: Line): boolean {

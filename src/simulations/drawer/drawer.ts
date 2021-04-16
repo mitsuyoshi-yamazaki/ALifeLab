@@ -9,7 +9,7 @@ export class Drawer {
   protected _position: Vector
   protected _direction: number
 
-  public constructor(position: Vector, direction: number, public readonly parentLine: Line) {
+  public constructor(position: Vector, direction: number) {
     this._position = position
     this._direction = direction
   }

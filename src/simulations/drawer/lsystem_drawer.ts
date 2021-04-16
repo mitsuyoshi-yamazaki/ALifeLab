@@ -129,9 +129,8 @@ export class LSystemDrawer extends Drawer {
     condition: string,
     public readonly n: number,
     public readonly rule: LSystemRule,
-    public readonly parentLine: Line,
   ) {
-    super(position, direction, parentLine)
+    super(position, direction)
     this._condition = condition
   }
 
@@ -151,7 +150,7 @@ export class LSystemDrawer extends Drawer {
         continue
       }
 
-      const child = new LSystemDrawer(nextPosition, newDirection, condition, this.n + 1, this.rule, line)
+      const child = new LSystemDrawer(nextPosition, newDirection, condition, this.n + 1, this.rule)
       children.push(child)
     }
 

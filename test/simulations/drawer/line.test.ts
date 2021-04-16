@@ -1,8 +1,8 @@
 import { Vector } from "../../../src/classes/physics"
-import { Line, isCollided } from "../../../src/simulations/drawer/line"
+import { Line, LinkedLine, isCollided } from "../../../src/simulations/drawer/line"
 
-function createLines(n: number, i?: number): Line {
-  const line = new Line(Vector.zero(), Vector.zero())
+function createLines(n: number, i?: number): LinkedLine {
+  const line = new LinkedLine(Vector.zero(), Vector.zero())
   if (n <= 1) {
     return line
   }
