@@ -140,11 +140,13 @@ export class LSystemDrawer extends Drawer {
   }
 
   public next(): Action {
-    let length: number = 40 / Math.pow(this.n, 0.5)
+    let length = 1
     if (this.lineLengthType === 1) {
       length = 10
     } else if (this.lineLengthType === 2) {
       length = 10 * this.n / (this.n + Math.pow(this.n, 0.5))
+    } else {
+      length = 40 / Math.pow(this.n, 0.5)
     }
     const radian = this._direction * (Math.PI / 180)
     const nextPosition = this._position.moved(radian, length)
@@ -160,7 +162,7 @@ export class LSystemDrawer extends Drawer {
         continue
       }
 
-      const child = new LSystemDrawer(nextPosition, newDirection, condition, this.n + 1, this.rule,            this.lineLengthType)
+      const child = new LSystemDrawer(nextPosition, newDirection, condition, this.n + 1, this.rule, this.lineLengthType)
       children.push(child)
     }
 
