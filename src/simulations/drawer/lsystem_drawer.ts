@@ -37,11 +37,10 @@ export class LSystemRule {
     const map = new Map<string, LSystemCondition[]>()
     const maxConditions = 10
 
-    const candidates = conditions.concat([LSystemRule.endOfBranch])
     const randomCondition = (): string => {
-      const index = Math.floor(random(candidates.length))
+      const index = Math.floor(random(conditions.length))
 
-      return candidates[index]
+      return conditions[index]
     }
 
     conditions.forEach(condition => {
@@ -53,6 +52,9 @@ export class LSystemRule {
         const angle = Math.floor(random(360, 0)) - 180
         nextConditions.push(angle)
         nextConditions.push(randomCondition())
+      }
+      if (nextConditions.length === 0) {
+        nextConditions.push(LSystemRule.endOfBranch)
       }
 
       map.set(condition, nextConditions)
