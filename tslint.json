@@ -63,7 +63,7 @@
         "allow-pascal-case"
       ]
     },
-    "unified-signatures": true,
+    "unified-signatures": false,
     "ban-comma-operator": true,
     "curly": true,
     "function-constructor": true,

@@ -32,7 +32,7 @@ export const main = (p: p5) => {
       const result = currentModel.result
       console.log(`completed at ${t} (${result.t}, ${result.reason})`)
       screenshotDownloader.saveScreenshot(t, `${result.reason} at ${result.t}`)
-      currentModel = createModel(constants.simulation.lSystemRule)
+      currentModel = createModel()
     }
 
     t += 1
@@ -43,9 +43,9 @@ export const getTimestamp = (): number => {
   return t
 }
 
-function createModel(ruleString: string): Model {
+function createModel(ruleString?: string): Model {
   try {
-    const rule = new LSystemRule(ruleString)
+    const rule = ruleString != undefined ? new LSystemRule(ruleString) : LSystemRule.random()
     const model = new Model(new Vector(fieldSize, fieldSize), constants.simulation.maxDrawerCount, rule)
     model.showsBorderLine = constants.draw.showsBorderLine
     model.lineCollisionEnabled = constants.simulation.lineCollisionEnabled
