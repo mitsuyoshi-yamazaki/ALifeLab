@@ -3,6 +3,7 @@ import { Vector } from "../classes/physics"
 import { Force } from "./force"
 
 export class Terrain {
+  /* eslint-disable @typescript-eslint/no-unused-vars */
   public constructor(public readonly size: Vector) {
   }
 
@@ -17,6 +18,7 @@ export class Terrain {
   public draw(p: p5): void {
     return
   }
+  /* eslint-enable @typescript-eslint/no-unused-vars */
 }
 
 export class VanillaTerrain extends Terrain {
@@ -135,14 +137,17 @@ export class FrictedTerrain extends Terrain {
     }
   }
 
+  /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
   public frictionAt(position: Vector): number {
     return this.friction
   }
 
+  /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
   public forceAt(position: Vector): Force {
     return Force.zero()
   }
 
+  /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
   public draw(p: p5): void {
   }
 }

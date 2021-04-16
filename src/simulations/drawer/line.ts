@@ -41,7 +41,7 @@ export class Line {
     public readonly end: Vector,
   ) { }
 
-  public draw(p: p5) {
+  public draw(p: p5): void {
     if (this.isHidden === true) {
       return
     }
@@ -69,7 +69,7 @@ export class LinkedLine extends Line {
     return this.children.reduce((result, child) => result + child.numberOfLeaves, 0)
   }
 
-  public draw(p: p5) {
+  public draw(p: p5): void {
     if (this.isHidden === true) {
       return
     }

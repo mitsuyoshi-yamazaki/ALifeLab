@@ -1,6 +1,6 @@
 import React, { CSSProperties } from "react"
 import ReactDOM from "react-dom"
-import { makeStyles, AppBar, Toolbar, Breadcrumbs, Card, CardActionArea, CardContent, Link, Typography } from "@material-ui/core"
+import { AppBar, Toolbar, Breadcrumbs, Typography } from "@material-ui/core"
 import { LinkCard } from "../react-components/link_card"
 
 const App = () => {

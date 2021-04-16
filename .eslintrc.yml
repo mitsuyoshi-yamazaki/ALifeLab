@@ -16,8 +16,8 @@ plugins:
   - '@typescript-eslint'
 rules:
   indent:
-    - error
-    - 4
+    - warn
+    - 2
   linebreak-style:
     - error
     - unix
@@ -27,3 +27,5 @@ rules:
   semi:
     - error
     - never
+  "@typescript-eslint/no-empty-interface": off
+  "@typescript-eslint/no-empty-function": off
