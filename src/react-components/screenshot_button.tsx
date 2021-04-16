@@ -1,5 +1,5 @@
 import { Button } from "@material-ui/core"
-import React from "react"
+import React, { ReactNode } from "react"
 import { ScreenshotDownloader } from "../classes/downloader"
 
 interface Props {
@@ -10,7 +10,7 @@ interface Props {
 export class ScreenShotButton extends React.Component<Props> {
   private _screenshotDownloader = new ScreenshotDownloader()
 
-  public render() {
+  public render(): ReactNode {
     return (
       <div>
         <Button variant="contained" color="primary" onClick={() => this.saveScreenshot()}>Save Screenshot</Button>

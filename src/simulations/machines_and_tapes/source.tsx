@@ -55,15 +55,15 @@ export const main = (p: p5) => {
   p.setup = () => {
     let fieldSize: Vector
     switch (mode) {
-      case "attracted":
-      case "equidistant":
-      case "scroll":
-        fieldSize = new Vector(size, size)
-        break
-      case "family":
-      default:
-        fieldSize = new Vector(size, Math.floor(size * 0.6))
-        break
+    case "attracted":
+    case "equidistant":
+    case "scroll":
+      fieldSize = new Vector(size, size)
+      break
+    case "family":
+    default:
+      fieldSize = new Vector(size, Math.floor(size * 0.6))
+      break
     }
 
     const canvas = p.createCanvas(fieldSize.x, fieldSize.y)
@@ -177,7 +177,7 @@ function showStatistics(): void {
   })
 
   log(`\n\n\n${t} steps\nPopulation: ${world.lives.length}, number of species(genes): ${genes.length}`)
-  log(`Genes:`)
+  log("Genes:")
   const sorted = genes.sort((lhs, rhs) => rhs[1] - lhs[1])
   sorted.slice(0, Math.min(sorted.length, 10))
     .forEach(e => {
@@ -338,72 +338,72 @@ class Machine extends Life {
     }
 
     switch (mode) {
-      case "attracted":
-      case "equidistant": {
-        let target: number
-        if (mode === "attracted") {
-          target = (this.gene.value / Gene.geneMask) * Math.PI * 2
+    case "attracted":
+    case "equidistant": {
+      let target: number
+      if (mode === "attracted") {
+        target = (this.gene.value / Gene.geneMask) * Math.PI * 2
 
-        } else {
-          const geneIndex = genes.indexOf(this.gene.value)
-          if (geneIndex < 0) {
-            break
-          }
-
-          target = (geneIndex / genes.length) * Math.PI * 2
-        }
-        const targetPosition = new Vector(
-          Math.cos(target),
-          Math.sin(target),
-        )
-          .sized(size * 0.3)
-          .add(world.size.div(2))
-
-        // tslint:disable-next-line:no-shadowed-variable
-        const movingForce = targetPosition
-          .sub(this.position)
-          .sized(attractForce)
-          .add(Vector.random(attractForce * 0.5, -attractForce * 0.5))
-
-        return [new Force(movingForce), []]
-      }
-
-      case "scroll": {
-        const targetX = (this.gene.value / Gene.geneMask) * world.size.x * 0.8 + world.size.x * 0.1
-        const normalized = reproduceInterval
-        const targetY = world.size.y * 0.7 - t + (Math.floor(this.createdAt / normalized) * normalized)
-        const targetPosition = new Vector(targetX, targetY)
-
-        // tslint:disable-next-line:no-shadowed-variable
-        const movingForce = targetPosition
-          .sub(this.position)
-          .sized(attractForce)
-          .add(Vector.random(attractForce * 0.5, -attractForce * 0.5))
-
-        return [new Force(movingForce), []]
-      }
-
-      case "family":
-        if (this.family == undefined) {
+      } else {
+        const geneIndex = genes.indexOf(this.gene.value)
+        if (geneIndex < 0) {
           break
         }
-        const distance = this.position.dist(this.family.center)
-        const maxDistance = 20
-        const forceSize = (Math.min(distance + 10, maxDistance) / maxDistance) * attractForce
 
-        const familyCenterForce = this.family.center
-          .sub(this.position)
-          .sized(forceSize)
-          .add(Vector.random(attractForce * 0.5, -attractForce * 0.5))
+        target = (geneIndex / genes.length) * Math.PI * 2
+      }
+      const targetPosition = new Vector(
+        Math.cos(target),
+        Math.sin(target),
+      )
+        .sized(size * 0.3)
+        .add(world.size.div(2))
 
-        const movingDirectionForce = this.family.velocity.mult(familyVelocity)
+      // tslint:disable-next-line:no-shadowed-variable
+      const movingForce = targetPosition
+        .sub(this.position)
+        .sized(attractForce)
+        .add(Vector.random(attractForce * 0.5, -attractForce * 0.5))
 
-        const movingForce = familyCenterForce.add(movingDirectionForce)
+      return [new Force(movingForce), []]
+    }
 
-        return [new Force(movingForce), []]
+    case "scroll": {
+      const targetX = (this.gene.value / Gene.geneMask) * world.size.x * 0.8 + world.size.x * 0.1
+      const normalized = reproduceInterval
+      const targetY = world.size.y * 0.7 - t + (Math.floor(this.createdAt / normalized) * normalized)
+      const targetPosition = new Vector(targetX, targetY)
 
-      default:
+      // tslint:disable-next-line:no-shadowed-variable
+      const movingForce = targetPosition
+        .sub(this.position)
+        .sized(attractForce)
+        .add(Vector.random(attractForce * 0.5, -attractForce * 0.5))
+
+      return [new Force(movingForce), []]
+    }
+
+    case "family": {
+      if (this.family == undefined) {
         break
+      }
+      const distance = this.position.dist(this.family.center)
+      const maxDistance = 20
+      const forceSize = (Math.min(distance + 10, maxDistance) / maxDistance) * attractForce
+
+      const familyCenterForce = this.family.center
+        .sub(this.position)
+        .sized(forceSize)
+        .add(Vector.random(attractForce * 0.5, -attractForce * 0.5))
+
+      const movingDirectionForce = this.family.velocity.mult(familyVelocity)
+
+      const movingForce = familyCenterForce.add(movingDirectionForce)
+
+      return [new Force(movingForce), []]
+    }
+    default:
+      break
     }
 
     const max = 0.1
@@ -658,11 +658,11 @@ class MachineWorld extends VanillaWorld {
           otherLife.didCollide(familyLifespanDecresement)
         } else
 
-          // TODO: 歳をとるごとに衝突によるlifespan減少幅が大きくなるようにする
-          if (life.age >= matureInterval && otherLife.age >= matureInterval) {
-            life.didCollide(1)
-            otherLife.didCollide(1)
-          }
+        // TODO: 歳をとるごとに衝突によるlifespan減少幅が大きくなるようにする
+        if (life.age >= matureInterval && otherLife.age >= matureInterval) {
+          life.didCollide(1)
+          otherLife.didCollide(1)
+        }
       }
     }
 
@@ -714,7 +714,7 @@ function assert(b: boolean, message: string): void {
 }
 
 function tests(): void {
-  assert(Gene.geneLength === 10, `Expected gene length == 10`)
+  assert(Gene.geneLength === 10, "Expected gene length == 10")
 
   const reproducibleValues = [
     0b1100111100,
@@ -730,6 +730,6 @@ function tests(): void {
     assert(reproducedValues.indexOf(v) >= 0, `${v.toString(2)}'s offsprings do not contain itself: ${reproducedValues.join(",")}`)
   })
 
-  log(`Test finished`)
+  log("Test finished")
   TEST = false
 }
