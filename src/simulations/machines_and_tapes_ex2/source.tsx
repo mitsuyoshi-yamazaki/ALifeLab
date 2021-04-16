@@ -1,5 +1,5 @@
 import p5 from "p5"
-import { random } from "../../classes/utilities"
+import { random, toggleFullscreen } from "../../classes/utilities"
 import { FrictedTerrain } from "../../alife-game-jam/terrain"
 import { Vector } from "../../classes/physics"
 import { Machine } from "./machine"
@@ -7,23 +7,29 @@ import { MachineWorld } from "./machine_world"
 import { Bit, Tape } from "./tape"
 import { URLParameterParser } from "../../classes/url_parameter_parser"
 
-export const parameterParser = new URLParameterParser()
+export const parameters = new URLParameterParser()
 
-const DEBUG = parameterParser.boolean("debug", true, "d")
-const numberOfMachines = parameterParser.int("number_of_machines", 200, "nm")
-const size = parameterParser.int("field_size", 800, "s")
-const temp = parameterParser.int("temp", 10, undefined)
+const DEBUG = parameters.boolean("debug", true, "d")
+const numberOfMachines = parameters.int("number_of_machines", 200, "nm")
+const size = parameters.int("field_size", 800, "s")
+const temp = parameters.int("temp", 10, undefined)
+const isArtMode = parameters.boolean("art_mode", false, "a")
+const isFullscreenEnabled = parameters.boolean("fullscreen", false, "f")
 
 log(`number of machines: ${numberOfMachines}`)
 
 let t = 0
-const fieldSize = new Vector(size, Math.floor(size * 0.6))
+const fieldSize = isFullscreenEnabled ?
+  new Vector(window.screen.width, window.screen.height) : new Vector(size, Math.floor(size * 0.6))
+
 const initialTape: Bit[] = [0, 0, 0, 0, 0, 1, 0, 1]
 const friction = 0.99
 const world = new MachineWorld(fieldSize, [new FrictedTerrain(fieldSize, friction)])
 world.addMachine(createMachines())
 const initialBitStatistics = world.bitStatistics()
 log(`[t:${t}] ('0', '1'): (${initialBitStatistics.zero}, ${initialBitStatistics.one})`)
+
+const canvasId = "canvas"
 
 function log(message: string): void {
   if (DEBUG) {
@@ -38,14 +44,16 @@ export const getTimestamp = (): number => {
 export const main = (p: p5) => {
   p.setup = () => {
     const canvas = p.createCanvas(fieldSize.x, fieldSize.y)
-    canvas.id("canvas")
+    canvas.id(canvasId)
     canvas.parent("canvas-parent")
 
     p.background(0)
   }
 
   p.draw = () => {
-    p.background(0)
+    if (isArtMode === false) {
+      p.background(0)
+    }
     world.next()
     world.draw(p)
 
@@ -57,6 +65,13 @@ export const main = (p: p5) => {
     }
 
     t += 1
+  }
+
+  p.mousePressed = () => {
+    if (isFullscreenEnabled !== true) {
+      return
+    }
+    toggleFullscreen(canvasId)
   }
 }
 
