@@ -10,7 +10,6 @@ export class Result {
   ) { }
 }
 
-// TODO: 接触した枝も取り除く
 export class Model {
   public showsBorderLine = false
   public lineCollisionEnabled = true
@@ -36,43 +35,40 @@ export class Model {
 
   public completion?(result: Result): void
 
-  public next(p: p5): void {
-    const draw = (node: Line) => {
-      node.draw(p)
-      node.children.forEach(child => draw(child))
-    }
-
+  public next(): void {
     if (this.isCompleted) {
-      draw(this._rootLine)
-
       return
     }
-    if (this._drawers.length > this.maxDrawerCount) { // TODO: 適切な終了条件を設定する
+    if (this._drawers.length > this.maxDrawerCount) { // TODO: 適切な終了条件を設定する // TODO: 生存者なしによる終了
       this._isCompleted = true
       if (this.completion != undefined) {
         this.completion(new Result(this.t))
       }
-      draw(this._rootLine)
 
       return
     }
 
     const newDrawers: Drawer[] = []
-    const newLines: Line[] = []
     this._drawers.forEach(drawer => {
       const action = drawer.next()
       if (this.isCollidedWithLines(action.line) === false) {
         newDrawers.push(...action.drawers)
-        newLines.push(action.line)
+        this._lines.push(action.line)
+        drawer.parentLine.children.push(action.line)
       }
     })
 
     this._drawers = newDrawers
-    this._lines.push(...newLines)
-
-    draw(this._rootLine)
 
     this._t += 1
+  }
+
+  public draw(p: p5): void {
+    const draw = (node: Line) => {
+      node.draw(p)
+      node.children.forEach(child => draw(child))
+    }
+    draw(this._rootLine)
   }
 
   private setupFirstDrawer(rootLine: Line): Drawer {
@@ -81,7 +77,7 @@ export class Model {
     rule.set("A", "A+B")
     rule.set("B", "A")
     const ruleConstants = new Map<string, number>()
-    ruleConstants.set("+", 30)
+    ruleConstants.set("+", 25)
 
     const direction = 270
 

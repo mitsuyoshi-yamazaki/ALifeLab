@@ -10,6 +10,7 @@ export const constants = {
     fieldSize: new Vector(fieldBaseSize, fieldBaseSize * 0.6),
   },
   simulation: {
+    executionInteral: parameters.int("simulation.execution_interval", 1, "s.i"),
     maxDrawerCount: parameters.int("simulation.max_drawer_count", 100, "s.d"),
     lineCollisionEnabled: parameters.boolean("simulation.line_collision_enabled", true, "s.l"),
   },

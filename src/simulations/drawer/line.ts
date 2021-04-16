@@ -16,8 +16,15 @@ export function isCollided(line1: Line, line2: Line): boolean {
 
   // if uA and uB are between 0-1, lines are colliding
   if (uA >= 0 && uA <= 1 && uB >= 0 && uB <= 1) {
-    // const intersectionX = line1.start.x + (uA * (line1.end.x - line1.start.x))
-    // const intersectionY = line1.start.y + (uA * (line1.end.y - line1.start.y))
+    const intersectionX = line1.start.x + (uA * (line1.end.x - line1.start.x))
+    const intersectionY = line1.start.y + (uA * (line1.end.y - line1.start.y))
+
+    // 端で接している場合は許容
+    if (intersectionX === line1.start.x && intersectionY === line1.start.y) {
+      return false
+    } else if (intersectionX === line1.end.x && intersectionY === line1.end.y) {
+      return false
+    }
 
     return true
   }

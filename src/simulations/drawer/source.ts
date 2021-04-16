@@ -27,7 +27,10 @@ export const main = (p: p5) => {
   p.draw = () => {
     p.background(0xFF, 0xFF)
 
-    model.next(p)
+    if (t % constants.simulation.executionInteral === 0) {
+      model.next()
+    }
+    model.draw(p)
 
     t += 1
   }
