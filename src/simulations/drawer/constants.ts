@@ -20,3 +20,5 @@ export const constants = {
     showsBorderLine: parameters.boolean("draw.shows_border_line", false, "d.b"),
   },
 }
+
+// http://localhost:8080/pages/drawer.html?r=1&s.i=5&s.d=400

@@ -30,8 +30,8 @@ export const main = (p: p5) => {
 
     if (constants.system.run && currentModel.result != undefined) {
       const result = currentModel.result
-      console.log(`completed at ${t} (${result.t}, ${result.reason})`)
-      screenshotDownloader.saveScreenshot(t, `${result.reason} at ${result.t}`)
+      console.log(`completed at ${t} (${result.t}, ${result.reason})\n${result.description}`)
+      screenshotDownloader.saveScreenshot(t, `${result.description}`)
       currentModel = createModel()
     }
 

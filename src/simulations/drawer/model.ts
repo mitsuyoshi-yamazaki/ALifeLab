@@ -9,6 +9,7 @@ export class Result {
   public constructor(
     public readonly t: number,
     public readonly reason: string,
+    public readonly description: string,
   ) { }
 }
 
@@ -26,7 +27,7 @@ export class Model {
   public constructor(
     public readonly fieldSize: Vector,
     public readonly maxDrawerCount: number,
-    lSystemRule: LSystemRule,
+    public readonly lSystemRule: LSystemRule,
   ) {
     this._rootLine = this.setupRootLine()
     const firstDrawer = this.setupFirstDrawer(this._rootLine, lSystemRule)
@@ -50,7 +51,7 @@ export class Model {
     const completionReason = this.completedReason()
     if (completionReason != undefined) {
       this._isCompleted = true
-      this._result = new Result(this.t, completionReason)
+      this._result = new Result(this.t, completionReason, this.lSystemRule.encoded)
 
       return
     }
