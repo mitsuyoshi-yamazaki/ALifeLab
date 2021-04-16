@@ -14,6 +14,6 @@ export const constants = {
     lineCollisionEnabled: parameters.boolean("simulation.line_collision_enabled", true, "s.l"),
   },
   draw: {
-    showBorderLine: parameters.boolean("draw.show_border_line", false, "d.b"),
+    showsBorderLine: parameters.boolean("draw.shows_border_line", false, "d.b"),
   },
 }
