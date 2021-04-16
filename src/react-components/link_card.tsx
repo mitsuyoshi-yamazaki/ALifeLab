@@ -1,5 +1,5 @@
-import React, { CSSProperties } from "react"
-import { makeStyles, Card, CardContent, Link, Typography } from "@material-ui/core"
+import React, { CSSProperties, ReactNode } from "react"
+import { Card, CardContent, Link, Typography } from "@material-ui/core"
 
 interface Props {
   title: string
@@ -7,7 +7,7 @@ interface Props {
 }
 
 export class LinkCard extends React.Component<Props> {
-  public render() {
+  public render(): ReactNode {
     const cardStyle: CSSProperties = {
       width: "20rem",
       height: "10rem",

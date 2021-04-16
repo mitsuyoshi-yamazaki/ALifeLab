@@ -88,7 +88,7 @@ export class ParameterDownloader<Parameters extends StringElementConvertible> ex
     this.linkElement.click()
     console.log(`Saved: ${filename}`)
 
-    let intervalId: number | undefined
+    let intervalId: number | undefined = undefined
     const delayed = () => { // Downloadin multiple files in exact same timing not working
       this.screenshotDownloader.saveScreenshot(t)
       clearInterval(intervalId)
@@ -100,7 +100,8 @@ export class ParameterDownloader<Parameters extends StringElementConvertible> ex
 }
 
 export class JSONDownloader extends Downloader {
-  public saveJson(json: object, filenamePrefix: string, timestamp: number) {
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  public saveJson(json: object, filenamePrefix: string, timestamp: number): void {
     const link = this.linkElement
     const data = `data:text/json;charset=utf-8,${encodeURIComponent(JSON.stringify(json, undefined, 2))}`
     const filename = this.createFilename(filenamePrefix, timestamp, "json")

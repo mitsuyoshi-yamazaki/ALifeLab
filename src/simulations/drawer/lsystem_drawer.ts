@@ -75,13 +75,13 @@ export class LSystemRule {
 
   public static decode(encoded: string): Map<string, LSystemCondition[]> {
     const map = new Map<string, LSystemCondition[]>()
-    encoded.split(';').forEach(pair => {
-      const keyValue = pair.split(':')
+    encoded.split(";").forEach(pair => {
+      const keyValue = pair.split(":")
       if (keyValue.length !== 2) {
         throw new Error(`Invalid condition: next-condition pair ${pair}`)
       }
       const condition = keyValue[0]
-      const nextConditions = keyValue[1].split(',').map((stringValue: string): LSystemCondition => {
+      const nextConditions = keyValue[1].split(",").map((stringValue: string): LSystemCondition => {
         const numberValue = parseInt(stringValue, 10)
         if (isNaN(numberValue) === true) {
           if (stringValue.length <= 0) {
@@ -149,7 +149,7 @@ export class LSystemDrawer extends Drawer {
     const children: LSystemDrawer[] = []
 
     for (const condition of nextCondition) {
-      if (typeof(condition) === 'number') {
+      if (typeof(condition) === "number") {
         newDirection += condition
         continue
       }
