@@ -50,7 +50,7 @@ export class LSystemRule {
         if (random(1) > 0.5) {
           break
         }
-        const angle = random(360, 0) - 180
+        const angle = Math.floor(random(360, 0)) - 180
         nextConditions.push(angle)
         nextConditions.push(randomCondition())
       }
