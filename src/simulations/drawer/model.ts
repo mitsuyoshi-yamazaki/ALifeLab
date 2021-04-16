@@ -61,12 +61,12 @@ export class Model {
       return
     }
 
-        if (this.lineLifeSpan > 0) {
-            if (this._lines.length > this.lineLifeSpan) {
-            const initLine = this._lines.slice(0, 4)
-                this._lines = initLine.concat(this._lines.slice(Math.floor(this._lines.length / this.lineLifeSpan) + 5, this._lines.length - 4))
-            }
-        }
+    if (this.lineLifeSpan > 0) {
+      if (this._lines.length > this.lineLifeSpan) {
+        const initLine = this._lines.slice(0, 4)
+        this._lines = initLine.concat(this._lines.slice(Math.floor(this._lines.length / this.lineLifeSpan) + 5, this._lines.length - 4))
+      }
+    }
 
     const newDrawers: Drawer[] = []
     this._drawers.forEach(drawer => {
