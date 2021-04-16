@@ -45,7 +45,7 @@ export class LSystemRule {
     }
 
     conditions.forEach(condition => {
-      const nextConditions: LSystemCondition[] = [randomCondition()]
+      const nextConditions: LSystemCondition[] =  []
       for (let i = 0; i < maxConditions; i += 1) {
         if (random(1) > 0.5) {
           break

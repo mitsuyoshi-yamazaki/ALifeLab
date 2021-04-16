@@ -33,14 +33,33 @@ export function isCollided(line1: Line, line2: Line): boolean {
 }
 
 export class Line {
-  public children: Line[] = []
-  public fixedWeight: number | undefined
+  public weight = 0.5
   public isHidden = false
 
   public constructor(
     public readonly start: Vector,
     public readonly end: Vector,
   ) { }
+
+  public draw(p: p5) {
+    if (this.isHidden === true) {
+      return
+    }
+
+    p.stroke(0xFF, 0x80)
+    p.strokeWeight(this.weight)
+    p.line(this.start.x, this.start.y, this.end.x, this.end.y)
+  }
+}
+
+export class LinkedLine extends Line {
+  public children: LinkedLine[] = []
+  public fixedWeight: number | undefined
+  public isHidden = false
+
+  public constructor(start: Vector, end: Vector) {
+    super(start, end)
+  }
 
   public get numberOfLeaves(): number {
     if (this.children.length === 0) {
@@ -57,7 +76,7 @@ export class Line {
 
     const weight = this.fixedWeight ?? ((1 - 1 / (this.numberOfLeaves + 1)) * 5)
 
-    p.stroke(0x0, 0x80)
+    p.stroke(0xFF, 0x80)
     p.strokeWeight(weight)
     p.line(this.start.x, this.start.y, this.end.x, this.end.y)
   }

@@ -20,7 +20,7 @@ export const main = (p: p5) => {
     canvas.id(canvasId)
     canvas.parent("canvas-parent")
 
-    p.background(0xFF, 0xFF)
+    p.background(0x0, 0xFF)
   }
 
   p.draw = () => {
@@ -28,7 +28,7 @@ export const main = (p: p5) => {
       return
     }
 
-    p.background(0xFF, 0xFF)
+    p.background(0x0, 0xFF)
 
     if (t % constants.simulation.executionInteral === 0) {
       currentModel.next()

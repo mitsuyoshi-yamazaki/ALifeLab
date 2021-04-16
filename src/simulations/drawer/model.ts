@@ -64,7 +64,7 @@ export class Model {
       if (this.isCollidedWithLines(action.line) === false) {
         newDrawers.push(...action.drawers)
         this._lines.push(action.line)
-        drawer.parentLine.children.push(action.line)
+        // drawer.parentLine.children.push(action.line)
       }
     })
 
@@ -74,11 +74,12 @@ export class Model {
   }
 
   public draw(p: p5): void {
-    const draw = (node: Line) => {
-      node.draw(p)
-      node.children.forEach(child => draw(child))
-    }
-    draw(this._rootLine)
+    // const draw = (node: Line) => {
+    //   node.draw(p)
+    //   node.children.forEach(child => draw(child))
+    // }
+    // draw(this._rootLine)
+    this._lines.forEach(line => line.draw(p))
   }
 
   private setupFirstDrawer(rootLine: Line, rule: LSystemRule): Drawer {
@@ -103,13 +104,13 @@ export class Model {
     let parent: Line | undefined
     points.forEach(p => {
       const line = new Line(p[0], p[1])
-      line.fixedWeight = 4
+      // line.fixedWeight = 4
       line.isHidden = !this.showsBorderLine
 
       if (root == undefined) {
         root = line
       }
-      parent?.children.push(line)
+      // parent?.children.push(line)
       this._lines.push(line)
       parent = line
     })
