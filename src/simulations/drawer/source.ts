@@ -37,10 +37,13 @@ export const main = (p: p5) => {
 
     if (constants.system.run && currentModel.result != undefined) {
       const result = currentModel.result
-      console.log(`completed at ${t} (${result.t}, ${result.reason}, ${result.status})\n${result.description}`)
-      screenshotDownloader.saveScreenshot(t, `${result.description}`)
+      const status = `${result.status.numberOfLines} lines`
+      console.log(`completed at ${t} (${result.t} steps, ${result.reason}, ${status})\n${result.description}`)
+      if (result.status.numberOfLines > 20) { // FixMe: 異なる状態から始めればすぐに終了しないかもしれない
+        screenshotDownloader.saveScreenshot(t, `${result.description}`)
+        saved = Date.now()
+      }
       currentModel = createModel()
-      saved = Date.now()
     }
 
     t += 1

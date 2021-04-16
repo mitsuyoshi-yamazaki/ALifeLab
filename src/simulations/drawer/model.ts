@@ -9,7 +9,7 @@ export class Result {
   public constructor(
     public readonly t: number,
     public readonly reason: string,
-    public readonly status: string,
+    public readonly status: { numberOfLines: number },
     public readonly description: string,
   ) { }
 }
@@ -52,7 +52,7 @@ export class Model {
     const completionReason = this.completedReason()
     if (completionReason != undefined) {
       this._isCompleted = true
-      const status = `${this._lines.length} lines`
+      const status = { numberOfLines: this._lines.length }
       this._result = new Result(this.t, completionReason, status, this.lSystemRule.encoded)
 
       return
