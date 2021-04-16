@@ -1,6 +1,7 @@
 import p5 from "p5"
 import { Vector } from "../../classes/physics"
-import { Drawer, LSystemDrawer } from "./drawer"
+import { Drawer } from "./drawer"
+import { LSystemDrawer } from "./lsystem_drawer"
 import { Line, isCollided } from "./line"
 // Do not import constants (pass constants via Model.constructor)
 
@@ -22,7 +23,10 @@ export class Model {
   private _rootLine: Line
   private _result: Result | undefined
 
-  public constructor(public readonly fieldSize: Vector, public readonly maxDrawerCount: number) {
+  public constructor(
+    public readonly fieldSize: Vector,
+    public readonly maxDrawerCount: number,
+  ) {
     this._rootLine = this.setupRootLine()
     const firstDrawer = this.setupFirstDrawer(this._rootLine)
     this._drawers.push(firstDrawer)

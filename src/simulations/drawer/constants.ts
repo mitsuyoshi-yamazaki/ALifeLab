@@ -3,11 +3,12 @@ import { URLParameterParser } from "../../classes/url_parameter_parser"
 
 const parameters = new URLParameterParser()
 
-const fieldBaseSize = parameters.int("system.size", 600, "s.s")
+const fieldBaseSize = parameters.int("system.size", 600, "s")
 
 export const constants = {
   system: {
     fieldSize: new Vector(fieldBaseSize, fieldBaseSize * 0.6),
+    run: parameters.boolean("system.run", false, "r"),
   },
   simulation: {
     executionInteral: parameters.int("simulation.execution_interval", 1, "s.i"),

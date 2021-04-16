@@ -27,7 +27,7 @@ export const main = (p: p5) => {
     }
     currentModel.draw(p)
 
-    if (currentModel.result != undefined) {
+    if (constants.system.run && currentModel.result != undefined) {
       const result = currentModel.result
       console.log(`completed at ${t} (${result.t}, ${result.reason})`)
       screenshotDownloader.saveScreenshot(t, `${result.reason} at ${result.t}`)
