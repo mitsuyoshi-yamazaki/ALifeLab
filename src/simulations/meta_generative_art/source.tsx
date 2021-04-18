@@ -3,6 +3,7 @@ import { ParameterDownloader, StringElementConvertible } from "../../classes/dow
 import { Vector } from "../../classes/physics"
 import { random } from "../../classes/utilities"
 import React from "react"
+import { defaultCanvasParentId } from "../../react-components/default_canvas_parent_id"
 
 /*
 * https://vimeo.com/22955812
@@ -173,7 +174,7 @@ export const main = (p: p5): void => {
     const canvasHeight = drawMode === DrawMode.Both ? canvasSize.y * 2 : canvasSize.y
     const canvas = p.createCanvas(canvasSize.x, canvasHeight)
     canvas.id("canvas")
-    canvas.parent("canvas-parent")
+    canvas.parent(defaultCanvasParentId)
     parameterDownloader = new ParameterDownloader()
 
     createObjects()

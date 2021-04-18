@@ -1,6 +1,6 @@
 {
-  "page_title": "Drawer",
-  "og_description": "",
+  "page_title": "幾何学図形ジェネレータ",
+  "og_description": "L-Systemで幾何学図形を生成します",
   "og_image": "",
   "og_url": "",
   "script_path": "../dist/drawer.js"

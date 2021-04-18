@@ -1,5 +1,6 @@
 import p5 from "p5"
 import { random, toggleFullscreen } from "../../classes/utilities"
+import { defaultCanvasParentId } from "../../react-components/default_canvas_parent_id"
 import { FrictedTerrain } from "../../alife-game-jam/terrain"
 import { Vector } from "../../classes/physics"
 import { Machine } from "./machine"
@@ -44,7 +45,7 @@ export const main = (p: p5): void => {
   p.setup = () => {
     const canvas = p.createCanvas(fieldSize.x, fieldSize.y)
     canvas.id(canvasId)
-    canvas.parent("canvas-parent")
+    canvas.parent(defaultCanvasParentId)
 
     p.background(0)
   }

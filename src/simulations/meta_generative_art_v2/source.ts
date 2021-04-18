@@ -1,5 +1,6 @@
 import p5 from "p5"
 import { random, toggleFullscreen } from "../../classes/utilities"
+import { defaultCanvasParentId } from "../../react-components/default_canvas_parent_id"
 import { constants } from "./constants"
 import { Obj, Circle, CollisionTag } from "./objects"
 import {
@@ -21,7 +22,7 @@ export const main = (p: p5): void => {
   p.setup = () => {
     const canvas = p.createCanvas(constants.system.fieldSize.x, constants.system.fieldSize.y)
     canvas.id(canvasId)
-    canvas.parent("canvas-parent")
+    canvas.parent(defaultCanvasParentId)
 
     setupRules()
     setupObjects()

@@ -3,6 +3,7 @@ import { URLParameterParser } from "../../classes/url_parameter_parser"
 import { Color } from "../../classes/color"
 import { Vector } from "../../classes/physics"
 import { random } from "../../classes/utilities"
+import { defaultCanvasParentId } from "../../react-components/default_canvas_parent_id"
 import { Life } from "../../alife-game-jam/life"
 import { FrictedTerrain, Terrain } from "../../alife-game-jam/terrain"
 import { VanillaWorld } from "../../alife-game-jam/world"
@@ -68,7 +69,7 @@ export const main = (p: p5): void => {
 
     const canvas = p.createCanvas(fieldSize.x, fieldSize.y)
     canvas.id("canvas")
-    canvas.parent("canvas-parent")
+    canvas.parent(defaultCanvasParentId)
 
     const unusedParameters = parameters.unusedKeys()
     if (unusedParameters.length > 0) {

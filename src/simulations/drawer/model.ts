@@ -21,6 +21,7 @@ export class Model {
   public showsQuadtree = false
   public lineCollisionEnabled = true
   public quadtreeEnabled = true
+  public concurrentExecutionNumber = 1
 
   public get t(): number {
     return this._t
@@ -54,10 +55,60 @@ export class Model {
     this._drawers.push(...this.setupFirstDrawers(lSystemRules))
   }
 
-  public next(): void {
-    if (this.isCompleted) {
+  public execute(): void {
+    this.executeSteps(this.concurrentExecutionNumber)
+  }
+
+  public draw(p: p5): void {
+    this._lines.forEach(line => line.draw(p))
+
+    if (this.showsQuadtree) {
+      this._rootNode.draw(p)
+    }
+  }
+
+  private setupFirstDrawers(rules: LSystemRule[]): Drawer[] {
+    const padding = 100
+    const randomPosition = (): Vector => {
+      return new Vector(random(this.fieldSize.x - padding, padding), random(this.fieldSize.y - padding, padding))
+    }
+    const randomDirection = (): number => (random(360) - 180)
+
+    return rules.map(rule => new LSystemDrawer(
+      randomPosition(),
+      randomDirection(),
+      LSystemRule.initialCondition,
+      1,
+      rule,
+      this.lineLengthType
+    ))
+  }
+
+  private setupBorderLines() {
+    const points: [Vector, Vector][] = []
+    for (let i = 0; i < 2; i += 1) {
+      for (let j = 0; j < 2; j += 1) {
+        points.push([
+          new Vector(i * this.fieldSize.x, i * this.fieldSize.y),
+          new Vector(j * this.fieldSize.x, ((j + 1) % 2) * this.fieldSize.y),
+        ])
+      }
+    }
+
+    points.forEach(p => {
+      const line = new Line(p[0], p[1])
+      line.isHidden = !this.showsBorderLine
+
+      this.addLine(line, this.nodeContains(line))
+    })
+  }
+
+  private executeSteps(drawerCount: number): void {
+    if (this.isCompleted === true || drawerCount <= 0) {
       return
     }
+    drawerCount -= this._drawers.length
+
     const completionReason = this.completedReason()
     if (completionReason != undefined) {
       this._isCompleted = true
@@ -70,8 +121,8 @@ export class Model {
 
     if (this.lineLifeSpan > 0) {
       if (this._lines.length > this.lineLifeSpan) {
-        if(this.quadtreeEnabled) {
-          throw new Error("四分木導入のため正常動作せず")
+        if (this.quadtreeEnabled) {
+          throw new Error("TODO: 四分木から線分を削除する処理を実装する")
         }
         const initLine = this._lines.slice(0, 4)
         this._lines = initLine.concat(this._lines.slice(Math.floor(this._lines.length / this.lineLifeSpan) + 5, this._lines.length - 4))
@@ -97,44 +148,7 @@ export class Model {
     })
 
     this._t += 1
-  }
-
-  public draw(p: p5): void {
-    this._lines.forEach(line => line.draw(p))
-
-    if (this.showsQuadtree) {
-      this._rootNode.draw(p)
-    }
-  }
-
-  private setupFirstDrawers(rules: LSystemRule[]): Drawer[] {
-    const padding = 100
-    const randomPosition = (): Vector => {
-      return new Vector(random(this.fieldSize.x - padding, padding), random(this.fieldSize.y - padding, padding))
-    }
-    const randomDirection = (): number => (random(360) - 180)
-    const firstCondition = "A" // Since all random rule contains "A"
-
-    return rules.map(rule => new LSystemDrawer(randomPosition(), randomDirection(), firstCondition, 1, rule, this.lineLengthType))
-  }
-
-  private setupBorderLines() {
-    const points: [Vector, Vector][] = []
-    for (let i = 0; i < 2; i += 1) {
-      for (let j = 0; j < 2; j += 1) {
-        points.push([
-          new Vector(i * this.fieldSize.x, i * this.fieldSize.y),
-          new Vector(j * this.fieldSize.x, ((j + 1) % 2) * this.fieldSize.y),
-        ])
-      }
-    }
-
-    points.forEach(p => {
-      const line = new Line(p[0], p[1])
-      line.isHidden = !this.showsBorderLine
-
-      this.addLine(line, this.nodeContains(line))
-    })
+    this.executeSteps(drawerCount)
   }
 
   private nodeContains(line: Line): QuadtreeNode | null {

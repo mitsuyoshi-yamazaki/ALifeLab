@@ -1,13 +1,40 @@
 import p5 from "p5"
-import React from "react"
+import React, { CSSProperties, ReactNode } from "react"
 import ReactDOM from "react-dom"
 import { DetailPage } from "../../react-components/detail_page"
-import { main, getTimestamp } from "./source"
+import { main, getTimestamp, canvasWidth } from "./source"
 
 const App = () => {
+  const descriptionStyle: CSSProperties = {
+    margin: DetailPage.defaultContentMargin
+  }
+  const borderStyle: CSSProperties = {
+    backgroundColor: "rgba(212, 214, 245, 1.0)",
+    width: "100%",
+    height: "1px",
+    border: "none",
+  }
+  const linkOf = (filename: string): ReactNode => {
+    const url = `https://github.com/mitsuyoshi-yamazaki/ALifeLab/blob/main/src/simulations/drawer/${filename}`
+    return <a href={url} target="_blank" rel="noopener noreferrer" style={{color: "#0366d6"}}>{filename}</a>
+  }
+
   return (
-    <DetailPage getTimestamp={() => getTimestamp()}>
-      <div id="canvas-parent"></div>
+    <DetailPage getTimestamp={() => getTimestamp()} bodyWidth={canvasWidth}>
+      <div style={descriptionStyle}>
+        <h2>{document.title}</h2>
+        <hr style={borderStyle}></hr>
+        <p>
+          L-Systemで幾何学図形を描画します。<br />
+          描画する線分に衝突判定を入れたことで、交差する線なしに紙面を埋める図形を描画します。<br />
+          URLパラメータに{'"'}system.run=1{'"'}を設定することでランダムな図形を自動探索します。<br />
+          また{'"'}system.auto_download=1{'"'}を設定することで探索した画像を自動的に保存します。<br />
+        </p>
+        <ul style={{ paddingLeft: "2rem" }}>
+          <li>リロードの度に表示される図形のルール一覧: {linkOf("rule_example.ts")}</li>
+          <li>設定可能なURLパラメータ一覧: {linkOf("constants.ts")}</li>
+        </ul>
+      </div>
     </DetailPage>
   )
 }
