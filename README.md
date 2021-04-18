@@ -1,6 +1,6 @@
 # ALifeLab
 
-<img src="resources/LSystem%20Artboard%401x.jpg">
+<img src="resources/lsystem_artboard.jpg">
 
 ## Getting started
 ```shell
