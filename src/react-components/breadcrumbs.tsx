@@ -10,13 +10,14 @@ export class Breadcrumbs extends React.Component<Props> {
     const breadcrumbsTextColor: CSSProperties = {
       color: "white",
     }
+    const link = "/ALifeLab/" // FixMe: ローカルではこのサブディレクトリがないため404する
 
     return (
       <div>
         <AppBar position="static">
           <Toolbar>
             <MaterialBreadcrumbs aria-label="breadcrumb" style={breadcrumbsTextColor}>
-              <Link color="inherit" href="/">
+              <Link color="inherit" href={link}>
                 {mainPageTitle}
               </Link>
               <Typography>{document.title}</Typography>
