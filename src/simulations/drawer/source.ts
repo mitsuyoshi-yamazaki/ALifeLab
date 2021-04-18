@@ -2,6 +2,7 @@ import p5 from "p5"
 import { constants } from "./constants"
 import { Vector } from "../../classes/physics"
 import { Model } from "./model"
+import { defaultCanvasParentId } from "../../react-components/default_canvas_parent_id"
 import { LSystemRule } from "./lsystem_drawer"
 import { ScreenshotDownloader, JSONDownloader } from "../../classes/downloader"
 
@@ -17,7 +18,7 @@ export const main = (p: p5): void => {
   p.setup = () => {
     const canvas = p.createCanvas(fieldSize, fieldSize)
     canvas.id(canvasId)
-    canvas.parent("canvas-parent")
+    canvas.parent(defaultCanvasParentId)
 
     p.background(0x0, 0xFF)
   }

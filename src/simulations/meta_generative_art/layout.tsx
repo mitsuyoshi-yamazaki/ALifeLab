@@ -7,7 +7,6 @@ import { main, getTimestamp } from "./source"
 const App = () => {
   return (
     <DetailPage getTimestamp={() => getTimestamp()}>
-      <div id="canvas-parent"></div>
     </DetailPage>
   )
 }

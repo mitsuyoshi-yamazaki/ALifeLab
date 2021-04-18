@@ -7,10 +7,10 @@ import { main, getTimestamp } from "./source"
 const App = () => {
   return (
     <DetailPage getTimestamp={() => getTimestamp()} getDescription={() => document.location.search}>
-      <div id="canvas-parent"></div>
     </DetailPage>
   )
 }
 
 ReactDOM.render(<App />, document.getElementById("root"))
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const sketch = new p5(main)

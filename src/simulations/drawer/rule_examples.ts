@@ -30,7 +30,7 @@ export const exampleRules: string[] = [
   "A:58,A,2,A,-65,A",
 
   // 銀杏
-  "A:-81,B,69,A,25,A;B:-77,B",
+  "A:-12,A,25,A",
 
   // 生痕化石
   "A:30,C,87,C;C:-179,C,-52,B;B:-136,B,-5,A",
