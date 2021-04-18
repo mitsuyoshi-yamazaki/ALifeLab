@@ -30,6 +30,9 @@ export class DetailPage extends React.Component<Props> {
       margin: "auto",
       marginTop: "2rem",
       fontFamily: fontFamily.join(","),
+      fontSize: "14px",
+      lineHeight: "1.5",
+      color: "#24292e",
     }
     const sectionStyle: CSSProperties = {
       marginTop: "2rem",
