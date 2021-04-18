@@ -121,7 +121,9 @@ export class Model {
 
     if (this.lineLifeSpan > 0) {
       if (this._lines.length > this.lineLifeSpan) {
-        throw new Error("四分木導入のため正常動作せず")
+        if(this.quadtreeEnabled) {
+          throw new Error("四分木導入のため正常動作せず")
+        }
         const initLine = this._lines.slice(0, 4)
         this._lines = initLine.concat(this._lines.slice(Math.floor(this._lines.length / this.lineLifeSpan) + 5, this._lines.length - 4))
       }
