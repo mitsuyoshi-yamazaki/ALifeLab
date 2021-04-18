@@ -16,11 +16,14 @@ export const constants = {
     // trueで綺麗そうな絵になるルールを自動探索 
     run: parameters.boolean("system.run", false, "r"),
 
+    // system.run=trueの場合、trueで有望なルールと画像を自動的にダウンロード
+    autoDownload: parameters.boolean("system.auto_download", false, "d"),
+
     // trueで四分木による計算量削減を有効化
     quadtreeEnabled: parameters.boolean("system.quadtree", true, "q"),
   },
   simulation: {
-    // 動作を遅くしたい場合に増やす。1未満の値（高速化）はサポートされない
+    // 動作を遅くしたい場合に増やす。1未満の値（高速化）は動作しない
     executionInteral: parameters.int("simulation.execution_interval", 1, "s.i"),
 
     // 描画する線分の上限

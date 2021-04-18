@@ -1,7 +1,7 @@
 import p5 from "p5"
 import { constants } from "./constants"
 import { Vector } from "../../classes/physics"
-import { Model } from "./model"
+import { Model, Result } from "./model"
 import { defaultCanvasParentId } from "../../react-components/default_canvas_parent_id"
 import { LSystemRule } from "./lsystem_drawer"
 import { ScreenshotDownloader, JSONDownloader } from "../../classes/downloader"
@@ -41,7 +41,7 @@ export const main = (p: p5): void => {
       const result = currentModel.result
       const status = `${result.status.numberOfLines} lines`
       console.log(`completed at ${t} (${result.t} steps, ${result.reason}, ${status})\n${result.description}`)
-      if (result.status.numberOfLines > 100) { // FixMe: 異なる状態から始めればすぐに終了しないかもしれないためこの終了条件は適していない
+      if (constants.system.autoDownload && shouldSave(result)) {
         downloader.save("", currentModel.lSystemRules, t)
       }
       currentModel = createModel()
@@ -85,6 +85,13 @@ function createModel(ruleString?: string): Model {
   model.quadtreeEnabled = constants.system.quadtreeEnabled
 
   return model
+}
+
+function shouldSave(result: Result): boolean {
+  if (result.status.numberOfLines < 100) {  // FixMe: 異なる状態から始めればすぐに終了しないかもしれないためこの終了条件は適していない
+    return false
+  }
+  return true
 }
 
 class Downloader {
