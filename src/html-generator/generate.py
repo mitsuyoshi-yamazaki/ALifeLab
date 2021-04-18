@@ -43,11 +43,12 @@ def write_to(filepath, content):
   with open(filepath, 'w', encoding='utf-8') as file:
     file.write(content)
 
-def generate_html(page_name, template, source_path, output_path):
+def generate_html(page_name, template, source_path, output_path, og_type):
   try:
     html_filepath = output_path + page_name + '.html'
     log('\ngenerate: {}'.format(html_filepath))
     arguments = read_arguments(source_path + page_name + '/' + arguments_filename)
+    arguments["og_type"] = og_type
     content = set_arguments(template, arguments)
     write_to(html_filepath, content)
   except:
@@ -56,6 +57,6 @@ def generate_html(page_name, template, source_path, output_path):
 if __name__ == '__main__':
   os.chdir(os.path.dirname(__file__))
   template = read_template()
-  generate_html(index_page_name, template, index_page_source_path, index_page_output_path)
+  generate_html(index_page_name, template, index_page_source_path, index_page_output_path, "website")
   for page_name in page_names():
-    generate_html(page_name, template, source_path, output_path)
+    generate_html(page_name, template, source_path, output_path, "article")
