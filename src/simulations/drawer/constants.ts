@@ -22,5 +22,6 @@ export const constants = {
   },
   draw: {
     showsBorderLine: parameters.boolean("draw.shows_border_line", false, "d.b"),
+    showsQuadtree: parameters.boolean("draw.shows_quadtree", false, "d.q"),
   },
 }

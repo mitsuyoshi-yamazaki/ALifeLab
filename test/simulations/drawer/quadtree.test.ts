@@ -1,18 +1,26 @@
 import { Vector } from "../../../src/classes/physics"
 import { QuadtreeNode, QuadtreeObject } from "../../../src/simulations/drawer/quadtree"
 
+function createObject(minX: number, minY: number, maxX: number, maxY: number): QuadtreeObject {
+  return {
+    edgePoints: [
+      new Vector(minX, minY),
+      new Vector(maxX, maxY),
+    ]
+  }
+}
 
 describe("Quadtree", () => {
   test("Instantiate", () => {
     const point1 = new Vector(0, 0)
     const point2 = new Vector(1, 1)
-    expect(() => new QuadtreeNode(point1, point2)).not.toThrow()
-    expect(() => new QuadtreeNode(point2, point1)).toThrow()
-    expect(() => new QuadtreeNode(point1, point1)).toThrow()
+    expect(() => new QuadtreeNode(point1, point2, null)).not.toThrow()
+    expect(() => new QuadtreeNode(point2, point1, null)).toThrow()
+    expect(() => new QuadtreeNode(point1, point1, null)).toThrow()
   })
 
   test("Child nodes", () => {
-    const subset = (new QuadtreeNode(new Vector(0, 0), new Vector(2, 2))).children
+    const subset = (new QuadtreeNode(new Vector(0, 0), new Vector(2, 2), null)).children
 
     // top left
     expect(subset.topLeft.minPoint.x).toBeCloseTo(0)
@@ -40,38 +48,23 @@ describe("Quadtree", () => {
   })
 
   test("Add object in this node", () => {
-    const node = new QuadtreeNode(new Vector(0, 0), new Vector(2, 2))
-    const obj1: QuadtreeObject = {
-      edgePoints: [
-        new Vector(0.5, 0.5),
-        new Vector(0.5, 1.5)
-      ]
-    }
-    const obj2: QuadtreeObject = {
-      edgePoints: [
-        new Vector(0.5, 0.5),
-        new Vector(1.5, 1.5)
-      ]
-    }
+    const node = new QuadtreeNode(new Vector(0, 0), new Vector(2, 2), null)
+    const obj1 = createObject(0.5, 0.5, 0.5, 1.5)
+    const obj2 = createObject(0.5, 0.5, 1.5, 1.5)
 
     expect(node.nodeContains(obj1)).toStrictEqual(node)
     expect(node.nodeContains(obj2)).toStrictEqual(node)
   })
 
   test("Add object in child node", () => {
-    const node = new QuadtreeNode(new Vector(0, 0), new Vector(2, 2))
-    const obj: QuadtreeObject = {
-      edgePoints: [
-        new Vector(0.25, 0.25),
-        new Vector(0.75, 0.75),
-      ]
-    }
+    const node = new QuadtreeNode(new Vector(0, 0), new Vector(2, 2), null)
+    const obj = createObject(0.25, 0.25, 0.75, 0.75)
 
     expect(node.nodeContains(obj)).toStrictEqual(node.children.topLeft)
   })
 
   test("Adding object fails", () => {
-    const node = new QuadtreeNode(new Vector(0, 0), new Vector(1, 1))
+    const node = new QuadtreeNode(new Vector(0, 0), new Vector(1, 1), null)
     const obj: QuadtreeObject = {
       edgePoints: [
         new Vector(2, 2)
@@ -79,5 +72,45 @@ describe("Quadtree", () => {
     }
 
     expect(node.nodeContains(obj)).toBeNull()
+  })
+
+  test("Retrieve objects those possibly affect", () => {
+    const rootNode = new QuadtreeNode(new Vector(0, 0), new Vector(8, 8), null)
+    const obj = createObject(1, 1, 3, 3)
+
+    const collisionCheckObjects: QuadtreeObject[] = [
+      createObject(1, 3, 3, 1),
+      createObject(3, 3, 5, 3),
+      createObject(1, 1, 7, 7),
+      createObject(7, 1, 7, 7),
+    ]
+
+    const otherObjects: QuadtreeObject[] = [
+      createObject(5, 1, 7, 1),
+      createObject(7.5, 7.5, 8, 8),
+    ]
+    
+    const add = (obj: QuadtreeObject): void => {
+      const node = rootNode.nodeContains(obj)
+      if (node == null) {
+        throw new Error(`Wrong constant (${obj.edgePoints.map(toString).join(",")})`)
+      }
+      node.objects.push(obj)
+    }
+
+    collisionCheckObjects.forEach(obj => add(obj))
+    otherObjects.forEach(obj => add(obj))
+
+    const node = rootNode.nodeContains(obj)
+    if (node == null) {
+      throw new Error(`Wrong constant (${obj.edgePoints.map(toString).join(",")})`)
+    }
+    const objects = node.collisionCheckObjects()
+    expect(objects.length).toBe(collisionCheckObjects.length)
+
+    objects.every(obj => {
+      expect(collisionCheckObjects.includes(obj)).toBe(true)
+      expect(otherObjects.includes(obj)).toBe(false)
+    })
   })
 })

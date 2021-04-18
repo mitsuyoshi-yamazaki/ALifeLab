@@ -4,6 +4,7 @@ import { random } from "../../classes/utilities"
 import { Drawer } from "./drawer"
 import { LSystemDrawer, LSystemRule } from "./lsystem_drawer"
 import { Line, isCollided } from "./line"
+import { QuadtreeNode } from "./quadtree"
 // Do not import constants (pass constants via Model.constructor)
 
 export class Result {
@@ -17,13 +18,27 @@ export class Result {
 
 export class Model {
   public showsBorderLine = false
+  public showsQuadtree = false
   public lineCollisionEnabled = true
+
+  public get t(): number {
+    return this._t
+  }
+
+  public get isCompleted(): boolean {
+    return this._isCompleted
+  }
+
+  public get result(): Result | undefined {
+    return this._result
+  }
 
   private _t = 0
   private _isCompleted = false
   private _drawers: Drawer[] = []
   private _lines: Line[] = []
   private _result: Result | undefined
+  private _rootNode: QuadtreeNode
 
   public constructor(
     public readonly fieldSize: Vector,
@@ -33,18 +48,9 @@ export class Model {
         public readonly lineLifeSpan: number,
         public readonly lineLengthType: number,
   ) {
+    this._rootNode = new QuadtreeNode(new Vector(0, 0), fieldSize, null)
     this.setupBorderLines()
     this._drawers.push(...this.setupFirstDrawers(lSystemRules))
-  }
-
-  public get t(): number {
-    return this._t
-  }
-  public get isCompleted(): boolean {
-    return this._isCompleted
-  }
-  public get result(): Result | undefined {
-    return this._result
   }
 
   public next(): void {
@@ -63,6 +69,7 @@ export class Model {
 
     if (this.lineLifeSpan > 0) {
       if (this._lines.length > this.lineLifeSpan) {
+        throw new Error("四分木導入のため正常動作せず")
         const initLine = this._lines.slice(0, 4)
         this._lines = initLine.concat(this._lines.slice(Math.floor(this._lines.length / this.lineLifeSpan) + 5, this._lines.length - 4))
       }
@@ -73,7 +80,7 @@ export class Model {
       const action = drawer.next()
       if (this.isCollidedWithLines(action.line) === false) {
         newDrawers.push(...action.drawers)
-        this._lines.push(action.line)
+        this.addLine(action.line)
       }
     })
 
@@ -90,6 +97,10 @@ export class Model {
 
   public draw(p: p5): void {
     this._lines.forEach(line => line.draw(p))
+
+    if (this.showsQuadtree) {
+      this._rootNode.draw(p)
+    }
   }
 
   private setupFirstDrawers(rules: LSystemRule[]): Drawer[] {
@@ -118,7 +129,7 @@ export class Model {
       const line = new Line(p[0], p[1])
       line.isHidden = !this.showsBorderLine
 
-      this._lines.push(line)
+      this.addLine(line)
     })
   }
 
@@ -127,7 +138,23 @@ export class Model {
       return false
     }
 
-    return this._lines.some(other => isCollided(line, other))
+    const lines = line.node?.objects as Line[] ?? this._lines
+    return lines.some(other => isCollided(line, other))
+  }
+
+  private addLine(line: Line): void {
+    const node = this._rootNode.nodeContains(line)
+    if (node == null) {
+      console.log(`line (${line.start}, ${line.end}) cannot find node`)
+    } else {
+      node.objects.push(line)
+      line.node = node
+    }
+    this._lines.push(line)
+  }
+
+  private removeLine(line: Line): void {
+    // TODO:
   }
 
   private completedReason(): string | undefined { // TODO: 適切な終了条件を設定する

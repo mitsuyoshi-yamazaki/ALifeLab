@@ -37,7 +37,9 @@ export class QuadtreeNode {
     return children
   }
 
-  constructor(public readonly minPoint: Vector, public readonly maxPoint: Vector) {
+  // MEMO: Circular references shouldn't be an issue
+  // Mark-and-sweep algorithm https://developer.mozilla.org/ja/docs/Web/JavaScript/Memory_Management
+  constructor(public readonly minPoint: Vector, public readonly maxPoint: Vector, public readonly parent: QuadtreeNode | null) {
     if (minPoint.x >= maxPoint.x || minPoint.y >= maxPoint.y) {
       throw new Error(`maxPoint should be larger than minPoint (minPoint: ${minPoint}, maxPoint: ${maxPoint})`)
     }
@@ -64,6 +66,13 @@ export class QuadtreeNode {
     return obj.edgePoints.every(point => point.in(this.minPoint, this.maxPoint))
   }
 
+  public collisionCheckObjects(): QuadtreeObject[] {
+    if (this.parent == null) {
+      return this.objects.concat([])
+    }
+    return this.objects.concat(this.parent.collisionCheckObjects())
+  }
+
   public draw(p: p5): void {
     const weight = 0.5
     const halfWeight = weight / 2
@@ -72,16 +81,18 @@ export class QuadtreeNode {
     p.stroke(60, 85, 247)
 
     p.rect(this.minPoint.x - halfWeight, this.minPoint.y - halfWeight, this.size.x + weight, this.size.y + weight)
+
+    this._children?.nodes.forEach(node => node.draw(p))
   }
 
   private createChildren(): QuadtreeSubset {
     const centerX = this.minPoint.x + this.size.x / 2
     const centerY = this.minPoint.y + this.size.y / 2
     return new QuadtreeSubset(
-      new QuadtreeNode(this.minPoint, new Vector(centerX, centerY)),
-      new QuadtreeNode(new Vector(centerX, this.minPoint.y), new Vector(this.maxPoint.x, centerY)),
-      new QuadtreeNode(new Vector(this.minPoint.x, centerY), new Vector(centerX, this.maxPoint.y)),
-      new QuadtreeNode(new Vector(centerX, centerY), this.maxPoint),
+      new QuadtreeNode(this.minPoint, new Vector(centerX, centerY), this),
+      new QuadtreeNode(new Vector(centerX, this.minPoint.y), new Vector(this.maxPoint.x, centerY), this),
+      new QuadtreeNode(new Vector(this.minPoint.x, centerY), new Vector(centerX, this.maxPoint.y), this),
+      new QuadtreeNode(new Vector(centerX, centerY), this.maxPoint, this),
     )
   }
 }
