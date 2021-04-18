@@ -1,9 +1,9 @@
 import p5 from "p5"
+import { Vector } from "../classes/physics"
 import { random } from "../classes/utilities"
+import { Force } from "./force"
 import { Gene } from "./gene"
 import { WorldObject } from "./object"
-import { Vector } from "../classes/physics"
-import { Force } from "./force"
 
 export class Life extends WorldObject {
   public static collisionPriority = 100
@@ -128,6 +128,7 @@ export class ActiveLife extends GeneticLife {
     super(position)
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public eat(other: GeneticLife): WorldObject[] {
     return []
   }

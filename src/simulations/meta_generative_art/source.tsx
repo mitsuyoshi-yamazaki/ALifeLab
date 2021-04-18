@@ -3,7 +3,6 @@ import { ParameterDownloader, StringElementConvertible } from "../../classes/dow
 import { Vector } from "../../classes/physics"
 import { random } from "../../classes/utilities"
 import React from "react"
-import ReactDOM from "react-dom"
 
 /*
 * https://vimeo.com/22955812
@@ -82,7 +81,7 @@ const rawQuery = document.location.search
 const queries = rawQuery
   .slice(rawQuery.indexOf("?") + 1)
   .split("&")
-// tslint:disable-next-line:no-any
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const parameters = {} as any
 
 for (const query of queries) {
@@ -114,7 +113,7 @@ const givenBehavior: Behavior[] = (() => {
     B5: Behavior.B5,
     B6: Behavior.B6,
     B7: Behavior.B7,
-  // tslint:disable-next-line:no-any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } as any
 
   return given.split(",")
@@ -152,24 +151,24 @@ class ArtParameter implements StringElementConvertible {
   }
 }
 
-enum ArtConstraintRelation {
-  Equal,
-  LargerThan,
-  LesserThan,
-}
+// enum ArtConstraintRelation {
+//   Equal,
+//   LargerThan,
+//   LesserThan,
+// }
 
-interface ArtConstraint {
-  firstAttribute: string
-  secondAttribte: string | undefined
-  constant: number
-  relation: ArtConstraintRelation
-  multiplier: number
-}
+// interface ArtConstraint {
+//   firstAttribute: string
+//   secondAttribte: string | undefined
+//   constant: number
+//   relation: ArtConstraintRelation
+//   multiplier: number
+// }
 
 let parameterDownloader: ParameterDownloader<ArtParameter>
 const artParameter = new ArtParameter(element1, 20, 40)
 
-export const main = (p: p5) => {
+export const main = (p: p5): void => {
   p.setup = () => {
     const canvasHeight = drawMode === DrawMode.Both ? canvasSize.y * 2 : canvasSize.y
     const canvas = p.createCanvas(canvasSize.x, canvasHeight)
@@ -271,12 +270,8 @@ export const main = (p: p5) => {
 
           const normalizedDistance = ((minDistance - distance) / minDistance)
           const forceMagnitude = normalizedDistance * 1
-          obj.forces
-            .push(obj.position.sub(other.position)
-            .sized(forceMagnitude))
-          other.forces
-            .push(other.position.sub(obj.position)
-            .sized(forceMagnitude))
+          obj.forces.push(obj.position.sub(other.position).sized(forceMagnitude))
+          other.forces.push(other.position.sub(obj.position).sized(forceMagnitude))
 
           if (drawMode === DrawMode.Artistic || drawMode === DrawMode.Both) {
             p.noFill()
@@ -297,35 +292,35 @@ export const main = (p: p5) => {
 
   function draw(): void {
     switch (drawMode) {
-      case DrawMode.Artistic:
-        p.noStroke()
-        p.fill(0, 2)
-        p.rect(0, 0, canvasSize.x, canvasSize.y)
-        break
+    case DrawMode.Artistic:
+      p.noStroke()
+      p.fill(0, 2)
+      p.rect(0, 0, canvasSize.x, canvasSize.y)
+      break
 
-      case DrawMode.Backend:
-        p.background(0)
+    case DrawMode.Backend:
+      p.background(0)
 
-        objects.forEach(obj => {
-          obj.draw(p)
-        })
-        break
+      objects.forEach(obj => {
+        obj.draw(p)
+      })
+      break
 
-      case DrawMode.Both:
-        p.noStroke()
-        p.fill(0, 10)
-        p.rect(0, 0, canvasSize.x, canvasSize.y)
+    case DrawMode.Both:
+      p.noStroke()
+      p.fill(0, 10)
+      p.rect(0, 0, canvasSize.x, canvasSize.y)
 
-        p.fill(0)
-        p.rect(0, canvasSize.y - 1, canvasSize.x, canvasSize.y)
+      p.fill(0)
+      p.rect(0, canvasSize.y - 1, canvasSize.x, canvasSize.y)
 
-        objects.forEach(obj => {
-          obj.draw(p)
-        })
-        break
+      objects.forEach(obj => {
+        obj.draw(p)
+      })
+      break
 
-      default:
-        break
+    default:
+      break
     }
   }
 }

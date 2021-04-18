@@ -1,10 +1,9 @@
 import p5 from "p5"
 import { random, toggleFullscreen } from "../../classes/utilities"
 import { constants } from "./constants"
-import { log } from "./functions"
 import { Obj, Circle, CollisionTag } from "./objects"
 import {
-Rule,
+  Rule,
   Limit,
   SurfaceConstraint,
   FrictionConstraint,
@@ -18,7 +17,7 @@ const rule = new Rule()
 const limits: Limit<Circle>[] = []
 const allObjects: Obj[] = []
 
-export const main = (p: p5) => {
+export const main = (p: p5): void => {
   p.setup = () => {
     const canvas = p.createCanvas(constants.system.fieldSize.x, constants.system.fieldSize.y)
     canvas.id(canvasId)

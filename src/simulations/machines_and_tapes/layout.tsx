@@ -13,4 +13,5 @@ const App = () => {
 }
 
 ReactDOM.render(<App />, document.getElementById("root"))
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const sketch = new p5(main)

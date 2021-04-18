@@ -149,9 +149,9 @@ export class PredPreyWorld extends VanillaWorld {
     const killed: GeneticLife[] = []
     const newLives: GeneticLife[] = []
 
-    const sortedX = [...this.lives].sort((lhs, rhs) => {
-      return lhs.position.x - rhs.position.x
-    })
+    // const sortedX = [...this.lives].sort((lhs, rhs) => {
+    //   return lhs.position.x - rhs.position.x
+    // })
 
     for (let i = 0; i < this.lives.length; i += 1) {
       const life = this.lives[i]
@@ -159,9 +159,9 @@ export class PredPreyWorld extends VanillaWorld {
 
       if (life instanceof ActiveLife) {
         if (life.isAlive) {
-          const xIndex = sortedX.indexOf(life)
-          const maxX = life.position.x + life.size
-          const minX = life.position.x - life.size
+          // const xIndex = sortedX.indexOf(life)
+          // const maxX = life.position.x + life.size
+          // const minX = life.position.x - life.size
 
           const compareTo: GeneticLife[] = []
 
