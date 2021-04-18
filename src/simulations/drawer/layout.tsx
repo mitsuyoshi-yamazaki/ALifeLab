@@ -31,7 +31,7 @@ const App = () => {
           また{'"'}system.auto_download=1{'"'}を設定することで探索した画像を自動的に保存します。<br />
         </p>
         <ul style={{ paddingLeft: "2rem" }}>
-          <li>リロードの度に表示される図形のルール一覧: {linkOf("rule_example.ts")}</li>
+          <li>リロードの度に表示される図形のルール一覧: {linkOf("rule_examples.ts")}</li>
           <li>設定可能なURLパラメータ一覧: {linkOf("constants.ts")}</li>
         </ul>
       </div>
