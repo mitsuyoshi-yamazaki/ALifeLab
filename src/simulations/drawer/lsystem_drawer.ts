@@ -6,6 +6,8 @@ import { Line } from "./line"
 export type LSystemCondition = string | number
 
 export class LSystemRule {
+  public static initialCondition = "A"
+
   private static endOfBranch = "."
   private _encoded: string
   private _map: Map<string, LSystemCondition[]>
