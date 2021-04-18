@@ -6,7 +6,7 @@ let t = 0
 const canvasId = "canvas"
 const fieldSize = 600
 
-export const main = (p: p5) => {
+export const main = (p: p5): void => {
   p.setup = () => {
     const canvas = p.createCanvas(fieldSize, fieldSize)
     canvas.id(canvasId)

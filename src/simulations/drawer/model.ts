@@ -131,6 +131,7 @@ export class Model {
   }
 
   private completedReason(): string | undefined { // TODO: 適切な終了条件を設定する
+    // TODO: 寿命モードの終了条件
     if (this._lines.length > this.maxLineCount) {
       return "Filled"
     }

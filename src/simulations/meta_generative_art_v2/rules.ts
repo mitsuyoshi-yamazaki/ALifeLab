@@ -9,18 +9,18 @@ export class Rule implements Drawable {
   public multipleObjectConstraints: MultipleObjectConstraint<Circle>[] = []
   public limits: Limit<Circle>[] = []
 
-  public draw(p: p5) {
+  public draw(p: p5): void {
     this.drawRules(this.singleObjectConstraints, p)
     this.drawRules(this.multipleObjectConstraints, p)
     this.drawRules(this.limits, p)
   }
 
-  // tslint:disable-next-line:no-any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private isDrawable(obj: any): obj is Drawable {
     return obj != undefined && obj.draw != undefined
   }
 
-  // tslint:disable-next-line:no-any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private drawRules(rules: any[], p: p5) {
     if (constants.draw.general.debug === false) {
       return
@@ -72,6 +72,7 @@ export class WallConstraint implements MultipleObjectConstraint<Obj> {
   public constructor(public readonly force: number) {
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public update(anObject: Obj, other: Obj, distance: number): void {
     let wall: Wall | undefined
     let circle: Circle | undefined
