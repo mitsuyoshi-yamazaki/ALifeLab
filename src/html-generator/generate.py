@@ -10,6 +10,7 @@ index_page_output_path = root_path
 template_filepath = 'template.html'
 arguments_filename = 'html_arguments.json'
 excluded_paths = ['template']
+og_url_root = 'https://mitsuyoshi-yamazaki.github.io/ALifeLab/'
 
 def log(message):
   if DEBUG:
@@ -43,20 +44,28 @@ def write_to(filepath, content):
   with open(filepath, 'w', encoding='utf-8') as file:
     file.write(content)
 
-def generate_html(page_name, template, source_path, output_path, og_type):
+def generate_html(page_name, template, source_path, output_path, og_type, og_url):
   try:
     html_filepath = output_path + page_name + '.html'
     log('\ngenerate: {}'.format(html_filepath))
     arguments = read_arguments(source_path + page_name + '/' + arguments_filename)
     arguments["og_type"] = og_type
+    arguments["og_url"] = og_url
     content = set_arguments(template, arguments)
     write_to(html_filepath, content)
   except:
     log_error(sys.exc_info()[1])
 
+def generate_index_page_html():
+  generate_html(index_page_name, template, index_page_source_path, index_page_output_path, 'website', og_url_root)
+
+def generate_article_page_html(page_name):
+  og_url = og_url_root + 'pages/' + page_name + '.html'
+  generate_html(page_name, template, source_path, output_path, 'article', og_url)
+
 if __name__ == '__main__':
   os.chdir(os.path.dirname(__file__))
   template = read_template()
-  generate_html(index_page_name, template, index_page_source_path, index_page_output_path, "website")
+  generate_index_page_html()
   for page_name in page_names():
-    generate_html(page_name, template, source_path, output_path, "article")
+    generate_article_page_html(page_name)
