@@ -6,8 +6,10 @@ import { exampleRules } from "./rule_examples"
 const parameters = new URLParameterParser()
 
 const fieldBaseSize = parameters.int("system.size", 600, "s")
-const defaultRule = exampleRules[Math.floor(random(exampleRules.length))] // TODO: URLパラメータに反映させる
+const defaultRule = exampleRules[Math.floor(random(exampleRules.length))]
 
+// 指定できるURLパラメータの一覧
+// parameters.boolean/int/float/string("パラメータ名", 指定されない場合のデフォルト値, "パラメータ名省略記法")
 export const constants = {
   system: {
     // Canvasサイズ
@@ -29,7 +31,7 @@ export const constants = {
     // trueで線分の衝突判定を有効化し、他と衝突する線分を消す
     lineCollisionEnabled: parameters.boolean("simulation.line_collision_enabled", true, "s.c"),
 
-    // L-Systemのルールを指定する。 see: rule_examples.ts
+    // L-Systemのルールを指定する。 ルールの例はrule_examples.ts
     lSystemRule: parameters.string("simulation.lsystem_rule", defaultRule, "s.r"),
 
     // L-Systemの **状態の** 突然変異率（ルールの、ではない）
