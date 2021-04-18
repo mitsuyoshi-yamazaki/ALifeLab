@@ -39,7 +39,7 @@ export const constants = {
     mutationRate: parameters.float("simulation.mutation_rate", 0, "s.m"),
 
     // system.run=trueのとき、同時に実行するL-Systemルールの数
-    numberOfSeeds: parameters.int("simulation.number_of_seeds", 3, "s.s"),
+    numberOfSeeds: parameters.int("simulation.number_of_seeds", 1, "s.s"),
 
     lineLifeSpan: parameters.int("simulation.line_life_span", 0, "s.ls"),
     lineLengthType: parameters.int("simulation.line_line_length_type", 0, "s.ll"),
