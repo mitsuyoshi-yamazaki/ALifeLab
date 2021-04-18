@@ -28,13 +28,10 @@ def optimize(rule, initial_condition):
       optimized_rule[condition] = next_conditions
       for next_condition in next_conditions:
         try:
-          print(int(next_condition))
+          int(next_condition)
         except:
           if (next_condition != ".") and (next_condition not in additions) and (next_condition not in optimized_rule.keys()):
             additions.append(next_condition)
-            print("append {}".format(next_condition))
-          else:
-            print("not append {}".format(next_condition))
     included_conditions = additions
   return optimized_rule
 
