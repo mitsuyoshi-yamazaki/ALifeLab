@@ -10,7 +10,7 @@ export class Breadcrumbs extends React.Component<Props> {
     const breadcrumbsTextColor: CSSProperties = {
       color: "white",
     }
-    const link = "/ALifeLab/" // FixMe: ローカルではこのサブディレクトリがないため404する
+    const link = "../"
 
     return (
       <div>
