@@ -1,11 +1,9 @@
-import { Vector } from "../../classes/physics"
 import { random } from "../../classes/utilities"
 import { URLParameterParser } from "../../classes/url_parameter_parser"
 import { exampleRules } from "./rule_examples"
 
 const parameters = new URLParameterParser()
 
-const fieldBaseSize = parameters.int("system.size", 600, "s")
 const defaultRule = exampleRules[Math.floor(random(exampleRules.length))]
 
 // 指定できるURLパラメータの一覧
@@ -13,7 +11,7 @@ const defaultRule = exampleRules[Math.floor(random(exampleRules.length))]
 export const constants = {
   system: {
     // Canvasサイズ
-    fieldSize: new Vector(fieldBaseSize, fieldBaseSize * 0.6),
+    fieldSize: parameters.int("system.size", 600, "s"),
 
     // trueで綺麗そうな絵になるルールを自動探索 
     run: parameters.boolean("system.run", false, "r"),

@@ -8,9 +8,11 @@ import { ScreenshotDownloader, JSONDownloader } from "../../classes/downloader"
 
 let t = 0
 const canvasId = "canvas"
-const fieldSize = 600
+const fieldSize = constants.system.fieldSize
 const firstRule: string | undefined = constants.system.run ? undefined : constants.simulation.lSystemRule
 let currentModel = createModel(firstRule)
+
+export const canvasWidth = fieldSize
 
 export const main = (p: p5): void => {
   const downloader = new Downloader()

@@ -1,12 +1,18 @@
 import p5 from "p5"
-import React from "react"
+import React, { CSSProperties } from "react"
 import ReactDOM from "react-dom"
 import { DetailPage } from "../../react-components/detail_page"
-import { main, getTimestamp } from "./source"
+import { main, getTimestamp, canvasWidth } from "./source"
 
 const App = () => {
+  const descriptionStyle: CSSProperties = {
+    margin: DetailPage.defaultContentMargin
+  }
+
   return (
-    <DetailPage getTimestamp={() => getTimestamp()}>
+    <DetailPage getTimestamp={() => getTimestamp()} bodyWidth={canvasWidth}>
+      <div style={descriptionStyle}>
+      </div>
     </DetailPage>
   )
 }
