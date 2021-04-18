@@ -77,7 +77,9 @@ function createModel(ruleString?: string): Model {
     constants.simulation.lineLengthType,
   )
   model.showsBorderLine = constants.draw.showsBorderLine
+  model.showsQuadtree = constants.draw.showsQuadtree
   model.lineCollisionEnabled = constants.simulation.lineCollisionEnabled
+  model.quadtreeEnabled = constants.system.quadtreeEnabled
 
   return model
 }

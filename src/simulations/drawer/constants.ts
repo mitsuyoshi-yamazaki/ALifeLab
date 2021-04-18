@@ -9,6 +9,7 @@ export const constants = {
   system: {
     fieldSize: new Vector(fieldBaseSize, fieldBaseSize * 0.6),
     run: parameters.boolean("system.run", false, "r"),
+    quadtreeEnabled: parameters.boolean("system.quadtree", true, "q"),
   },
   simulation: {
     executionInteral: parameters.int("simulation.execution_interval", 1, "s.i"),
@@ -22,5 +23,6 @@ export const constants = {
   },
   draw: {
     showsBorderLine: parameters.boolean("draw.shows_border_line", false, "d.b"),
+    showsQuadtree: parameters.boolean("draw.shows_quadtree", false, "d.q"),
   },
 }

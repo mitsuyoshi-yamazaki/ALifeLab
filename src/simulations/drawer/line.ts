@@ -1,5 +1,6 @@
 import p5 from "p5"
 import { Vector } from "../../classes/physics"
+import { QuadtreeObject } from "./quadtree"
 
 export function isCollided(line1: Line, line2: Line): boolean {
   // http://www.jeffreythompson.org/collision-detection/line-line.php
@@ -19,7 +20,7 @@ export function isCollided(line1: Line, line2: Line): boolean {
     const intersectionX = line1.start.x + (uA * (line1.end.x - line1.start.x))
     const intersectionY = line1.start.y + (uA * (line1.end.y - line1.start.y))
 
-    // 端で接している場合は許容
+    // 端で接している場合は許容: line2の計算を行っていないが、line2の一端がline1の中央に接するという条件で漏れるだけなので今回の仕様ではほぼ起きないだろう
     if (intersectionX === line1.start.x && intersectionY === line1.start.y) {
       return false
     } else if (intersectionX === line1.end.x && intersectionY === line1.end.y) {
@@ -32,9 +33,15 @@ export function isCollided(line1: Line, line2: Line): boolean {
   return false
 }
 
-export class Line {
+export class Line implements QuadtreeObject {
   public weight = 0.5
   public isHidden = false
+  public get edgePoints(): Vector[] {
+    return [
+      this.start,
+      this.end,
+    ]
+  }
 
   public constructor(
     public readonly start: Vector,
