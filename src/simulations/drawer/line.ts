@@ -19,7 +19,7 @@ export function isCollided(line1: Line, line2: Line): boolean {
     const intersectionX = line1.start.x + (uA * (line1.end.x - line1.start.x))
     const intersectionY = line1.start.y + (uA * (line1.end.y - line1.start.y))
 
-    // 端で接している場合は許容
+    // 端で接している場合は許容: line2の計算を行っていないが、line2の一端がline1の中央に接するという条件で漏れるだけなので今回の仕様ではほぼ起きないだろう
     if (intersectionX === line1.start.x && intersectionY === line1.start.y) {
       return false
     } else if (intersectionX === line1.end.x && intersectionY === line1.end.y) {
