@@ -5,6 +5,7 @@ import { exampleRules } from "./rule_examples"
 const parameters = new URLParameterParser()
 
 const defaultRule = exampleRules[Math.floor(random(exampleRules.length))]
+const lineLifeSpan = parameters.int("simulation.line_life_span", 0, "s.ls")
 
 // 指定できるURLパラメータの一覧
 // parameters.boolean/int/float/string("パラメータ名", 指定されない場合のデフォルト値, "パラメータ名省略記法")
@@ -20,7 +21,7 @@ export const constants = {
     autoDownload: parameters.boolean("system.auto_download", false, "d"),
 
     // trueで四分木による計算量削減を有効化
-    quadtreeEnabled: parameters.boolean("system.quadtree", true, "q"),
+    quadtreeEnabled: lineLifeSpan > 0 ? false : parameters.boolean("system.quadtree", true, "q"),
   },
   simulation: {
     // 動作を遅くしたい場合に増やす。1未満の値（高速化）は動作しない
@@ -42,7 +43,7 @@ export const constants = {
     numberOfSeeds: parameters.int("simulation.number_of_seeds", 1, "s.s"),
 
     concurrentExecutionNumber: parameters.int("simulation.concurrent_execution", 100, "s.ce"),
-    lineLifeSpan: parameters.int("simulation.line_life_span", 0, "s.ls"),
+    lineLifeSpan,
     lineLengthType: parameters.int("simulation.line_line_length_type", 0, "s.ll"),
   },
   draw: {
