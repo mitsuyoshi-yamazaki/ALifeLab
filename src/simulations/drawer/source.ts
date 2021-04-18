@@ -32,8 +32,8 @@ export const main = (p: p5): void => {
 
     p.background(0x0, 0xFF)
 
-    if (t % constants.simulation.executionInteral === 0) {
-      currentModel.next()
+    if (t % constants.simulation.executionInterval === 0) {
+      currentModel.execute()
     }
     currentModel.draw(p)
 
@@ -83,6 +83,7 @@ function createModel(ruleString?: string): Model {
   model.showsQuadtree = constants.draw.showsQuadtree
   model.lineCollisionEnabled = constants.simulation.lineCollisionEnabled
   model.quadtreeEnabled = constants.system.quadtreeEnabled
+  model.concurrentExecutionNumber = constants.simulation.concurrentExecutionNumber
 
   return model
 }

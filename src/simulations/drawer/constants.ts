@@ -24,7 +24,7 @@ export const constants = {
   },
   simulation: {
     // 動作を遅くしたい場合に増やす。1未満の値（高速化）は動作しない
-    executionInteral: parameters.int("simulation.execution_interval", 1, "s.i"),
+    executionInterval: parameters.int("simulation.execution_interval", 1, "s.i"),
 
     // 描画する線分の上限
     maxLineCount: parameters.int("simulation.max_line_count", 5000, "s.l"),
@@ -41,6 +41,7 @@ export const constants = {
     // system.run=trueのとき、同時に実行するL-Systemルールの数
     numberOfSeeds: parameters.int("simulation.number_of_seeds", 1, "s.s"),
 
+    concurrentExecutionNumber: parameters.int("simulation.concurrent_execution", 100, "s.ce"),
     lineLifeSpan: parameters.int("simulation.line_life_span", 0, "s.ls"),
     lineLengthType: parameters.int("simulation.line_line_length_type", 0, "s.ll"),
   },
