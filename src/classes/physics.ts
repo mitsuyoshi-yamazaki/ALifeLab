@@ -83,4 +83,14 @@ export class Vector {
   public max(vector: Vector): Vector {
     return new Vector(Math.max(this.x, vector.x), Math.max(this.y, vector.y))
   }
+
+  public in(minPoint: Vector, maxPoint: Vector): boolean {
+    if (this.x < minPoint.x || this.x > maxPoint.x) {
+      return false
+    }
+    if (this.y < minPoint.y || this.y > maxPoint.y) {
+      return false
+    }
+    return true
+  }
 }

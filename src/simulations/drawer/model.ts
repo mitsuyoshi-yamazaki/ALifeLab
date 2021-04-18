@@ -4,6 +4,7 @@ import { random } from "../../classes/utilities"
 import { Drawer } from "./drawer"
 import { LSystemDrawer, LSystemRule } from "./lsystem_drawer"
 import { Line, isCollided } from "./line"
+import { QuadtreeNode } from "./quadtree"
 // Do not import constants (pass constants via Model.constructor)
 
 export class Result {
@@ -17,13 +18,28 @@ export class Result {
 
 export class Model {
   public showsBorderLine = false
+  public showsQuadtree = false
   public lineCollisionEnabled = true
+  public quadtreeEnabled = true
+
+  public get t(): number {
+    return this._t
+  }
+
+  public get isCompleted(): boolean {
+    return this._isCompleted
+  }
+
+  public get result(): Result | undefined {
+    return this._result
+  }
 
   private _t = 0
   private _isCompleted = false
   private _drawers: Drawer[] = []
   private _lines: Line[] = []
   private _result: Result | undefined
+  private _rootNode: QuadtreeNode
 
   public constructor(
     public readonly fieldSize: Vector,
@@ -33,18 +49,9 @@ export class Model {
         public readonly lineLifeSpan: number,
         public readonly lineLengthType: number,
   ) {
+    this._rootNode = new QuadtreeNode(new Vector(0, 0), fieldSize, null)
     this.setupBorderLines()
     this._drawers.push(...this.setupFirstDrawers(lSystemRules))
-  }
-
-  public get t(): number {
-    return this._t
-  }
-  public get isCompleted(): boolean {
-    return this._isCompleted
-  }
-  public get result(): Result | undefined {
-    return this._result
   }
 
   public next(): void {
@@ -63,6 +70,7 @@ export class Model {
 
     if (this.lineLifeSpan > 0) {
       if (this._lines.length > this.lineLifeSpan) {
+        throw new Error("四分木導入のため正常動作せず")
         const initLine = this._lines.slice(0, 4)
         this._lines = initLine.concat(this._lines.slice(Math.floor(this._lines.length / this.lineLifeSpan) + 5, this._lines.length - 4))
       }
@@ -71,9 +79,10 @@ export class Model {
     const newDrawers: Drawer[] = []
     this._drawers.forEach(drawer => {
       const action = drawer.next()
-      if (this.isCollidedWithLines(action.line) === false) {
+      const node = this.nodeContains(action.line)
+      if (this.isCollidedWithLines(action.line, node) === false) {
         newDrawers.push(...action.drawers)
-        this._lines.push(action.line)
+        this.addLine(action.line, node)
       }
     })
 
@@ -90,6 +99,10 @@ export class Model {
 
   public draw(p: p5): void {
     this._lines.forEach(line => line.draw(p))
+
+    if (this.showsQuadtree) {
+      this._rootNode.draw(p)
+    }
   }
 
   private setupFirstDrawers(rules: LSystemRule[]): Drawer[] {
@@ -118,20 +131,45 @@ export class Model {
       const line = new Line(p[0], p[1])
       line.isHidden = !this.showsBorderLine
 
-      this._lines.push(line)
+      this.addLine(line, this.nodeContains(line))
     })
   }
 
-  private isCollidedWithLines(line: Line): boolean {
+  private nodeContains(line: Line): QuadtreeNode | null {
+    if (this.quadtreeEnabled === false) {
+      return null
+    }
+
+    return this._rootNode.nodeContains(line)
+  }
+
+  private isCollidedWithLines(line: Line, node: QuadtreeNode | null): boolean {
     if (this.lineCollisionEnabled === false) {
       return false
     }
 
-    return this._lines.some(other => isCollided(line, other))
+    const lines = node?.collisionCheckObjects() as Line[] ?? this._lines
+    return lines.some(other => isCollided(line, other))
+  }
+
+  private addLine(line: Line, node: QuadtreeNode | null): void {
+    if (this.quadtreeEnabled === true) {
+      if (node == null) {
+        // console.log(`line (${line.start}, ${line.end}) cannot find node`)  // FixMe: 領域外へ向かう枝はここの条件に入る
+        this._rootNode.objects.push(line)
+      } else {
+        node.objects.push(line)
+      }
+    }
+    this._lines.push(line)
+  }
+
+  private removeLine(line: Line): void {
+    // TODO:
   }
 
   private completedReason(): string | undefined { // TODO: 適切な終了条件を設定する
-    // TODO: 寿命モードの終了条件
+    // TODO: 定命モードの終了条件
     if (this._lines.length > this.maxLineCount) {
       return "Filled"
     }
