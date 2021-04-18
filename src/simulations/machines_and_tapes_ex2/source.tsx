@@ -12,7 +12,6 @@ export const parameters = new URLParameterParser()
 const DEBUG = parameters.boolean("debug", true, "d")
 const numberOfMachines = parameters.int("number_of_machines", 200, "nm")
 const size = parameters.int("field_size", 800, "s")
-const temp = parameters.int("temp", 10, undefined)
 const isArtMode = parameters.boolean("art_mode", false, "a")
 const isFullscreenEnabled = parameters.boolean("fullscreen", false, "f")
 
@@ -22,7 +21,7 @@ let t = 0
 const fieldSize = isFullscreenEnabled ?
   new Vector(window.screen.width, window.screen.height) : new Vector(size, Math.floor(size * 0.6))
 
-const initialTape: Bit[] = [0, 0, 0, 0, 0, 1, 0, 1]
+// const initialTape: Bit[] = [0, 0, 0, 0, 0, 1, 0, 1]
 const friction = 0.99
 const world = new MachineWorld(fieldSize, [new FrictedTerrain(fieldSize, friction)])
 world.addMachine(createMachines())
@@ -41,7 +40,7 @@ export const getTimestamp = (): number => {
   return t
 }
 
-export const main = (p: p5) => {
+export const main = (p: p5): void => {
   p.setup = () => {
     const canvas = p.createCanvas(fieldSize.x, fieldSize.y)
     canvas.id(canvasId)

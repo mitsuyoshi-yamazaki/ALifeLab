@@ -2,11 +2,9 @@ import p5 from "p5"
 import { Vector } from "../../classes/physics"
 import { random, toggleFullscreen } from "../../classes/utilities"
 import { constants } from "../meta_generative_art_v2/constants"
-import { log } from "../meta_generative_art_v2/functions"
 import { Obj, Circle, Wall, CollisionTag } from "../meta_generative_art_v2/objects"
 import {
   Rule,
-  Limit,
   SurfaceConstraint,
   FrictionConstraint,
   RepulsiveConstraint,
@@ -21,7 +19,7 @@ const rule = new Rule()
 const objectConstraints: MultipleObjectConstraint<Obj>[] = []
 const allObjects: Obj[] = []
 
-export const main = (p: p5) => {
+export const main = (p: p5): void => {
   p.setup = () => {
     const canvas = p.createCanvas(constants.system.fieldSize.x, constants.system.fieldSize.y)
     canvas.id(canvasId)

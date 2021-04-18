@@ -51,7 +51,7 @@ let world: MachineWorld
 const genes: number[] = []
 const backgroundTransparency = artMode ? transparency : 0xFF
 
-export const main = (p: p5) => {
+export const main = (p: p5): void => {
   p.setup = () => {
     let fieldSize: Vector
     switch (mode) {
@@ -96,11 +96,7 @@ export const main = (p: p5) => {
     if (parsedInitialGenes.length > 0) {
       initialGenes.push(...parsedInitialGenes)
     } else {
-      initialGenes.push(
-        ...[
-          ...Array(initialGeneType)
-            .keys()]
-          .map(_ => Gene.random()))
+      initialGenes.push(...[...Array(initialGeneType).keys()].map(() => Gene.random()))
     }
 
     for (let i = 0; i < machineCount; i += 1) {
@@ -549,9 +545,9 @@ class MachineWorld extends VanillaWorld {
   public next(): void {
     const newLives: Machine[] = []
 
-    const sortedX = [...this.lives].sort((lhs, rhs) => {
-      return lhs.position.x - rhs.position.x
-    })
+    // const sortedX = [...this.lives].sort((lhs, rhs) => {
+    //   return lhs.position.x - rhs.position.x
+    // })
 
     for (let i = 0; i < this.lives.length; i += 1) {
       const life = this.lives[i]
@@ -561,9 +557,9 @@ class MachineWorld extends VanillaWorld {
         continue
       }
 
-      const xIndex = sortedX.indexOf(life)
-      const maxX = life.position.x + life.size
-      const minX = life.position.x - life.size
+      // const xIndex = sortedX.indexOf(life)
+      // const maxX = life.position.x + life.size
+      // const minX = life.position.x - life.size
 
       const compareTo: Machine[] = []
 

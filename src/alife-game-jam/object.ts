@@ -28,6 +28,7 @@ export class WorldObject {
     return distance < ((this.size + other.size) / 2)
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public collideWith(other: WorldObject): void {
     // TODO: implement
     // ここで何かが起きるのは物理法則の何かを発動するということ
