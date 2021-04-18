@@ -20,6 +20,7 @@ export class Model {
   public showsBorderLine = false
   public showsQuadtree = false
   public lineCollisionEnabled = true
+  public quadtreeEnabled = true
 
   public get t(): number {
     return this._t
@@ -143,12 +144,14 @@ export class Model {
   }
 
   private addLine(line: Line): void {
-    const node = this._rootNode.nodeContains(line)
-    if (node == null) {
-      console.log(`line (${line.start}, ${line.end}) cannot find node`)
-    } else {
-      node.objects.push(line)
-      line.node = node
+    if (this.quadtreeEnabled === true) {
+      const node = this._rootNode.nodeContains(line)
+      if (node == null) {
+        console.log(`line (${line.start}, ${line.end}) cannot find node`)
+      } else {
+        node.objects.push(line)
+        line.node = node
+      }
     }
     this._lines.push(line)
   }
