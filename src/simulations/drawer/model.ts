@@ -79,9 +79,10 @@ export class Model {
     const newDrawers: Drawer[] = []
     this._drawers.forEach(drawer => {
       const action = drawer.next()
-      if (this.isCollidedWithLines(action.line) === false) {
+      const node = this.nodeContains(action.line)
+      if (this.isCollidedWithLines(action.line, node) === false) {
         newDrawers.push(...action.drawers)
-        this.addLine(action.line)
+        this.addLine(action.line, node)
       }
     })
 
@@ -130,27 +131,34 @@ export class Model {
       const line = new Line(p[0], p[1])
       line.isHidden = !this.showsBorderLine
 
-      this.addLine(line)
+      this.addLine(line, this.nodeContains(line))
     })
   }
 
-  private isCollidedWithLines(line: Line): boolean {
+  private nodeContains(line: Line): QuadtreeNode | null {
+    if (this.quadtreeEnabled === false) {
+      return null
+    }
+
+    return this._rootNode.nodeContains(line)
+  }
+
+  private isCollidedWithLines(line: Line, node: QuadtreeNode | null): boolean {
     if (this.lineCollisionEnabled === false) {
       return false
     }
 
-    const lines = line.node?.objects as Line[] ?? this._lines
+    const lines = node?.collisionCheckObjects() as Line[] ?? this._lines
     return lines.some(other => isCollided(line, other))
   }
 
-  private addLine(line: Line): void {
+  private addLine(line: Line, node: QuadtreeNode | null): void {
     if (this.quadtreeEnabled === true) {
-      const node = this._rootNode.nodeContains(line)
       if (node == null) {
-        console.log(`line (${line.start}, ${line.end}) cannot find node`)
+        // console.log(`line (${line.start}, ${line.end}) cannot find node`)  // FixMe: 領域外へ向かう枝はここの条件に入る
+        this._rootNode.objects.push(line)
       } else {
         node.objects.push(line)
-        line.node = node
       }
     }
     this._lines.push(line)
@@ -161,7 +169,7 @@ export class Model {
   }
 
   private completedReason(): string | undefined { // TODO: 適切な終了条件を設定する
-    // TODO: 寿命モードの終了条件
+    // TODO: 定命モードの終了条件
     if (this._lines.length > this.maxLineCount) {
       return "Filled"
     }

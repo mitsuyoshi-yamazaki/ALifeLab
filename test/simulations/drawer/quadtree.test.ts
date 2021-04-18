@@ -79,6 +79,7 @@ describe("Quadtree", () => {
     const obj = createObject(1, 1, 3, 3)
 
     const collisionCheckObjects: QuadtreeObject[] = [
+      createObject(0.5, 0.5, 1.5, 1.5),
       createObject(1, 3, 3, 1),
       createObject(3, 3, 5, 3),
       createObject(1, 1, 7, 7),
@@ -92,20 +93,16 @@ describe("Quadtree", () => {
     
     const add = (obj: QuadtreeObject): void => {
       const node = rootNode.nodeContains(obj)
-      if (node == null) {
-        throw new Error(`Wrong constant (${obj.edgePoints.map(toString).join(",")})`)
-      }
-      node.objects.push(obj)
+      expect(node).not.toBeNull()
+      node?.objects.push(obj)
     }
 
     collisionCheckObjects.forEach(obj => add(obj))
     otherObjects.forEach(obj => add(obj))
 
     const node = rootNode.nodeContains(obj)
-    if (node == null) {
-      throw new Error(`Wrong constant (${obj.edgePoints.map(toString).join(",")})`)
-    }
-    const objects = node.collisionCheckObjects()
+    expect(node).toStrictEqual(rootNode.children.topLeft)
+    const objects = node?.collisionCheckObjects() ?? []
     expect(objects.length).toBe(collisionCheckObjects.length)
 
     objects.every(obj => {

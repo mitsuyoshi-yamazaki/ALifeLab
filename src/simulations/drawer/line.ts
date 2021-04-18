@@ -1,6 +1,6 @@
 import p5 from "p5"
 import { Vector } from "../../classes/physics"
-import { QuadtreeNode, QuadtreeObject } from "./quadtree"
+import { QuadtreeObject } from "./quadtree"
 
 export function isCollided(line1: Line, line2: Line): boolean {
   // http://www.jeffreythompson.org/collision-detection/line-line.php
@@ -36,7 +36,6 @@ export function isCollided(line1: Line, line2: Line): boolean {
 export class Line implements QuadtreeObject {
   public weight = 0.5
   public isHidden = false
-  public node: QuadtreeNode | null
   public get edgePoints(): Vector[] {
     return [
       this.start,

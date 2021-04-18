@@ -67,10 +67,9 @@ export class QuadtreeNode {
   }
 
   public collisionCheckObjects(): QuadtreeObject[] {
-    if (this.parent == null) {
-      return this.objects.concat([])
-    }
-    return this.objects.concat(this.parent.collisionCheckObjects())
+    return this.objects
+      .concat(this.childObjects())
+      .concat(this.parentObjects())
   }
 
   public draw(p: p5): void {
@@ -94,5 +93,19 @@ export class QuadtreeNode {
       new QuadtreeNode(new Vector(this.minPoint.x, centerY), new Vector(centerX, this.maxPoint.y), this),
       new QuadtreeNode(new Vector(centerX, centerY), this.maxPoint, this),
     )
+  }
+
+  // Chldren nodes' objects + recursively
+  private childObjects(): QuadtreeObject[] {
+    const childNodes = this._children?.nodes ?? []
+    return childNodes.flatMap(node => node.childObjects().concat(node.objects))
+  }
+
+  // Parent node's objects + recursively
+  private parentObjects(): QuadtreeObject[] {
+    if (this.parent == null) {
+      return []
+    }
+    return this.parent.objects.concat(this.parent.parentObjects())
   }
 }
