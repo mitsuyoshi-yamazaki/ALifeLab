@@ -1,8 +1,9 @@
 import p5 from "p5"
+import { Button } from "@material-ui/core"
 import React, { CSSProperties, ReactNode } from "react"
 import ReactDOM from "react-dom"
-import { DetailPage } from "../../react-components/detail_page"
-import { main, getTimestamp, canvasWidth } from "./source"
+import { DetailPage, ScreenshotButtonCustom } from "../../react-components/detail_page"
+import { main, saveCurrentState, canvasWidth } from "./source"
 
 const App = () => {
   const descriptionStyle: CSSProperties = {
@@ -14,13 +15,22 @@ const App = () => {
     height: "1px",
     border: "none",
   }
+  const screenshotButton: ScreenshotButtonCustom = {
+    kind: "custom",
+    button: (
+      <div>
+        <Button variant="contained" color="primary" onClick={() => saveCurrentState()}>Save Screenshot & Parameters</Button>
+        <a id="link" />
+      </div>
+    )
+  }
   const linkOf = (filename: string): ReactNode => {
     const url = `https://github.com/mitsuyoshi-yamazaki/ALifeLab/blob/main/src/simulations/drawer/${filename}`
     return <a href={url} target="_blank" rel="noopener noreferrer" style={{color: "#0366d6"}}>{filename}</a>
   }
 
   return (
-    <DetailPage getTimestamp={() => getTimestamp()} bodyWidth={canvasWidth}>
+    <DetailPage bodyWidth={canvasWidth} screenshotButtonType={screenshotButton}>
       <div style={descriptionStyle}>
         <h2>{document.title}</h2>
         <hr style={borderStyle}></hr>

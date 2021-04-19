@@ -18,6 +18,7 @@ def encode(rule):
     result.append("{0}:{1}".format(key, ",".join(value)))
   return ";".join(result)
 
+# Same as LSystemRule.trimUnreachableConditions()
 def optimize(rule, initial_condition):
   included_conditions = [initial_condition]
   optimized_rule = {}
