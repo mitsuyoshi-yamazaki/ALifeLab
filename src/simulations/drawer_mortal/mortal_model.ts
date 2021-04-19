@@ -18,6 +18,9 @@ export class MortalModel extends Model {
     super(fieldSize, maxLineCount, lSystemRules, mutationRate, 1, fixedStartPoint)
   }
 
+  protected checkCompleted(): void {
+  }
+  
   protected preExecution(): void {
     this.removeOldLines()
   }
@@ -45,4 +48,6 @@ export class MortalModel extends Model {
       }
     }
   }
+
+
 }

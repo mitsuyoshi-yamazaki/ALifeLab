@@ -90,6 +90,9 @@ export class Model {
     }
   }
 
+  protected checkCompleted(): void {
+  }
+
   protected preExecution(): void {
   }
 
@@ -151,13 +154,7 @@ export class Model {
     }
     drawerCount -= this._drawers.length
 
-    const completionReason = this.completedReason()
-    if (completionReason != undefined) {
-      this._isCompleted = true
-      this._result = this.currentResult(completionReason)
-      return
-    }
-
+    this.checkCompleted()
     this.preExecution()
 
     const newDrawers: LSystemDrawer[] = []
@@ -209,9 +206,22 @@ export class Model {
     }
     this._lines.push(line)
   }
+}
 
-  private completedReason(): string | undefined { // TODO: 適切な終了条件を設定する
-    // TODO: 定命モードの終了条件
+export class ImmortalModel extends Model {
+  protected checkCompleted(): void {
+    const completionReason = this.completedReason()
+    if (completionReason != undefined) {
+      this._isCompleted = true
+      this._result = this.currentResult(completionReason)
+      return
+    }
+  }
+
+  protected preExecution(): void {
+  }
+
+  private completedReason(): string | undefined {
     if (this._lines.length > this.maxLineCount) {
       return "Filled"
     }
@@ -221,7 +231,4 @@ export class Model {
 
     return undefined
   }
-}
-
-export class ImmortalModel extends Model {
 }
