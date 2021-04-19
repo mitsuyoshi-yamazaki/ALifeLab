@@ -14,6 +14,8 @@ parserOptions:
 plugins:
   - react
   - '@typescript-eslint'
+ignorePatterns:
+  - webpack.config.js
 rules:
   indent:
     - warn
