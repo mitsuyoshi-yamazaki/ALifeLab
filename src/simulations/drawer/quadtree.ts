@@ -28,14 +28,6 @@ export class QuadtreeNode {
 
   public objects: QuadtreeObject[] = []
   public size: Vector
-  public get children(): QuadtreeSubset {
-    if (this._children != null) {
-      return this._children
-    }
-    const children = this.createChildren()
-    this._children = children
-    return children
-  }
 
   // MEMO: Circular references shouldn't be an issue
   // Mark-and-sweep algorithm https://developer.mozilla.org/ja/docs/Web/JavaScript/Memory_Management
@@ -52,7 +44,16 @@ export class QuadtreeNode {
       return null
     }
     
-    const subset = this.children
+    const getSubset = (): QuadtreeSubset => {
+      if (this._children != null) {
+        return this._children
+      }
+      const children = this.createChildren()
+      this._children = children
+      return children
+    }
+
+    const subset = getSubset()
     for (let i = 0; i < subset.nodes.length; i += 1) {
       const node = subset.nodes[i].nodeContains(obj)
       if (node != null) {
@@ -70,6 +71,11 @@ export class QuadtreeNode {
     return this.objects
       .concat(this.childObjects())
       .concat(this.parentObjects())
+  }
+
+  public numberOfNodes(): number {
+    const childNodes = this._children?.nodes ?? []
+    return 1 + childNodes.reduce((result, node) => result + node.numberOfNodes(), 0)
   }
 
   public draw(p: p5): void {
