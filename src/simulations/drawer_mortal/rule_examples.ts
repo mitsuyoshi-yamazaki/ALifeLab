@@ -16,6 +16,10 @@ export const exampleRules: RuleDescription[] = [
     name: "蜂", // 平衡
     rule: "A:107,F,28,B,127,D;F:145,A;B:41,F;D:-143,B,-34,B,-17,C,120,C;C:-67,A,-74,E;E:.",
   },
+  {
+    name: "風車",
+    rule: "A:36,W;W:-126,B,96,P;B:71,O;P:.;O:11,H,136,K;H:165,U;K:-79,O;U:-26,W,141,L,66,A;L:68,U,-2,M,134,B,-40,V,-177,Q;M:38,A;V:.;Q:.",
+  }
   // {
   //   name: "Disks",  // 微増
   //   rule: "A:-13,D,-108,C;D:-16,A;C:46,A",
