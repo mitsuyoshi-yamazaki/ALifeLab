@@ -26,7 +26,7 @@ export class Result {
 }
 
 export class Model {
-  public showsBorderLine = false
+  public showsBorderLine = false  // TODO: 消す
   public lineCollisionEnabled = true
   public quadtreeEnabled = true
   public concurrentExecutionNumber = 1

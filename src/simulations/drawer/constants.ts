@@ -1,6 +1,6 @@
 import { random } from "../../classes/utilities"
 import { URLParameterParser } from "../../classes/url_parameter_parser"
-import { exampleRules } from "./rule_examples"
+import { exampleRules } from "./rule_examples"  // FixMe: 定命モードでもこちらがimportされる
 
 const parameters = new URLParameterParser()
 
