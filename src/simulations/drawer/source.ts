@@ -3,7 +3,7 @@ import { constants } from "./constants"
 import { Vector } from "../../classes/physics"
 import { Model, Result } from "./model"
 import { defaultCanvasParentId } from "../../react-components/default_canvas_parent_id"
-import { LSystemRule } from "./lsystem_drawer"
+import { LSystemRule } from "./lsystem_rule"
 import { ScreenshotDownloader, JSONDownloader } from "../../classes/downloader"
 
 let t = 0
