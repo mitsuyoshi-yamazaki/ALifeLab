@@ -52,20 +52,29 @@ export class DetailPage extends React.Component<Props> {
       margin: DetailPage.defaultContentMargin,
     }
     const screenshotButton = (): ReactNode => {
-      switch (this.props.screenshotButtonType.kind) {
+      const screenshotButtonType = this.props.screenshotButtonType
+      switch (screenshotButtonType.kind) {
       case "none":
-      case "default":
+        return <div></div>
+        
+      case "default": {
+        const getDescription = (): string | undefined => {
+          if (screenshotButtonType.getDescription == undefined) {
+            return undefined
+          }
+          return screenshotButtonType.getDescription()
+        }
         return (
           <div style={screenshotButtonStyle}>
-            {/* <ScreenShotButton getTimestamp={() => this.props.getTimestamp()} getDescription={() => this.getDescription()} /> */}
-            <ScreenShotButton getTimestamp={() => 1} getDescription={() => ""} />
+            <ScreenShotButton getTimestamp={() => screenshotButtonType.getTimestamp()} getDescription={() => getDescription()} />
           </div>
         )
+      }
 
       case "custom":
         return (
           <div style={screenshotButtonStyle}>
-            {this.props.screenshotButtonType.button}
+            {screenshotButtonType.button}
           </div>
         )
       }
@@ -96,12 +105,4 @@ export class DetailPage extends React.Component<Props> {
       </div>
     )
   }
-
-  // private getDescription(): string | undefined {
-  //   if (this.props.getDescription == undefined) {
-  //     return undefined
-  //   }
-
-  //   return this.props.getDescription()
-  // }
 }
