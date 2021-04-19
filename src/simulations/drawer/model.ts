@@ -43,19 +43,18 @@ export class Model {
     return this._result
   }
 
-  private _t = 0
-  private _isCompleted = false
-  private _drawers: LSystemDrawer[] = []
-  private _lines: Line[] = []
-  private _result: Result | undefined
-  private _rootNode: QuadtreeNode
+  protected _t = 0
+  protected _isCompleted = false
+  protected _drawers: LSystemDrawer[] = []
+  protected _lines: Line[] = []
+  protected _result: Result | undefined
+  protected _rootNode: QuadtreeNode
 
   public constructor(
     public readonly fieldSize: Vector,
     public readonly maxLineCount: number,
     public readonly lSystemRules: LSystemRule[],
     public readonly mutationRate: number,
-    public readonly lineLifeSpan: number,
     public readonly lineLengthType: number,
     fixedStartPoint: boolean,
   ) {
@@ -89,6 +88,9 @@ export class Model {
     if (showsQuadtree === true) {
       this._rootNode.draw(p)
     }
+  }
+
+  protected preExecution(): void {
   }
 
   private setupFirstDrawers(rules: LSystemRule[], fixedStartPoint: boolean): LSystemDrawer[] {
@@ -148,15 +150,7 @@ export class Model {
       return
     }
 
-    if (this.lineLifeSpan > 0) {
-      if (this._lines.length > this.lineLifeSpan) {
-        if (this.quadtreeEnabled) {
-          throw new Error("TODO: 四分木から線分を削除する処理を実装する")
-        }
-        const initLine = this._lines.slice(0, 4)
-        this._lines = initLine.concat(this._lines.slice(Math.floor(this._lines.length / this.lineLifeSpan) + 5, this._lines.length - 4))
-      }
-    }
+    this.preExecution()
 
     const newDrawers: LSystemDrawer[] = []
     this._drawers.forEach(drawer => {
@@ -216,10 +210,6 @@ export class Model {
     this._lines.push(line)
   }
 
-  private removeLine(line: Line): void {
-    // TODO:
-  }
-
   private completedReason(): string | undefined { // TODO: 適切な終了条件を設定する
     // TODO: 定命モードの終了条件
     if (this._lines.length > this.maxLineCount) {
@@ -231,4 +221,7 @@ export class Model {
 
     return undefined
   }
+}
+
+export class ImmortalModel extends Model {
 }

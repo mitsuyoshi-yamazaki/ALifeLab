@@ -2,7 +2,7 @@ import p5 from "p5"
 import { constants } from "./constants"
 import { Vector } from "../../classes/physics"
 import { random } from "../../classes/utilities"
-import { Model, Result, RuleDescription } from "./model"
+import { ImmortalModel, Result, RuleDescription } from "./model"
 import { defaultCanvasParentId } from "../../react-components/default_canvas_parent_id"
 import { LSystemRule } from "./lsystem_rule"
 import { exampleRules } from "./rule_examples"
@@ -70,7 +70,7 @@ export const saveCurrentState = (): void => {
   downloader.save("", rules, t, result.t)
 }
 
-function createModel(ruleString?: string): Model {
+function createModel(ruleString?: string): ImmortalModel {
   const rules: LSystemRule[] = []
   if (ruleString != undefined) {
     try {
@@ -96,12 +96,11 @@ function createModel(ruleString?: string): Model {
       rules.push(new LSystemRule(exampleRule))
     }
   }
-  const model = new Model(
+  const model = new ImmortalModel(
     new Vector(fieldSize, fieldSize),
     constants.simulation.maxLineCount,
     rules,
     constants.simulation.mutationRate,
-    constants.simulation.lineLifeSpan,
     constants.simulation.lineLengthType,
     constants.simulation.fixedStartPoint,
   )

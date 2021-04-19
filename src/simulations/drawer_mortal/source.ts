@@ -7,6 +7,7 @@ import { Model, Result, RuleDescription } from "../drawer/model"
 import { LSystemRule } from "../drawer/lsystem_rule"
 import { Downloader } from "../drawer/downloader"
 import { exampleRules } from "./rule_examples"
+import { MortalModel } from "./mortal_model"
 
 let t = 0
 const canvasId = "canvas"
@@ -95,7 +96,7 @@ function createModel(ruleString?: string): Model {
       rules.push(new LSystemRule(exampleRule))
     }
   }
-  const model = new Model(
+  const model = new MortalModel(
     new Vector(fieldSize, fieldSize),
     constants.simulation.maxLineCount,
     rules,

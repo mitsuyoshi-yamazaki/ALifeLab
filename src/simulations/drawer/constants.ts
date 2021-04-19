@@ -5,7 +5,7 @@ import { exampleRules } from "./rule_examples"  // FixMe: 定命モードでも�
 const parameters = new URLParameterParser()
 
 const defaultRule = exampleRules[Math.floor(random(exampleRules.length))]
-const lineLifeSpan = parameters.int("simulation.line_life_span", 0, "s.ls")
+const lineLifeSpan = parameters.int("simulation.line_life_span", 10, "s.ls")
 
 // 指定できるURLパラメータの一覧
 // parameters.boolean/int/float/string("パラメータ名", 指定されない場合のデフォルト値, "パラメータ名省略記法")
