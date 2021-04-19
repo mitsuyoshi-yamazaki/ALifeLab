@@ -11,7 +11,8 @@ import { Downloader } from "./downloader"
 let t = 0
 const canvasId = "canvas"
 const fieldSize = constants.system.fieldSize
-const firstRule: string | undefined = constants.system.run ? undefined : constants.simulation.lSystemRule
+const firstRule: string | undefined = constants.system.run ? undefined :
+  (constants.simulation.lSystemRule.length > 0 ? constants.simulation.lSystemRule : randomExampleRule())
 let currentModel = createModel(firstRule)
 const downloader = new Downloader()
 
@@ -92,8 +93,7 @@ function createModel(ruleString?: string): ImmortalModel {
       }
     }
     if (rules.length == 0) {
-      const exampleRule = exampleRules[Math.floor(random(exampleRules.length))]
-      rules.push(new LSystemRule(exampleRule))
+      rules.push(new LSystemRule(randomExampleRule()))
     }
   }
   const model = new ImmortalModel(
@@ -117,4 +117,8 @@ function shouldSave(result: Result): boolean {
     return false
   }
   return true
+}
+
+function randomExampleRule(): string {
+  return exampleRules[Math.floor(random(exampleRules.length))]
 }

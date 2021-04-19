@@ -1,10 +1,7 @@
-import { random } from "../../classes/utilities"
 import { URLParameterParser } from "../../classes/url_parameter_parser"
-import { exampleRules } from "./rule_examples"  // FixMe: 定命モードでもこちらがimportされる
 
 const parameters = new URLParameterParser()
 
-const defaultRule = exampleRules[Math.floor(random(exampleRules.length))]
 const lineLifeSpan = parameters.int("simulation.line_life_span", 10, "s.ls")
 
 // 指定できるURLパラメータの一覧
@@ -34,7 +31,7 @@ export const constants = {
     lineCollisionEnabled: parameters.boolean("simulation.line_collision_enabled", true, "s.c"),
 
     // L-Systemのルールを指定する。 ルールの例はrule_examples.ts
-    lSystemRule: parameters.string("simulation.lsystem_rule", defaultRule, "s.r"),
+    lSystemRule: parameters.string("simulation.lsystem_rule", "", "s.r"),
 
     // L-Systemの **状態の** 突然変異率（ルールの、ではない）
     mutationRate: parameters.float("simulation.mutation_rate", 0, "s.m"),

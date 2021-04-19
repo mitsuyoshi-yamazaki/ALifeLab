@@ -12,8 +12,9 @@ import { MortalModel } from "./mortal_model"
 let t = 0
 const canvasId = "canvas"
 const fieldSize = constants.system.fieldSize
-const firstRule: string | undefined = constants.system.run ? undefined : constants.simulation.lSystemRule
-let currentModel = createModel(firstRule)
+const firstRules: string[] = constants.system.run ? [] :
+  (constants.simulation.lSystemRule.length > 0 ? [constants.simulation.lSystemRule] : exampleRules.map(rule => rule.rule))
+let currentModel = createModel(firstRules)
 const downloader = new Downloader()
 
 export const canvasWidth = fieldSize
@@ -52,7 +53,7 @@ export const main = (p: p5): void => {
       if (constants.system.autoDownload && shouldSave(result)) {
         downloader.save("", rules, t, result.t)
       }
-      currentModel = createModel()
+      currentModel = createModel([])
     }
 
     t += 1
@@ -70,13 +71,13 @@ export const saveCurrentState = (): void => {
   downloader.save("", rules, t, result.t)
 }
 
-function createModel(ruleString?: string): Model {
+function createModel(ruleStrings: string[]): Model {
   const rules: LSystemRule[] = []
-  if (ruleString != undefined) {
+  if (ruleStrings.length > 0) {
     try {
-      rules.push(new LSystemRule(ruleString))
+      rules.push(...ruleStrings.map(rule => new LSystemRule(rule)))
     } catch (error) {
-      alert(`Invalid rule ${ruleString}`)
+      alert("Invalid rule")
       throw error
     }
   } else {
@@ -93,7 +94,7 @@ function createModel(ruleString?: string): Model {
     }
     if (rules.length == 0) {
       const exampleRule = exampleRules[Math.floor(random(exampleRules.length))]
-      rules.push(new LSystemRule(exampleRule))
+      rules.push(new LSystemRule(exampleRule.rule))
     }
   }
   const model = new MortalModel(

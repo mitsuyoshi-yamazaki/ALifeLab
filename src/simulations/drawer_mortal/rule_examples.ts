@@ -1,10 +1,15 @@
-export const exampleRules: string[] = [
-  // ランダムウォーク1
-  "A:-161,A,101,A",
+export interface RuleDescription {
+  name: string,
+  rule: string,
+}
 
-  // ランダムウォーク2
-  "A:-111,C;C:-94,A,101,A",
-
-  // 蜜蜂
-  "A:-139,F;F:-50,L;L:-22,Q;Q:142,E,80,S,-50,D,151,U,115,S,-144,F,-15,L,-145,N;E:.;S:.;D:.;U:159,Q;N:59,S,-71,E,155,W;W:.",
+export const exampleRules: RuleDescription[] = [
+  {
+    name: "Chain",
+    rule: "A:-116,F,-136,F,-34,E,79,A,26,D;F:-58,A;E:.;D:.",
+  },
+  {
+    name: "Flower",
+    rule: "A:173,A,45,B,74,A;B:-13,B",
+  }
 ]

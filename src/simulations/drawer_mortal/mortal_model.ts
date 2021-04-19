@@ -36,6 +36,8 @@ export class MortalModel extends Model {
           const node = this.nodeContains(line)
           if (node != null) {
             node.objects = node.objects.filter(obj => obj !== line)
+          } else {
+            console.log(`Enabled quadtree but no node contains line (${line.start}, ${line.end})`)
           }
         })
       } else {
