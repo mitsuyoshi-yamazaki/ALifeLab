@@ -4,6 +4,14 @@ export type LSystemCondition = string | number
 
 export class LSystemRule {
   public static initialCondition = "A"
+  
+  public get possibleConditions(): string[] {
+    return Array.from(this._map.keys())
+  }
+
+  public get encoded(): string {
+    return this._encoded
+  }
 
   private static endOfBranch = "."
   private _encoded: string
@@ -99,14 +107,6 @@ export class LSystemRule {
     })
 
     return map
-  }
-
-  public get possibleConditions(): string[] {
-    return Array.from(this._map.keys())
-  }
-
-  public get encoded(): string {
-    return this._encoded
   }
 
   public nextConditions(currentCondition: string): LSystemCondition[] {
