@@ -1,10 +1,12 @@
 import p5 from "p5"
 import { constants } from "./constants"
 import { Vector } from "../../classes/physics"
+import { random } from "../../classes/utilities"
 import { Model, Result } from "./model"
 import { defaultCanvasParentId } from "../../react-components/default_canvas_parent_id"
 import { LSystemRule } from "./lsystem_rule"
 import { ScreenshotDownloader, JSONDownloader } from "../../classes/downloader"
+import { exampleRules } from "./rule_examples"
 
 let t = 0
 const canvasId = "canvas"
@@ -67,8 +69,20 @@ function createModel(ruleString?: string): Model {
       throw error
     }
   } else {
+    const initialCondition = LSystemRule.initialCondition
     for (let i = 0; i < constants.simulation.numberOfSeeds; i += 1) {
-      rules.push(LSystemRule.random())
+      const tries = 20
+      for (let j = 0; j < tries; j += 1) {
+        const rule = LSystemRule.trimUnreachableConditions(LSystemRule.random(), initialCondition)
+        if (rule.isCirculated(initialCondition)) {
+          rules.push(rule)
+          break
+        }
+      }
+    }
+    if (rules.length == 0) {
+      const exampleRule = exampleRules[Math.floor(random(exampleRules.length))]
+      rules.push(new LSystemRule(exampleRule))
     }
   }
   const model = new Model(
@@ -89,7 +103,7 @@ function createModel(ruleString?: string): Model {
 }
 
 function shouldSave(result: Result): boolean {
-  if (result.status.numberOfLines < 100) {  // FixMe: 異なる状態から始めればすぐに終了しないかもしれないためこの終了条件は適していない
+  if (result.status.numberOfLines < 500) {
     return false
   }
   return true
@@ -120,7 +134,7 @@ class Downloader {
       rules: rules.map(rule => rule.encoded),
       url_parameters: document.location.search,
     }
-    const delayed = () => { // Downloadin multiple files in exact same timing not working
+    const delayed = () => { // Downloading multiple files in exact same timing not working
       this._JSONDownloader.saveJson(json, filename, timestamp)
       clearInterval(intervalId)
     }

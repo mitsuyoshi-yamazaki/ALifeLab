@@ -151,4 +151,34 @@ export class LSystemRule {
 
     return nextConditions
   }
+
+  // A:A -> true
+  // A:B;B:B -> true
+  // A:B;B:. -> false
+  public isCirculated(initialCondition: string): boolean {
+    let isCirculated = false
+    const checked: string[] = []
+    let conditionsToCheck: string[] = [initialCondition]
+    
+    while (isCirculated === false && conditionsToCheck.length > 0) {
+      conditionsToCheck = conditionsToCheck.flatMap(condition => {
+        checked.push(condition)
+        return this.nextConditions(condition).filter(nextCondition => {
+          if (typeof (nextCondition) !== "string") {
+            return false
+          }
+          if (nextCondition === LSystemRule.endOfBranch) {
+            return false
+          }
+          if (checked.includes(nextCondition)) {
+            isCirculated = true
+            return false
+          }
+          return true
+        }) as string[]
+      })
+    }
+
+    return isCirculated
+  }
 }
