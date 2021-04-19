@@ -39,7 +39,7 @@ export class Model {
     return this._isCompleted
   }
 
-  public get result(): Result | undefined {
+  public get result(): Result | null {
     return this._result
   }
 
@@ -47,7 +47,7 @@ export class Model {
   protected _isCompleted = false
   protected _drawers: LSystemDrawer[] = []
   protected _lines: Line[] = []
-  protected _result: Result | undefined
+  protected _result: Result | null
   protected _rootNode: QuadtreeNode
 
   public constructor(
@@ -91,6 +91,14 @@ export class Model {
   }
 
   protected preExecution(): void {
+  }
+
+  protected nodeContains(line: Line): QuadtreeNode | null {
+    if (this.quadtreeEnabled === false) {
+      return null
+    }
+
+    return this._rootNode.nodeContains(line)
   }
 
   private setupFirstDrawers(rules: LSystemRule[], fixedStartPoint: boolean): LSystemDrawer[] {
@@ -181,14 +189,6 @@ export class Model {
 
     this._t += 1
     this.executeSteps(drawerCount)
-  }
-
-  private nodeContains(line: Line): QuadtreeNode | null {
-    if (this.quadtreeEnabled === false) {
-      return null
-    }
-
-    return this._rootNode.nodeContains(line)
   }
 
   private isCollided(line: Line): boolean {

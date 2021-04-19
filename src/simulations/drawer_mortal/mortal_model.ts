@@ -1,28 +1,45 @@
 import { Vector } from "../../classes/physics"
 import { LSystemRule } from "../drawer/lsystem_rule"
-import { Model } from "../drawer/model"
+import { Model, Result } from "../drawer/model"
 
 export class MortalModel extends Model {
+  public get result(): Result | null {
+    return null // 終了しない
+  }
+
   public constructor(
     public readonly fieldSize: Vector,
     public readonly maxLineCount: number,
     public readonly lSystemRules: LSystemRule[],
     public readonly mutationRate: number,
     public readonly lineLifeSpan: number,
-    public readonly lineLengthType: number,
     fixedStartPoint: boolean,
   ) {
-    super(fieldSize, maxLineCount, lSystemRules, mutationRate, lineLengthType, fixedStartPoint)
+    super(fieldSize, maxLineCount, lSystemRules, mutationRate, 1, fixedStartPoint)
   }
 
   protected preExecution(): void {
+    this.removeOldLines()
+  }
+
+  private removeOldLines(): void {
     if (this.lineLifeSpan > 0) {
-      if (this._lines.length > this.lineLifeSpan) {
-        if (this.quadtreeEnabled) {
-          throw new Error("TODO: 四分木から線分を削除する処理を実装する")
-        }
-        const initLine = this._lines.slice(0, 4)
-        this._lines = initLine.concat(this._lines.slice(Math.floor(this._lines.length / this.lineLifeSpan) + 5, this._lines.length - 4))
+      const removingLineCount = Math.floor(this._lines.length / this.lineLifeSpan)
+      if (this._lines.length <= removingLineCount) {
+        return
+      }
+      const borderLineCount = 4
+      const borderLines = this._lines.slice(0, borderLineCount)
+      if (this.quadtreeEnabled === true) {
+        const removingLines = this._lines.splice(borderLineCount, Math.floor(this._lines.length / this.lineLifeSpan) + borderLineCount)
+        removingLines.forEach(line => {
+          const node = this.nodeContains(line)
+          if (node != null) {
+            node.objects = node.objects.filter(obj => obj !== line)
+          }
+        })
+      } else {
+        this._lines = borderLines.concat(this._lines.slice(removingLineCount + borderLineCount, this._lines.length - borderLineCount))
       }
     }
   }
