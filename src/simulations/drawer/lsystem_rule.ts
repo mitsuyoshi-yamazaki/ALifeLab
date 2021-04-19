@@ -4,7 +4,7 @@ export type LSystemCondition = string | number
 
 export class LSystemRule {
   public static initialCondition = "A"
-  
+
   public get possibleConditions(): string[] {
     return Array.from(this._map.keys())
   }
@@ -107,6 +107,36 @@ export class LSystemRule {
     })
 
     return map
+  }
+
+  // Same as optimize_rule.py
+  public static trimUnreachableConditions(rule: LSystemRule, initialCondition: string): LSystemRule {
+    const trimmedRule = new Map<string, LSystemCondition[]>()
+    let conditionsToCheck = [initialCondition]
+    while (conditionsToCheck.length > 0) {
+      const additionalConditions: string[] = []
+      conditionsToCheck.forEach(condition => {
+        const nextConditions = rule.nextConditions(condition)
+        trimmedRule.set(condition, nextConditions)
+        nextConditions.forEach(nextCondition => {
+          if (typeof(nextCondition) !== "string") {
+            return
+          }
+          if (nextCondition === LSystemRule.endOfBranch) {
+            return
+          }
+          if (additionalConditions.includes(nextCondition)) {
+            return
+          }
+          if (Array.from(trimmedRule.keys()).includes(nextCondition)) {
+            return
+          }
+          additionalConditions.push(nextCondition)
+        })
+      })
+      conditionsToCheck = additionalConditions
+    }
+    return new LSystemRule(trimmedRule)
   }
 
   public nextConditions(currentCondition: string): LSystemCondition[] {
