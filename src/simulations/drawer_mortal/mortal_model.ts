@@ -1,11 +1,10 @@
 import { Vector } from "../../classes/physics"
 import { LSystemRule } from "../drawer/lsystem_rule"
-import { Model, Result } from "../drawer/model"
+import { Model } from "../drawer/model"
 
 export class MortalModel extends Model {
-  public get result(): Result | null {
-    return null // 終了しない
-  }
+  private numberOfNodes = 1
+  private launchTime = Date.now() // ms
 
   public constructor(
     public readonly fieldSize: Vector,
@@ -19,8 +18,30 @@ export class MortalModel extends Model {
   }
 
   protected checkCompleted(): void {
+    if (this._lines.length > this.maxLineCount) {
+      this._result = this.currentResult("Filled")
+      return
+    }
+    if (this._drawers.length === 0) {
+      this._result = this.currentResult("All died")
+      return
+    }
+    if (Date.now() - this.launchTime > 20 * 1000) {
+      this._result = this.currentResult("Timeout")
+      return
+    }
+
+    if (this._t % 2000 !== 0) {
+      return
+    }
+    const numberOfNodes = this._rootNode.numberOfNodes()
+    if (numberOfNodes === this.numberOfNodes) {
+      this._result = this.currentResult("Stable")
+      return
+    }
+    this.numberOfNodes = numberOfNodes
   }
-  
+
   protected preExecution(): void {
     this.removeOldLines()
   }
@@ -48,6 +69,4 @@ export class MortalModel extends Model {
       }
     }
   }
-
-
 }

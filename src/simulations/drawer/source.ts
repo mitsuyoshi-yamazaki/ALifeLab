@@ -39,7 +39,7 @@ export const main = (p: p5): void => {
     }
     currentModel.draw(p, constants.draw.showsQuadtree)
 
-    if (constants.system.run && currentModel.result != undefined) {
+    if (constants.system.run && currentModel.result != null) {
       const result = currentModel.result
       const status = `${result.status.numberOfLines} lines, ${result.status.numberOfNodes} nodes`
       const rules = result.rules.sort((lhs: RuleDescription, rhs: RuleDescription) => {
@@ -73,7 +73,7 @@ export const saveCurrentState = (): void => {
 
 function createModel(ruleString?: string): ImmortalModel {
   const rules: LSystemRule[] = []
-  if (ruleString != undefined) {
+  if (ruleString != null) {
     try {
       rules.push(new LSystemRule(ruleString))
     } catch (error) {
@@ -92,7 +92,7 @@ function createModel(ruleString?: string): ImmortalModel {
         }
       }
     }
-    if (rules.length == 0) {
+    if (rules.length === 0) {
       rules.push(new LSystemRule(randomExampleRule()))
     }
   }

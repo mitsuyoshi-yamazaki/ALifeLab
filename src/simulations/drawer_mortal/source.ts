@@ -40,7 +40,7 @@ export const main = (p: p5): void => {
     }
     currentModel.draw(p, constants.draw.showsQuadtree)
 
-    if (constants.system.run && currentModel.result != undefined) {
+    if (constants.system.run && currentModel.result != null) {
       const result = currentModel.result
       const rules = result.rules.sort((lhs: RuleDescription, rhs: RuleDescription) => {
         if (lhs.numberOfDrawers === rhs.numberOfDrawers) {
@@ -92,7 +92,7 @@ function createModel(ruleStrings: string[]): Model {
         }
       }
     }
-    if (rules.length == 0) {
+    if (rules.length === 0) {
       const exampleRule = exampleRules[Math.floor(random(exampleRules.length))]
       rules.push(new LSystemRule(exampleRule.rule))
     }
@@ -114,8 +114,22 @@ function createModel(ruleStrings: string[]): Model {
 }
 
 function shouldSave(result: Result): boolean {
-  if (result.status.numberOfLines < 500) {
-    return false
+  switch (result.reason) {  // FixMe: URLパラメータが変更されると終了条件が不適切になる
+  case "Stable":
+    if (result.t <= 6000) {
+      return false
+    }
+    break
+  
+  case "All died":
+    if (result.t < 200) {
+      return false
+    }
+    break
+    
+  case "Timeout":
+  default:
+    break
   }
   return true
 }

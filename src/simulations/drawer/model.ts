@@ -83,11 +83,10 @@ export class Model {
   }
 
   public draw(p: p5, showsQuadtree: boolean): void {
-    this._lines.forEach(line => line.draw(p))
-
     if (showsQuadtree === true) {
       this._rootNode.draw(p)
     }
+    this._lines.forEach(line => line.draw(p))
   }
 
   protected checkCompleted(): void {
@@ -152,9 +151,12 @@ export class Model {
     if (this.isCompleted === true || drawerCount <= 0) {
       return
     }
+    this.checkCompleted()
+    if (this._drawers.length <= 0) {
+      return
+    }
     drawerCount -= this._drawers.length
 
-    this.checkCompleted()
     this.preExecution()
 
     const newDrawers: LSystemDrawer[] = []
@@ -211,7 +213,7 @@ export class Model {
 export class ImmortalModel extends Model {
   protected checkCompleted(): void {
     const completionReason = this.completedReason()
-    if (completionReason != undefined) {
+    if (completionReason != null) {
       this._isCompleted = true
       this._result = this.currentResult(completionReason)
       return
@@ -221,7 +223,7 @@ export class ImmortalModel extends Model {
   protected preExecution(): void {
   }
 
-  private completedReason(): string | undefined {
+  private completedReason(): string | null {
     if (this._lines.length > this.maxLineCount) {
       return "Filled"
     }
@@ -229,6 +231,6 @@ export class ImmortalModel extends Model {
       return "All died"
     }
 
-    return undefined
+    return null
   }
 }

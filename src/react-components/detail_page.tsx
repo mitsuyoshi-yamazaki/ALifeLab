@@ -1,7 +1,8 @@
 import React, { CSSProperties, ReactNode } from "react"
 import { Breadcrumbs } from "./breadcrumbs"
-import { defaultCanvasParentId } from "./default_canvas_parent_id"
 import { ScreenShotButton } from "./screenshot_button"
+import { defaultCanvasParentId } from "./default_canvas_parent_id"
+import { fontFamily } from "./font_family"
 
 export interface ScreenshotButtonNone { kind: "none" }
 export interface ScreenshotButtonDefault { kind: "default", getTimestamp(): number, getDescription?(): string }
@@ -17,23 +18,11 @@ export class DetailPage extends React.Component<Props> {
   static defaultContentMargin = "16px"
 
   public render(): ReactNode {
-    const fontFamily = [
-      "-apple-system",
-      "BlinkMacSystemFont",
-      '"Segoe UI"',
-      "Roboto",
-      '"Helvetica Neue"',
-      "Arial",
-      "sans-serif",
-      '"Apple Color Emoji"',
-      '"Segoe UI Emoji"',
-      '"Segoe UI Symbol"',
-    ]
     const bodyStyle: CSSProperties = {
       display: "table", // horizontal center
       margin: "auto",
       marginTop: "2rem",
-      fontFamily: fontFamily.join(","),
+      fontFamily: fontFamily,
       fontSize: "14px",
       lineHeight: "1.5",
       color: "#24292e",
@@ -59,7 +48,7 @@ export class DetailPage extends React.Component<Props> {
         
       case "default": {
         const getDescription = (): string | undefined => {
-          if (screenshotButtonType.getDescription == undefined) {
+          if (screenshotButtonType.getDescription == null) {
             return undefined
           }
           return screenshotButtonType.getDescription()
