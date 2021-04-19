@@ -1,8 +1,8 @@
 import { Vector } from "../../classes/physics"
 import { Line } from "./line"
 
-export class Action {
-  public constructor(public readonly line: Line, public readonly drawers: Drawer[]) { }
+export class Action<T> {
+  public constructor(public readonly line: Line, public readonly drawers: T[]) { }
 }
 
 export class Drawer {
@@ -14,7 +14,7 @@ export class Drawer {
     this._direction = direction
   }
 
-  public next(): Action {
+  public next(): Action<Drawer> {
     throw new Error("Not implemented")
   }
 

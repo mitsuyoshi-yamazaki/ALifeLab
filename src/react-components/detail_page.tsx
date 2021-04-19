@@ -3,10 +3,14 @@ import { Breadcrumbs } from "./breadcrumbs"
 import { defaultCanvasParentId } from "./default_canvas_parent_id"
 import { ScreenShotButton } from "./screenshot_button"
 
+export interface ScreenshotButtonNone { kind: "none" }
+export interface ScreenshotButtonDefault { kind: "default", getTimestamp(): number, getDescription?(): string }
+export interface ScreenshotButtonCustom { kind: "custom", button: ReactNode }
+type ScreenshotButtonType = ScreenshotButtonNone | ScreenshotButtonDefault | ScreenshotButtonCustom
+
 interface Props {
-  getTimestamp(): number
   bodyWidth?: number
-  getDescription?(): string
+  screenshotButtonType: ScreenshotButtonType
 }
 
 export class DetailPage extends React.Component<Props> {
@@ -47,6 +51,34 @@ export class DetailPage extends React.Component<Props> {
     const screenshotButtonStyle: CSSProperties = {
       margin: DetailPage.defaultContentMargin,
     }
+    const screenshotButton = (): ReactNode => {
+      const screenshotButtonType = this.props.screenshotButtonType
+      switch (screenshotButtonType.kind) {
+      case "none":
+        return <div></div>
+        
+      case "default": {
+        const getDescription = (): string | undefined => {
+          if (screenshotButtonType.getDescription == undefined) {
+            return undefined
+          }
+          return screenshotButtonType.getDescription()
+        }
+        return (
+          <div style={screenshotButtonStyle}>
+            <ScreenShotButton getTimestamp={() => screenshotButtonType.getTimestamp()} getDescription={() => getDescription()} />
+          </div>
+        )
+      }
+
+      case "custom":
+        return (
+          <div style={screenshotButtonStyle}>
+            {screenshotButtonType.button}
+          </div>
+        )
+      }
+    }
     const additionalDescriptions = (): ReactNode | null => {
       if (this.props.children == null) {
         return null
@@ -65,22 +97,12 @@ export class DetailPage extends React.Component<Props> {
           <div style={sectionStyle}>
             <div id={defaultCanvasParentId}></div>
             <div>
-              <div style={screenshotButtonStyle}>
-                <ScreenShotButton getTimestamp={() => this.props.getTimestamp()} getDescription={() => this.getDescription()} />
-              </div>
+              {screenshotButton()}
             </div>
           </div>
           {additionalDescriptions()}
         </div>
       </div>
     )
-  }
-
-  private getDescription(): string | undefined {
-    if (this.props.getDescription == undefined) {
-      return undefined
-    }
-
-    return this.props.getDescription()
   }
 }
