@@ -1,12 +1,16 @@
 import p5 from "p5"
 import { Vector } from "../../classes/physics"
 import { random } from "../../classes/utilities"
-import { Drawer } from "./drawer"
 import { LSystemRule } from "./lsystem_rule"
 import { LSystemDrawer } from "./lsystem_drawer"
 import { Line, isCollided } from "./line"
 import { QuadtreeNode } from "./quadtree"
 // Do not import constants (pass constants via Model.constructor)
+
+export interface RuleDescription {
+  rule: string
+  numberOfDrawers: number  // 停止時点でのdrawer数
+}
 
 export class Result {
   public constructor(
@@ -16,6 +20,7 @@ export class Result {
       numberOfLines: number,
       numberOfNodes: number,
     },
+    public readonly rules: RuleDescription[],
     public readonly description: string,
   ) { }
 }
@@ -40,7 +45,7 @@ export class Model {
 
   private _t = 0
   private _isCompleted = false
-  private _drawers: Drawer[] = []
+  private _drawers: LSystemDrawer[] = []
   private _lines: Line[] = []
   private _result: Result | undefined
   private _rootNode: QuadtreeNode
@@ -71,7 +76,7 @@ export class Model {
     }
   }
 
-  private setupFirstDrawers(rules: LSystemRule[], fixedStartPoint: boolean): Drawer[] {
+  private setupFirstDrawers(rules: LSystemRule[], fixedStartPoint: boolean): LSystemDrawer[] {
     const padding = 100
     const position = (): Vector => {
       if (fixedStartPoint && rules.length === 1) {
@@ -128,8 +133,14 @@ export class Model {
         numberOfLines: this._lines.length,
         numberOfNodes: this._rootNode.numberOfNodes(),
       }
-      const description = this.lSystemRules.map(rule => `\n- ${rule.encoded}`).join("")
-      this._result = new Result(this.t, completionReason, status, description)
+      const description = ""
+      const rules = this.lSystemRules.map(rule => {
+        return {
+          rule: rule.encoded,
+          numberOfDrawers: this._drawers.filter(drawer => drawer.rule === rule).length          
+        }
+      })
+      this._result = new Result(this.t, completionReason, status, rules, description)
 
       return
     }
@@ -144,7 +155,7 @@ export class Model {
       }
     }
 
-    const newDrawers: Drawer[] = []
+    const newDrawers: LSystemDrawer[] = []
     this._drawers.forEach(drawer => {
       const action = drawer.next()
       if (this.quadtreeEnabled) {

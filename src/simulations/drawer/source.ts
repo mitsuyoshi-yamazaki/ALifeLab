@@ -2,7 +2,7 @@ import p5 from "p5"
 import { constants } from "./constants"
 import { Vector } from "../../classes/physics"
 import { random } from "../../classes/utilities"
-import { Model, Result } from "./model"
+import { Model, Result, RuleDescription } from "./model"
 import { defaultCanvasParentId } from "../../react-components/default_canvas_parent_id"
 import { LSystemRule } from "./lsystem_rule"
 import { ScreenshotDownloader, JSONDownloader } from "../../classes/downloader"
@@ -42,9 +42,16 @@ export const main = (p: p5): void => {
     if (constants.system.run && currentModel.result != undefined) {
       const result = currentModel.result
       const status = `${result.status.numberOfLines} lines, ${result.status.numberOfNodes} nodes`
-      console.log(`completed at ${t} (${result.t} steps, ${result.reason}, ${status})\n${result.description}`)
+      const rules = result.rules.sort((lhs: RuleDescription, rhs: RuleDescription) => {
+        if (lhs.numberOfDrawers === rhs.numberOfDrawers) {
+          return 0
+        }
+        return lhs.numberOfDrawers < rhs.numberOfDrawers ? 1 : -1
+      })
+      const ruleDescription = rules.reduce((r, rule) => `${r}\n${rule.numberOfDrawers} drawers: ${rule.rule}`, "")
+      console.log(`completed at ${t} (${result.t} steps, ${result.reason}, ${status}) ${result.description}\n${ruleDescription}`)
       if (constants.system.autoDownload && shouldSave(result)) {
-        downloader.save("", currentModel.lSystemRules, t)
+        downloader.save("", rules, t, result.t)
       }
       currentModel = createModel()
     }
@@ -119,23 +126,23 @@ class Downloader {
     return (Date.now() - this._saved) < this._saveInteral
   }
 
-  public save(filename: string, rules: LSystemRule[], timestamp: number) {
+  public save(filename: string, rules: RuleDescription[], globalTimestamp: number, modelTimeStamp: number) {
     if (this.isSaving === true) {
-      console.log(`Attempt saving ${filename} while previous save is in progress (t: ${timestamp})`)
+      console.log(`Attempt saving ${filename} while previous save is in progress (t: ${globalTimestamp})`)
 
       return
     }
     this._saved = Date.now()
-    this._screenshotDownloader.saveScreenshot(timestamp, filename)
+    this._screenshotDownloader.saveScreenshot(globalTimestamp, filename)
 
     let intervalId: number | undefined = undefined
     const json = {
-      t,
-      rules: rules.map(rule => rule.encoded),
+      t: modelTimeStamp,
+      rules,
       url_parameters: document.location.search,
     }
     const delayed = () => { // Downloading multiple files in exact same timing not working
-      this._JSONDownloader.saveJson(json, filename, timestamp)
+      this._JSONDownloader.saveJson(json, filename, globalTimestamp)
       clearInterval(intervalId)
     }
     intervalId = setInterval(delayed, 300)

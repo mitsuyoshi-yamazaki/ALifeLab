@@ -19,7 +19,7 @@ export class LSystemDrawer extends Drawer {
     this._condition = condition
   }
 
-  public next(): Action {
+  public next(): Action<LSystemDrawer> {
     let length = 1
     if (this.lineLengthType === 1) {
       length = 10
