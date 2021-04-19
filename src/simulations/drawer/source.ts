@@ -5,20 +5,19 @@ import { random } from "../../classes/utilities"
 import { Model, Result, RuleDescription } from "./model"
 import { defaultCanvasParentId } from "../../react-components/default_canvas_parent_id"
 import { LSystemRule } from "./lsystem_rule"
-import { ScreenshotDownloader, JSONDownloader } from "../../classes/downloader"
 import { exampleRules } from "./rule_examples"
+import { Downloader } from "./downloader"
 
 let t = 0
 const canvasId = "canvas"
 const fieldSize = constants.system.fieldSize
 const firstRule: string | undefined = constants.system.run ? undefined : constants.simulation.lSystemRule
 let currentModel = createModel(firstRule)
+const downloader = new Downloader()
 
 export const canvasWidth = fieldSize
 
 export const main = (p: p5): void => {
-  const downloader = new Downloader()
-
   p.setup = () => {
     const canvas = p.createCanvas(fieldSize, fieldSize)
     canvas.id(canvasId)
@@ -60,10 +59,15 @@ export const main = (p: p5): void => {
   }
 }
 
-export const getTimestamp = (): number => {
-  const message = currentModel.lSystemRules.map(rule => rule.encoded).join("\n")
-  console.log(message) // FixMe: 現状では寿命モードのルールを知る術がないためコンソールに出力する
-  return t
+export const saveCurrentState = (): void => {
+  const result = currentModel.currentResult("Running")
+  const rules = result.rules.sort((lhs: RuleDescription, rhs: RuleDescription) => {
+    if (lhs.numberOfDrawers === rhs.numberOfDrawers) {
+      return 0
+    }
+    return lhs.numberOfDrawers < rhs.numberOfDrawers ? 1 : -1
+  })
+  downloader.save("", rules, t, result.t)
 }
 
 function createModel(ruleString?: string): Model {
@@ -114,37 +118,4 @@ function shouldSave(result: Result): boolean {
     return false
   }
   return true
-}
-
-class Downloader {
-  private _screenshotDownloader = new ScreenshotDownloader()
-  private _JSONDownloader = new JSONDownloader()
-  private _saved = 0
-  private _saveInteral = 4000  // ms
-
-  public get isSaving(): boolean {
-    return (Date.now() - this._saved) < this._saveInteral
-  }
-
-  public save(filename: string, rules: RuleDescription[], globalTimestamp: number, modelTimeStamp: number) {
-    if (this.isSaving === true) {
-      console.log(`Attempt saving ${filename} while previous save is in progress (t: ${globalTimestamp})`)
-
-      return
-    }
-    this._saved = Date.now()
-    this._screenshotDownloader.saveScreenshot(globalTimestamp, filename)
-
-    let intervalId: number | undefined = undefined
-    const json = {
-      t: modelTimeStamp,
-      rules,
-      url_parameters: document.location.search,
-    }
-    const delayed = () => { // Downloading multiple files in exact same timing not working
-      this._JSONDownloader.saveJson(json, filename, globalTimestamp)
-      clearInterval(intervalId)
-    }
-    intervalId = setInterval(delayed, 300)
-  }
 }

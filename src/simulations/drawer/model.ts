@@ -68,6 +68,21 @@ export class Model {
     this.executeSteps(this.concurrentExecutionNumber)
   }
 
+  public currentResult(completionReason: string): Result {
+    const status = {
+      numberOfLines: this._lines.length,
+      numberOfNodes: this._rootNode.numberOfNodes(),
+    }
+    const description = ""
+    const rules = this.lSystemRules.map(rule => {
+      return {
+        rule: rule.encoded,
+        numberOfDrawers: this._drawers.filter(drawer => drawer.rule === rule).length
+      }
+    })
+    return new Result(this.t, completionReason, status, rules, description)
+  }
+
   public draw(p: p5, showsQuadtree: boolean): void {
     this._lines.forEach(line => line.draw(p))
 
@@ -129,19 +144,7 @@ export class Model {
     const completionReason = this.completedReason()
     if (completionReason != undefined) {
       this._isCompleted = true
-      const status = {
-        numberOfLines: this._lines.length,
-        numberOfNodes: this._rootNode.numberOfNodes(),
-      }
-      const description = ""
-      const rules = this.lSystemRules.map(rule => {
-        return {
-          rule: rule.encoded,
-          numberOfDrawers: this._drawers.filter(drawer => drawer.rule === rule).length          
-        }
-      })
-      this._result = new Result(this.t, completionReason, status, rules, description)
-
+      this._result = this.currentResult(completionReason)
       return
     }
 
