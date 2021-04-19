@@ -1,3 +1,4 @@
+import p5 from "p5"
 import { Vector } from "../../classes/physics"
 import { LSystemRule } from "../drawer/lsystem_rule"
 import { Model } from "../drawer/model"
@@ -12,12 +13,24 @@ export class MortalModel extends Model {
     public readonly lSystemRules: LSystemRule[],
     public readonly mutationRate: number,
     public readonly lineLifeSpan: number,
+    public readonly isContinuous: boolean,
     fixedStartPoint: boolean,
   ) {
     super(fieldSize, maxLineCount, lSystemRules, mutationRate, 1, fixedStartPoint)
   }
 
+  public draw(p: p5, showsQuadtree: boolean): void {
+    if (showsQuadtree === true) {
+      this._rootNode.draw(p)
+    }
+    this._lines.forEach(line => line.draw(p, 0xFF))
+  }
+
   protected checkCompleted(): void {
+    if (this.isContinuous === true) {
+      return
+    }
+
     if (this._lines.length > this.maxLineCount) {
       this._result = this.currentResult("Filled")
       return
