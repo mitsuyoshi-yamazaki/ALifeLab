@@ -170,7 +170,7 @@ export class Model {
           this.addLine(action.line, node)
         }
       } else {
-        if (this.isCollided(action.line)) {
+        if (this.isCollided(action.line) === false) {
           newDrawers.push(...action.drawers)
           this.addLine(action.line, null)
         }
