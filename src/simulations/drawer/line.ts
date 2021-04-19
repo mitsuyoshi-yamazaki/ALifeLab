@@ -1,4 +1,5 @@
 import p5 from "p5"
+import { Color } from "../../classes/color"
 import { Vector } from "../../classes/physics"
 import { QuadtreeObject } from "./quadtree"
 
@@ -36,6 +37,7 @@ export function isCollided(line1: Line, line2: Line): boolean {
 export class Line implements QuadtreeObject {
   public weight = 0.5
   public isHidden = false
+  public color = Color.white(0xFF, 0x80)
   public get edgePoints(): Vector[] {
     return [
       this.start,
@@ -53,7 +55,7 @@ export class Line implements QuadtreeObject {
       return
     }
 
-    p.stroke(0xFF, 0x80)
+    p.stroke(this.color.p5(p))
     p.strokeWeight(this.weight)
     p.line(this.start.x, this.start.y, this.end.x, this.end.y)
   }

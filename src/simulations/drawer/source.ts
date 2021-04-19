@@ -31,7 +31,11 @@ export const main = (p: p5): void => {
       return
     }
 
-    p.background(0x0, 0xFF)
+    if (constants.draw.colorTheme === "depth") {
+      p.background(0xFF, 0xFF)
+    } else {
+      p.background(0x0, 0xFF)
+    }
 
     if (t % constants.simulation.executionInterval === 0) {
       currentModel.execute()

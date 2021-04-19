@@ -2,6 +2,12 @@ import { random } from "../../classes/utilities"
 import { URLParameterParser } from "../../classes/url_parameter_parser"
 import { exampleRules } from "./rule_examples"
 
+/*
+ * ascii: 状態により色が決まる
+ * depth: ノードの深さ（ルートまでの距離）により色が決まる // 未実装
+ */
+type ColorTheme = "grayscale" | "ascii" | "depth"
+
 const parameters = new URLParameterParser()
 
 const defaultRule = exampleRules[Math.floor(random(exampleRules.length))]
@@ -55,5 +61,8 @@ export const constants = {
 
     // 1で四分木のノードを描画
     showsQuadtree: parameters.boolean("draw.shows_quadtree", false, "d.q"),
+
+    // 色の設定
+    colorTheme: parameters.string("draw.color_theme", "grayscale", "d.c") as ColorTheme,
   },
 }
