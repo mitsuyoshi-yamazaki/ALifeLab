@@ -35,11 +35,11 @@ export const main = (p: p5): void => {
     if (t % constants.simulation.executionInterval === 0) {
       currentModel.execute()
     }
-    currentModel.draw(p)
+    currentModel.draw(p, constants.draw.showsQuadtree)
 
     if (constants.system.run && currentModel.result != undefined) {
       const result = currentModel.result
-      const status = `${result.status.numberOfLines} lines`
+      const status = `${result.status.numberOfLines} lines, ${result.status.numberOfNodes} nodes`
       console.log(`completed at ${t} (${result.t} steps, ${result.reason}, ${status})\n${result.description}`)
       if (constants.system.autoDownload && shouldSave(result)) {
         downloader.save("", currentModel.lSystemRules, t)
@@ -78,9 +78,9 @@ function createModel(ruleString?: string): Model {
     constants.simulation.mutationRate,
     constants.simulation.lineLifeSpan,
     constants.simulation.lineLengthType,
+    constants.simulation.fixedStartPoint,
   )
   model.showsBorderLine = constants.draw.showsBorderLine
-  model.showsQuadtree = constants.draw.showsQuadtree
   model.lineCollisionEnabled = constants.simulation.lineCollisionEnabled
   model.quadtreeEnabled = constants.system.quadtreeEnabled
   model.concurrentExecutionNumber = constants.simulation.concurrentExecutionNumber

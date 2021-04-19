@@ -11,14 +11,16 @@ export class Result {
   public constructor(
     public readonly t: number,
     public readonly reason: string,
-    public readonly status: { numberOfLines: number },
+    public readonly status: {
+      numberOfLines: number,
+      numberOfNodes: number,
+    },
     public readonly description: string,
   ) { }
 }
 
 export class Model {
   public showsBorderLine = false
-  public showsQuadtree = false
   public lineCollisionEnabled = true
   public quadtreeEnabled = true
   public concurrentExecutionNumber = 1
@@ -47,36 +49,45 @@ export class Model {
     public readonly maxLineCount: number,
     public readonly lSystemRules: LSystemRule[],
     public readonly mutationRate: number,
-        public readonly lineLifeSpan: number,
-        public readonly lineLengthType: number,
+    public readonly lineLifeSpan: number,
+    public readonly lineLengthType: number,
+    fixedStartPoint: boolean,
   ) {
     this._rootNode = new QuadtreeNode(new Vector(0, 0), fieldSize, null)
     this.setupBorderLines()
-    this._drawers.push(...this.setupFirstDrawers(lSystemRules))
+    this._drawers.push(...this.setupFirstDrawers(lSystemRules, fixedStartPoint))
   }
 
   public execute(): void {
     this.executeSteps(this.concurrentExecutionNumber)
   }
 
-  public draw(p: p5): void {
+  public draw(p: p5, showsQuadtree: boolean): void {
     this._lines.forEach(line => line.draw(p))
 
-    if (this.showsQuadtree) {
+    if (showsQuadtree === true) {
       this._rootNode.draw(p)
     }
   }
 
-  private setupFirstDrawers(rules: LSystemRule[]): Drawer[] {
+  private setupFirstDrawers(rules: LSystemRule[], fixedStartPoint: boolean): Drawer[] {
     const padding = 100
-    const randomPosition = (): Vector => {
+    const position = (): Vector => {
+      if (fixedStartPoint && rules.length === 1) {
+        return this.fieldSize.div(2)
+      }
       return new Vector(random(this.fieldSize.x - padding, padding), random(this.fieldSize.y - padding, padding))
     }
-    const randomDirection = (): number => (random(360) - 180)
+    const direction = (): number => {
+      if (fixedStartPoint && rules.length === 1) {
+        return 270
+      }
+      return random(360) - 180
+    }
 
     return rules.map(rule => new LSystemDrawer(
-      randomPosition(),
-      randomDirection(),
+      position(),
+      direction(),
       LSystemRule.initialCondition,
       1,
       rule,
@@ -112,7 +123,10 @@ export class Model {
     const completionReason = this.completedReason()
     if (completionReason != undefined) {
       this._isCompleted = true
-      const status = { numberOfLines: this._lines.length }
+      const status = {
+        numberOfLines: this._lines.length,
+        numberOfNodes: this._rootNode.numberOfNodes(),
+      }
       const description = this.lSystemRules.map(rule => `\n- ${rule.encoded}`).join("")
       this._result = new Result(this.t, completionReason, status, description)
 
@@ -132,10 +146,19 @@ export class Model {
     const newDrawers: Drawer[] = []
     this._drawers.forEach(drawer => {
       const action = drawer.next()
-      const node = this.nodeContains(action.line)
-      if (this.isCollidedWithLines(action.line, node) === false) {
-        newDrawers.push(...action.drawers)
-        this.addLine(action.line, node)
+      if (this.quadtreeEnabled) {
+        const node = this.nodeContains(action.line)
+
+        // Since this._rootNode.nodeContains() returns null, the line is crossing this model's border
+        if (node != null && this.isCollidedQuadtree(action.line, node) === false) {
+          newDrawers.push(...action.drawers)
+          this.addLine(action.line, node)
+        }
+      } else {
+        if (this.isCollided(action.line)) {
+          newDrawers.push(...action.drawers)
+          this.addLine(action.line, null)
+        }
       }
     })
 
@@ -159,23 +182,21 @@ export class Model {
     return this._rootNode.nodeContains(line)
   }
 
-  private isCollidedWithLines(line: Line, node: QuadtreeNode | null): boolean {
+  private isCollided(line: Line): boolean {
+    return this._lines.some(other => isCollided(line, other))
+  }
+
+  private isCollidedQuadtree(line: Line, node: QuadtreeNode): boolean {
     if (this.lineCollisionEnabled === false) {
       return false
     }
-
-    const lines = node?.collisionCheckObjects() as Line[] ?? this._lines
+    const lines = node.collisionCheckObjects() as Line[]
     return lines.some(other => isCollided(line, other))
   }
 
   private addLine(line: Line, node: QuadtreeNode | null): void {
-    if (this.quadtreeEnabled === true) {
-      if (node == null) {
-        // console.log(`line (${line.start}, ${line.end}) cannot find node`)  // FixMe: 領域外へ向かう枝はここの条件に入る
-        this._rootNode.objects.push(line)
-      } else {
-        node.objects.push(line)
-      }
+    if (this.quadtreeEnabled === true && node != null) {
+      node.objects.push(line)
     }
     this._lines.push(line)
   }
