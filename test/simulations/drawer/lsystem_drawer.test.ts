@@ -1,17 +1,18 @@
-import { LSystemCondition, LSystemRule } from "../../../src/simulations/drawer/lsystem_rule"
+import { LSystemCondition } from "../../../src/simulations/drawer/lsystem_rule"
+import { VanillaLSystemRule } from "../../../src/simulations/drawer/vanilla_lsystem_rule"
 
 describe("L-System rule", () => {
   test("Invalid rule", () => {
-    expect(() => new LSystemRule("A")).toThrow()
-    expect(() => new LSystemRule("A:")).toThrow()
-    expect(() => new LSystemRule("A;B:")).toThrow()
-    expect(() => new LSystemRule("A:B:C")).toThrow()
-    expect(() => new LSystemRule("A:BC")).toThrow()
-    // expect(() => new LSystemRule("A:1B")).toThrow()  // TODO: 検出できないため
+    expect(() => new VanillaLSystemRule("A")).toThrow()
+    expect(() => new VanillaLSystemRule("A:")).toThrow()
+    expect(() => new VanillaLSystemRule("A;B:")).toThrow()
+    expect(() => new VanillaLSystemRule("A:B:C")).toThrow()
+    expect(() => new VanillaLSystemRule("A:BC")).toThrow()
+    // expect(() => new VanillaLSystemRule("A:1B")).toThrow()  // TODO: 検出できないため
   })
 
   test("Decode", () => {
-    const rule = new LSystemRule("A:-30,A,60,B;B:A")
+    const rule = new VanillaLSystemRule("A:-30,A,60,B;B:A")
     expect(rule.nextConditions("A")).toStrictEqual([-30, "A", 60, "B"])
     expect(rule.nextConditions("B")).toStrictEqual(["A"])
     expect(() => rule.nextConditions("C")).toThrow()
@@ -21,13 +22,13 @@ describe("L-System rule", () => {
     const map = new Map<string, LSystemCondition[]>()
     map.set("A", [-30, "A", 60, "B"])
     map.set("B", ["A"])
-    expect(LSystemRule.encode(map)).toBe("A:-30,A,60,B;B:A")
+    expect(VanillaLSystemRule.encode(map)).toBe("A:-30,A,60,B;B:A")
   })
 
   test("Trim unreachiable conditions", () => {
     const trimmed = (originalRule: string, initialCondition: string): string => {
-      const rule = new LSystemRule(originalRule)
-      return LSystemRule.trimUnreachableConditions(rule, initialCondition).encoded
+      const rule = new VanillaLSystemRule(originalRule)
+      return VanillaLSystemRule.trimUnreachableConditions(rule, initialCondition).encoded
     }
 
     const immutableRule1 = "A:A"
@@ -47,7 +48,7 @@ describe("L-System rule", () => {
 
   test("Circulated rule", () => {
     const isCirculated = (rule: string, initialCondition: string): boolean => {
-      return new LSystemRule(rule).isCirculated(initialCondition)
+      return new VanillaLSystemRule(rule).isCirculated(initialCondition)
     }
 
     const circulatedRule1 = "A:A"

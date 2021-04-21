@@ -1,7 +1,7 @@
 import p5 from "p5"
 import { Vector } from "../../classes/physics"
 import { random } from "../../classes/utilities"
-import { LSystemRule } from "./lsystem_rule"
+import { LSystemRule, defaultInitialCondition } from "./lsystem_rule"
 import { LSystemDrawer } from "./lsystem_drawer"
 import { Line, isCollided } from "./line"
 import { QuadtreeNode } from "./quadtree"
@@ -35,16 +35,15 @@ export class Model {
     return this._t
   }
 
-  public get isCompleted(): boolean {
-    return this._isCompleted
-  }
-
   public get result(): Result | null {
     return this._result
   }
 
+  public get isCompleted(): boolean {
+    return this._result != null
+  }
+
   protected _t = 0
-  protected _isCompleted = false
   protected _drawers: LSystemDrawer[] = []
   protected _lines: Line[] = []
   protected _result: Result | null
@@ -91,6 +90,7 @@ export class Model {
   }
 
   protected checkCompleted(): void {
+    throw new Error("Implement it!")
   }
 
   protected preExecution(): void {
@@ -133,7 +133,7 @@ export class Model {
     return rules.map(rule => new LSystemDrawer(
       position(),
       direction(),
-      LSystemRule.initialCondition,
+      defaultInitialCondition,
       1,
       rule,
       lineLengthType,
@@ -227,7 +227,6 @@ export class ImmortalModel extends Model {
   protected checkCompleted(): void {
     const completionReason = this.completedReason()
     if (completionReason != null) {
-      this._isCompleted = true
       this._result = this.currentResult(completionReason)
       return
     }
