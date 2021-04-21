@@ -1,16 +1,19 @@
 import p5 from "p5"
 import { constants } from "../drawer/constants"
 import { Vector } from "../../classes/physics"
+import { random } from "../../classes/utilities"
 import { defaultCanvasParentId } from "../../react-components/default_canvas_parent_id"
 import { Result, RuleDescription } from "../drawer/model"
 import { Downloader } from "../drawer/downloader"
 import { SymmetryModel } from "./symmetry_model"
 import { SymmetricLSystemRule } from "./symmetric_lsystem_rule"
+import { exampleRules } from "./rule_examples"
 
 let t = 0
 const canvasId = "canvas"
 const fieldSize = constants.system.fieldSize
-const firstRule: string | null = constants.system.run ? null : constants.simulation.lSystemRule
+const firstRule: string | null = constants.system.run ? null :
+  (constants.simulation.lSystemRule.length > 0 ? constants.simulation.lSystemRule : randomExampleRule())
 let currentModel = createModel(firstRule)
 const downloader = new Downloader()
 
@@ -102,4 +105,8 @@ function shouldSave(result: Result): boolean {
     return false
   }
   return true
+}
+
+function randomExampleRule(): string {
+  return exampleRules[Math.floor(random(exampleRules.length))]
 }
