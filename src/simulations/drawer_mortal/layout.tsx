@@ -35,6 +35,7 @@ const App = () => {
         <h2>{document.title}</h2>
         <hr style={borderStyle}></hr>
         <p>
+          L-Systemで描画した線を一定時間で消去することにより、運動しているかのようなパターンを描画します。<br />
           URLパラメータに{'"'}system.run=1{'"'}を設定することでランダムな図形を自動探索します。<br />
           また{'"'}system.auto_download=1{'"'}を設定することで探索した画像を自動的に保存します。<br />
         </p>
