@@ -30,5 +30,8 @@ rules:
   semi:
     - error
     - never
+  eqeqeq: 
+    - error
+    - smart
   "@typescript-eslint/no-empty-interface": off
   "@typescript-eslint/no-empty-function": off

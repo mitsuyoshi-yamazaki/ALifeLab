@@ -15,7 +15,7 @@ class Downloader {
     const timestamp = Math.floor(t)
       .toString()
       .padStart(8, "0")
-    const suffix = description == undefined ? "" : `_${description}`
+    const suffix = description == null ? "" : `_${description}`
 
     return `${launchTime}_${timestamp}${suffix}.${extension}`
   }
@@ -33,7 +33,7 @@ export class ScreenshotDownloader extends Downloader {
   }
 
   public saveScreenshot(t: number, description?: string): string {
-    if (this._canvasElement == undefined) {
+    if (this._canvasElement == null) {
       this._canvasElement = this.getCanvas()
     }
 
@@ -49,7 +49,7 @@ export class ScreenshotDownloader extends Downloader {
 
   private getCanvas(): HTMLCanvasElement {
     const canvas = document.getElementById("canvas") as HTMLCanvasElement
-    if (canvas == undefined) {
+    if (canvas == null) {
       throw new Error("Canvas element not found")
     }
 

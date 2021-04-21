@@ -21,7 +21,7 @@ export class ScreenShotButton extends React.Component<Props> {
 
   private saveScreenshot() {
     const t = this.props.getTimestamp()
-    const description = this.props.getDescription != undefined ? this.props.getDescription() : undefined
+    const description = this.props.getDescription !== undefined ? this.props.getDescription() : undefined
     this._screenshotDownloader.saveScreenshot(t, description)
   }
 }
