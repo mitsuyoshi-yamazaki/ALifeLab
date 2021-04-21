@@ -3,7 +3,7 @@ import { Color } from "../../classes/color"
 import { random } from "../../classes/utilities"
 import { Drawer, Action } from "./drawer"
 import { Line } from "./line"
-import { LSystemRule } from "./lsystem_rule"
+import { LSystemCoordinate, LSystemRule } from "./lsystem_rule"
 
 const alpha = 0x80
 const depthColors: Color[] = []
@@ -89,20 +89,18 @@ export class LSystemDrawer extends Drawer {
       break
     }
 
-    let newDirection = this._direction
-    const nextCondition = this.rule.nextConditions(this._condition)
-    const children: LSystemDrawer[] = []
-
-    for (const condition of nextCondition) {
-      if (typeof(condition) === "number") {
-        newDirection += condition
-        continue
-      }
-
-      const child = new LSystemDrawer(nextPosition, newDirection, condition, this.n + 1, this.rule, this.lineLengthType, this.colorTheme)
-      children.push(child)
+    const drawerFromCoordinate = (coordinate: LSystemCoordinate): LSystemDrawer => {
+      return new LSystemDrawer(
+        nextPosition,
+        coordinate.direction,
+        coordinate.condition,
+        this.n + 1,
+        this.rule,
+        this.lineLengthType,
+        this.colorTheme
+      )
     }
-
+    const children: LSystemDrawer[] = this.rule.nextCoordinates(this._condition, this._direction).map(drawerFromCoordinate)
     return new Action(line, children)
   }
 

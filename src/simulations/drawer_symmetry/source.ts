@@ -4,7 +4,7 @@ import { Vector } from "../../classes/physics"
 import { random } from "../../classes/utilities"
 import { defaultCanvasParentId } from "../../react-components/default_canvas_parent_id"
 import { Model, Result, RuleDescription } from "../drawer/model"
-import { LSystemRule } from "../drawer/lsystem_rule"
+import { VanillaLSystemRule } from "../drawer/vanilla_lsystem_rule"
 import { Downloader } from "../drawer/downloader"
 import { SymmetryModel } from "./symmetry_model"
 
@@ -72,7 +72,7 @@ function createModel(ruleStrings: string[]): SymmetryModel {
   const model = new SymmetryModel(
     new Vector(fieldSize, fieldSize),
     constants.simulation.maxLineCount,
-    [new LSystemRule("A:-88,A,-152,A")],
+    [new VanillaLSystemRule("A:-88,A,-152,A")],
     constants.simulation.mutationRate,
     constants.simulation.lineLifeSpan,
     constants.draw.colorTheme,

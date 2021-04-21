@@ -1,7 +1,7 @@
 import p5 from "p5"
 import { Vector } from "../../classes/physics"
 import { random } from "../../classes/utilities"
-import { LSystemRule } from "./lsystem_rule"
+import { VanillaLSystemRule } from "./vanilla_lsystem_rule"
 import { LSystemDrawer } from "./lsystem_drawer"
 import { Line, isCollided } from "./line"
 import { QuadtreeNode } from "./quadtree"
@@ -53,7 +53,7 @@ export class Model {
   public constructor(
     public readonly fieldSize: Vector,
     public readonly maxLineCount: number,
-    public readonly lSystemRules: LSystemRule[],
+    public readonly lSystemRules: VanillaLSystemRule[],
     public readonly mutationRate: number,
     lineLengthType: number,
     colorTheme: string,
@@ -115,7 +115,7 @@ export class Model {
     p.line(line.start.x, line.start.y, line.end.x, line.end.y)
   }
 
-  private setupFirstDrawers(rules: LSystemRule[], fixedStartPoint: boolean, lineLengthType: number, colorTheme: string): LSystemDrawer[] {
+  private setupFirstDrawers(rules: VanillaLSystemRule[], fixedStartPoint: boolean, lineLengthType: number, colorTheme: string): LSystemDrawer[] {
     const padding = 100
     const position = (): Vector => {
       if (fixedStartPoint && rules.length === 1) {
@@ -133,7 +133,7 @@ export class Model {
     return rules.map(rule => new LSystemDrawer(
       position(),
       direction(),
-      LSystemRule.initialCondition,
+      VanillaLSystemRule.initialCondition,
       1,
       rule,
       lineLengthType,

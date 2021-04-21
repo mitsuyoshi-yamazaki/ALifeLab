@@ -4,7 +4,7 @@ import { Vector } from "../../classes/physics"
 import { random } from "../../classes/utilities"
 import { ImmortalModel, Result, RuleDescription } from "./model"
 import { defaultCanvasParentId } from "../../react-components/default_canvas_parent_id"
-import { LSystemRule } from "./lsystem_rule"
+import { VanillaLSystemRule } from "./vanilla_lsystem_rule"
 import { exampleRules } from "./rule_examples"
 import { Downloader } from "./downloader"
 
@@ -76,20 +76,20 @@ export const saveCurrentState = (): void => {
 }
 
 function createModel(ruleString?: string): ImmortalModel {
-  const rules: LSystemRule[] = []
+  const rules: VanillaLSystemRule[] = []
   if (ruleString != null) {
     try {
-      rules.push(new LSystemRule(ruleString))
+      rules.push(new VanillaLSystemRule(ruleString))
     } catch (error) {
       alert(`Invalid rule ${ruleString}`)
       throw error
     }
   } else {
-    const initialCondition = LSystemRule.initialCondition
+    const initialCondition = VanillaLSystemRule.initialCondition
     for (let i = 0; i < constants.simulation.numberOfSeeds; i += 1) {
       const tries = 20
       for (let j = 0; j < tries; j += 1) {
-        const rule = LSystemRule.trimUnreachableConditions(LSystemRule.random(), initialCondition)
+        const rule = VanillaLSystemRule.trimUnreachableConditions(VanillaLSystemRule.random(), initialCondition)
         if (rule.isCirculated(initialCondition)) {
           rules.push(rule)
           break
@@ -97,7 +97,7 @@ function createModel(ruleString?: string): ImmortalModel {
       }
     }
     if (rules.length === 0) {
-      rules.push(new LSystemRule(randomExampleRule()))
+      rules.push(new VanillaLSystemRule(randomExampleRule()))
     }
   }
   const model = new ImmortalModel(
