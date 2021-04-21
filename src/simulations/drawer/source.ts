@@ -118,7 +118,7 @@ function createModel(ruleString?: string): ImmortalModel {
 }
 
 function shouldSave(result: Result): boolean {
-  if (result.status.numberOfLines < 500) {
+  if (result.status.numberOfLines < 100) {
     return false
   }
   return true

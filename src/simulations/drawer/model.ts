@@ -35,16 +35,15 @@ export class Model {
     return this._t
   }
 
-  public get isCompleted(): boolean {
-    return this._isCompleted
-  }
-
   public get result(): Result | null {
     return this._result
   }
 
+  public get isCompleted(): boolean {
+    return this._result != null
+  }
+
   protected _t = 0
-  protected _isCompleted = false
   protected _drawers: LSystemDrawer[] = []
   protected _lines: Line[] = []
   protected _result: Result | null
@@ -91,6 +90,7 @@ export class Model {
   }
 
   protected checkCompleted(): void {
+    throw new Error("Implement it!")
   }
 
   protected preExecution(): void {
@@ -227,7 +227,6 @@ export class ImmortalModel extends Model {
   protected checkCompleted(): void {
     const completionReason = this.completedReason()
     if (completionReason != null) {
-      this._isCompleted = true
       this._result = this.currentResult(completionReason)
       return
     }

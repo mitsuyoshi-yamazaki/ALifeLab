@@ -11,7 +11,8 @@ import { SymmetricLSystemRule } from "./symmetric_lsystem_rule"
 let t = 0
 const canvasId = "canvas"
 const fieldSize = constants.system.fieldSize
-let currentModel = createModel([constants.simulation.lSystemRule])
+const firstRule: string | null = constants.system.run ? null : constants.simulation.lSystemRule
+let currentModel = createModel(firstRule)
 const downloader = new Downloader()
 
 export const canvasWidth = fieldSize
@@ -39,6 +40,7 @@ export const main = (p: p5): void => {
 
     if (constants.system.run && currentModel.result != null) {
       const result = currentModel.result
+      const status = `${result.status.numberOfLines} lines, ${result.status.numberOfNodes} nodes`
       const rules = result.rules.sort((lhs: RuleDescription, rhs: RuleDescription) => {
         if (lhs.numberOfDrawers === rhs.numberOfDrawers) {
           return 0
@@ -46,11 +48,11 @@ export const main = (p: p5): void => {
         return lhs.numberOfDrawers < rhs.numberOfDrawers ? 1 : -1
       })
       const ruleDescription = rules.reduce((r, rule) => `${r}\n${rule.numberOfDrawers} drawers: ${rule.rule}`, "")
-      console.log(`completed at ${t} (${result.t} steps, ${result.reason}) ${result.description}\n${ruleDescription}`)
+      console.log(`completed at ${t} (${result.t} steps, ${result.reason}, ${status}) ${result.description}\n${ruleDescription}`)
       if (constants.system.autoDownload && shouldSave(result)) {
         downloader.save("", rules, t, result.t)
       }
-      currentModel = createModel([])
+      currentModel = createModel(null)
     }
 
     t += 1
@@ -68,11 +70,17 @@ export const saveCurrentState = (): void => {
   downloader.save("", rules, t, result.t)
 }
 
-function createModel(ruleStrings: string[]): SymmetryModel {
+function createModel(ruleString: string | null): SymmetryModel {
+  const rules: SymmetricLSystemRule[] = []
+  if (ruleString != null) {
+    rules.push(new SymmetricLSystemRule(ruleString))
+  } else {
+    rules.push(SymmetricLSystemRule.random())
+  }
   const model = new SymmetryModel(
     new Vector(fieldSize, fieldSize),
     constants.simulation.maxLineCount,
-    [new SymmetricLSystemRule(ruleStrings[0])], // FixMe:
+    rules,
     constants.simulation.mutationRate,
     constants.simulation.lineLifeSpan,
     constants.draw.colorTheme,
@@ -87,5 +95,8 @@ function createModel(ruleStrings: string[]): SymmetryModel {
 }
 
 function shouldSave(result: Result): boolean {
-  return false
+  if (result.status.numberOfLines < 500) {
+    return false
+  }
+  return true
 }

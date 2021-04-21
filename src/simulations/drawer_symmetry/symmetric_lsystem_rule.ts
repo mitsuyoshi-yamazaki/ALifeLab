@@ -48,6 +48,8 @@ export class SymmetricLSystemRule implements LSystemRule {
     const conditions = alphabets.slice(0, random(alphabets.length, 1))
     const map = new Map<string, LSystemCondition[]>()
     const maxConditions = 10
+    const finishRate = 0.5
+    const directionChangeRate = 0.05
 
     const randomCondition = (): string => {
       const index = Math.floor(random(conditions.length))
@@ -58,8 +60,11 @@ export class SymmetricLSystemRule implements LSystemRule {
     conditions.forEach(condition => {
       const nextConditions: LSystemCondition[] = []
       for (let i = 0; i < maxConditions; i += 1) {
-        if (random(1) > 0.5) {
+        if (random(1) < finishRate) {
           break
+        }
+        if (random(2) < directionChangeRate) {
+          nextConditions.push(SymmetricLSystemRule.directionChangeCode)
         }
         const angle = Math.floor(random(360, 0)) - 180
         nextConditions.push(angle)
