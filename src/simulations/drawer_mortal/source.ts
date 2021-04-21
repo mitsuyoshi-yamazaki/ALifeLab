@@ -1,19 +1,20 @@
 import p5 from "p5"
-import { constants } from "./constants"
+import { constants } from "../drawer/constants"
 import { Vector } from "../../classes/physics"
 import { random } from "../../classes/utilities"
-import { ImmortalModel, Result, RuleDescription } from "./model"
 import { defaultCanvasParentId } from "../../react-components/default_canvas_parent_id"
-import { LSystemRule } from "./lsystem_rule"
+import { Model, Result, RuleDescription } from "../drawer/model"
+import { LSystemRule } from "../drawer/lsystem_rule"
+import { Downloader } from "../drawer/downloader"
 import { exampleRules } from "./rule_examples"
-import { Downloader } from "./downloader"
+import { MortalModel } from "./mortal_model"
 
 let t = 0
 const canvasId = "canvas"
 const fieldSize = constants.system.fieldSize
-const firstRule: string | undefined = constants.system.run ? undefined :
-  (constants.simulation.lSystemRule.length > 0 ? constants.simulation.lSystemRule : randomExampleRule())
-let currentModel = createModel(firstRule)
+const firstRules: string[] = constants.system.run ? [] :
+  (constants.simulation.lSystemRule.length > 0 ? [constants.simulation.lSystemRule] : exampleRules.map(rule => rule.rule))
+let currentModel = createModel(firstRules)
 const downloader = new Downloader()
 
 export const canvasWidth = fieldSize
@@ -41,7 +42,6 @@ export const main = (p: p5): void => {
 
     if (constants.system.run && currentModel.result != null) {
       const result = currentModel.result
-      const status = `${result.status.numberOfLines} lines, ${result.status.numberOfNodes} nodes`
       const rules = result.rules.sort((lhs: RuleDescription, rhs: RuleDescription) => {
         if (lhs.numberOfDrawers === rhs.numberOfDrawers) {
           return 0
@@ -49,11 +49,11 @@ export const main = (p: p5): void => {
         return lhs.numberOfDrawers < rhs.numberOfDrawers ? 1 : -1
       })
       const ruleDescription = rules.reduce((r, rule) => `${r}\n${rule.numberOfDrawers} drawers: ${rule.rule}`, "")
-      console.log(`completed at ${t} (${result.t} steps, ${result.reason}, ${status}) ${result.description}\n${ruleDescription}`)
+      console.log(`completed at ${t} (${result.t} steps, ${result.reason}) ${result.description}\n${ruleDescription}`)
       if (constants.system.autoDownload && shouldSave(result)) {
         downloader.save("", rules, t, result.t)
       }
-      currentModel = createModel()
+      currentModel = createModel([])
     }
 
     t += 1
@@ -71,13 +71,13 @@ export const saveCurrentState = (): void => {
   downloader.save("", rules, t, result.t)
 }
 
-function createModel(ruleString?: string): ImmortalModel {
+function createModel(ruleStrings: string[]): Model {
   const rules: LSystemRule[] = []
-  if (ruleString != null) {
+  if (ruleStrings.length > 0) {
     try {
-      rules.push(new LSystemRule(ruleString))
+      rules.push(...ruleStrings.map(rule => new LSystemRule(rule)))
     } catch (error) {
-      alert(`Invalid rule ${ruleString}`)
+      alert("Invalid rule")
       throw error
     }
   } else {
@@ -93,15 +93,17 @@ function createModel(ruleString?: string): ImmortalModel {
       }
     }
     if (rules.length === 0) {
-      rules.push(new LSystemRule(randomExampleRule()))
+      const exampleRule = exampleRules[Math.floor(random(exampleRules.length))]
+      rules.push(new LSystemRule(exampleRule.rule))
     }
   }
-  const model = new ImmortalModel(
+  const model = new MortalModel(
     new Vector(fieldSize, fieldSize),
     constants.simulation.maxLineCount,
     rules,
     constants.simulation.mutationRate,
-    constants.simulation.lineLengthType,
+    constants.simulation.lineLifeSpan,
+    constants.system.run === false,
     constants.simulation.fixedStartPoint,
   )
   model.showsBorderLine = constants.draw.showsBorderLine
@@ -113,12 +115,22 @@ function createModel(ruleString?: string): ImmortalModel {
 }
 
 function shouldSave(result: Result): boolean {
-  if (result.status.numberOfLines < 500) {
-    return false
+  switch (result.reason) {  // FixMe: URLパラメータが変更されると終了条件が不適切になる
+  case "Stable":
+    if (result.t <= 6000) {
+      return false
+    }
+    break
+  
+  case "All died":
+    if (result.t < 200) {
+      return false
+    }
+    break
+    
+  case "Timeout":
+  default:
+    break
   }
   return true
-}
-
-function randomExampleRule(): string {
-  return exampleRules[Math.floor(random(exampleRules.length))]
 }

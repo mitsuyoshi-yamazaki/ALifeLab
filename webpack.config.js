@@ -10,7 +10,8 @@ module.exports = {
     meta_generative_art_v5: "./src/simulations/meta_generative_art_v5/layout.tsx",
     machines_and_tapes: "./src/simulations/machines_and_tapes/layout.tsx",
     machines_and_tapes_ex2: "./src/simulations/machines_and_tapes_ex2/layout.tsx",
-    drawer: "./src/simulations/drawer/layout.tsx"
+    drawer: "./src/simulations/drawer/layout.tsx",
+    drawer_mortal: "./src/simulations/drawer_mortal/layout.tsx",
   },
   output: {
     path: path.resolve(__dirname, "dist"),
