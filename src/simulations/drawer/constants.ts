@@ -49,6 +49,7 @@ export const constants = {
     concurrentExecutionNumber: parameters.int("simulation.concurrent_execution", 100, "s.ce"),
     lineLifeSpan: parameters.int("simulation.line_life_span", 10, "s.ls"),
     lineLengthType: parameters.int("simulation.line_line_length_type", 0, "s.ll"),
+    symmetric: parameters.boolean("simulation.force_simmetric", false, "s.sy"),
   },
   draw: {
     // 1でcanvas境界に配置した境界線を描画

@@ -78,7 +78,7 @@ function createModel(ruleString: string | null): SymmetryModel {
   if (ruleString != null) {
     rules.push(new SymmetricLSystemRule(ruleString))
   } else {
-    rules.push(SymmetricLSystemRule.random())
+    rules.push(SymmetricLSystemRule.random(constants.simulation.symmetric))
   }
   const model = new SymmetryModel(
     new Vector(fieldSize, fieldSize),

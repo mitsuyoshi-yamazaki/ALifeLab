@@ -44,13 +44,19 @@ export class SymmetricLSystemRule implements LSystemRule {
   }
 
   // TODO: push/pop対応
-  public static random(): SymmetricLSystemRule { // FixMe: 適当に書いたので探索範囲が偏っているはず
+  public static random(symmetric: boolean): SymmetricLSystemRule { // FixMe: 適当に書いたので探索範囲が偏っているはず
     const alphabets = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("")
+    if (symmetric === true) {
+      alphabets.shift()
+    }
     const conditions = alphabets.slice(0, random(alphabets.length, 1))
     const map = new Map<string, LSystemCondition[]>()
     const maxConditions = 10
     const finishRate = 0.5
     const directionChangeRate = 0.2
+    if (symmetric === true) {
+      map.set("A", ["-","B","-","B"])
+    }
 
     const randomCondition = (): string => {
       const index = Math.floor(random(conditions.length))
