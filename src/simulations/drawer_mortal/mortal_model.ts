@@ -14,16 +14,17 @@ export class MortalModel extends Model {
     public readonly mutationRate: number,
     public readonly lineLifeSpan: number,
     public readonly isContinuous: boolean,
+    colorTheme: string,
     fixedStartPoint: boolean,
   ) {
-    super(fieldSize, maxLineCount, lSystemRules, mutationRate, 1, fixedStartPoint)
+    super(fieldSize, maxLineCount, lSystemRules, mutationRate, 1, colorTheme, fixedStartPoint)
   }
 
   public draw(p: p5, showsQuadtree: boolean): void {
     if (showsQuadtree === true) {
       this._rootNode.draw(p)
     }
-    this._lines.forEach(line => line.draw(p, 0xFF))
+    this._lines.forEach(line => this.drawLine(line, 0xFF, 0.5, p))
   }
 
   protected checkCompleted(): void {

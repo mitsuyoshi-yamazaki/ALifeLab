@@ -55,12 +55,13 @@ export class Model {
     public readonly maxLineCount: number,
     public readonly lSystemRules: LSystemRule[],
     public readonly mutationRate: number,
-    public readonly lineLengthType: number,
+    lineLengthType: number,
+    colorTheme: string,
     fixedStartPoint: boolean,
   ) {
     this._rootNode = new QuadtreeNode(new Vector(0, 0), fieldSize, null)
     this.setupBorderLines()
-    this._drawers.push(...this.setupFirstDrawers(lSystemRules, fixedStartPoint))
+    this._drawers.push(...this.setupFirstDrawers(lSystemRules, fixedStartPoint, lineLengthType, colorTheme))
   }
 
   public execute(): void {
@@ -86,7 +87,7 @@ export class Model {
     if (showsQuadtree === true) {
       this._rootNode.draw(p)
     }
-    this._lines.forEach(line => line.draw(p))
+    this._lines.forEach(line => this.drawLine(line, 0x80, 0.5, p))
   }
 
   protected checkCompleted(): void {
@@ -103,7 +104,18 @@ export class Model {
     return this._rootNode.nodeContains(line)
   }
 
-  private setupFirstDrawers(rules: LSystemRule[], fixedStartPoint: boolean): LSystemDrawer[] {
+  protected drawLine(line: Line, alpha: number, weight: number, p: p5): void {  // TODO: alpha引数は外せると思う
+    if (line.isHidden === true) {
+      return
+    }
+
+    const color = line.color.p5(p, alpha)
+    p.stroke(color)
+    p.strokeWeight(weight)
+    p.line(line.start.x, line.start.y, line.end.x, line.end.y)
+  }
+
+  private setupFirstDrawers(rules: LSystemRule[], fixedStartPoint: boolean, lineLengthType: number, colorTheme: string): LSystemDrawer[] {
     const padding = 100
     const position = (): Vector => {
       if (fixedStartPoint && rules.length === 1) {
@@ -124,7 +136,8 @@ export class Model {
       LSystemRule.initialCondition,
       1,
       rule,
-      this.lineLengthType
+      lineLengthType,
+      colorTheme,
     ))
   }
 

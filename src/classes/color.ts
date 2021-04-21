@@ -1,7 +1,10 @@
 import p5 from "p5"
 
 export class Color {
-  public constructor(public readonly r: number, public readonly g: number, public readonly b: number, public readonly alpha: number) {
+  public alpha: number
+
+  public constructor(public readonly r: number, public readonly g: number, public readonly b: number, alpha?: number) {
+    this.alpha = alpha ?? 0xFF
   }
 
   public static white(white?: number, alpha?: number): Color {
