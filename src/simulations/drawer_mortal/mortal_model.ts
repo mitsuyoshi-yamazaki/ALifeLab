@@ -1,6 +1,6 @@
 import p5 from "p5"
 import { Vector } from "../../classes/physics"
-import { LSystemRule } from "../drawer/lsystem_rule"
+import { VanillaLSystemRule } from "../drawer/vanilla_lsystem_rule"
 import { Model } from "../drawer/model"
 
 export class MortalModel extends Model {
@@ -10,7 +10,7 @@ export class MortalModel extends Model {
   public constructor(
     public readonly fieldSize: Vector,
     public readonly maxLineCount: number,
-    public readonly lSystemRules: LSystemRule[],
+    public readonly lSystemRules: VanillaLSystemRule[],
     public readonly mutationRate: number,
     public readonly lineLifeSpan: number,
     public readonly isContinuous: boolean,

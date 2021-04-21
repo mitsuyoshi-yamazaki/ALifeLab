@@ -4,7 +4,7 @@ import { Vector } from "../../classes/physics"
 import { random } from "../../classes/utilities"
 import { defaultCanvasParentId } from "../../react-components/default_canvas_parent_id"
 import { Model, Result, RuleDescription } from "../drawer/model"
-import { LSystemRule } from "../drawer/lsystem_rule"
+import { VanillaLSystemRule } from "../drawer/vanilla_lsystem_rule"
 import { Downloader } from "../drawer/downloader"
 import { exampleRules } from "./rule_examples"
 import { MortalModel } from "./mortal_model"
@@ -72,20 +72,20 @@ export const saveCurrentState = (): void => {
 }
 
 function createModel(ruleStrings: string[]): Model {
-  const rules: LSystemRule[] = []
+  const rules: VanillaLSystemRule[] = []
   if (ruleStrings.length > 0) {
     try {
-      rules.push(...ruleStrings.map(rule => new LSystemRule(rule)))
+      rules.push(...ruleStrings.map(rule => new VanillaLSystemRule(rule)))
     } catch (error) {
       alert("Invalid rule")
       throw error
     }
   } else {
-    const initialCondition = LSystemRule.initialCondition
+    const initialCondition = VanillaLSystemRule.initialCondition
     for (let i = 0; i < constants.simulation.numberOfSeeds; i += 1) {
       const tries = 20
       for (let j = 0; j < tries; j += 1) {
-        const rule = LSystemRule.trimUnreachableConditions(LSystemRule.random(), initialCondition)
+        const rule = VanillaLSystemRule.trimUnreachableConditions(VanillaLSystemRule.random(), initialCondition)
         if (rule.isCirculated(initialCondition)) {
           rules.push(rule)
           break
@@ -94,7 +94,7 @@ function createModel(ruleStrings: string[]): Model {
     }
     if (rules.length === 0) {
       const exampleRule = exampleRules[Math.floor(random(exampleRules.length))]
-      rules.push(new LSystemRule(exampleRule.rule))
+      rules.push(new VanillaLSystemRule(exampleRule.rule))
     }
   }
   const model = new MortalModel(

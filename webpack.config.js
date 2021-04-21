@@ -12,6 +12,7 @@ module.exports = {
     machines_and_tapes_ex2: "./src/simulations/machines_and_tapes_ex2/layout.tsx",
     drawer: "./src/simulations/drawer/layout.tsx",
     drawer_mortal: "./src/simulations/drawer_mortal/layout.tsx",
+    drawer_symmetry: "./src/simulations/drawer_symmetry/layout.tsx",
   },
   output: {
     path: path.resolve(__dirname, "dist"),

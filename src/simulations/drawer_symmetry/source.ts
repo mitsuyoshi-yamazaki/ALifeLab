@@ -1,17 +1,18 @@
 import p5 from "p5"
-import { constants } from "./constants"
+import { constants } from "../drawer/constants"
 import { Vector } from "../../classes/physics"
 import { random } from "../../classes/utilities"
-import { ImmortalModel, Result, RuleDescription } from "./model"
 import { defaultCanvasParentId } from "../../react-components/default_canvas_parent_id"
-import { VanillaLSystemRule } from "./vanilla_lsystem_rule"
+import { Result, RuleDescription } from "../drawer/model"
+import { Downloader } from "../drawer/downloader"
+import { SymmetryModel } from "./symmetry_model"
+import { SymmetricLSystemRule } from "./symmetric_lsystem_rule"
 import { exampleRules } from "./rule_examples"
-import { Downloader } from "./downloader"
 
 let t = 0
 const canvasId = "canvas"
 const fieldSize = constants.system.fieldSize
-const firstRule: string | undefined = constants.system.run ? undefined :
+const firstRule: string | null = constants.system.run ? null :
   (constants.simulation.lSystemRule.length > 0 ? constants.simulation.lSystemRule : randomExampleRule())
 let currentModel = createModel(firstRule)
 const downloader = new Downloader()
@@ -32,7 +33,7 @@ export const main = (p: p5): void => {
       return
     }
 
-    if (constants.draw.colorTheme === "depth") {
+    if (["depth", "direction"].includes(constants.draw.colorTheme)) {
       p.background(0xFF, 0xFF)
     } else {
       p.background(0x0, 0xFF)
@@ -57,7 +58,7 @@ export const main = (p: p5): void => {
       if (constants.system.autoDownload && shouldSave(result)) {
         downloader.save("", rules, t, result.t)
       }
-      currentModel = createModel()
+      currentModel = createModel(null)
     }
 
     t += 1
@@ -75,37 +76,19 @@ export const saveCurrentState = (): void => {
   downloader.save("", rules, t, result.t)
 }
 
-function createModel(ruleString?: string): ImmortalModel {
-  const rules: VanillaLSystemRule[] = []
+function createModel(ruleString: string | null): SymmetryModel {
+  const rules: SymmetricLSystemRule[] = []
   if (ruleString != null) {
-    try {
-      rules.push(new VanillaLSystemRule(ruleString))
-    } catch (error) {
-      alert(`Invalid rule ${ruleString}`)
-      throw error
-    }
+    rules.push(new SymmetricLSystemRule(ruleString))
   } else {
-    const initialCondition = VanillaLSystemRule.initialCondition
-    for (let i = 0; i < constants.simulation.numberOfSeeds; i += 1) {
-      const tries = 20
-      for (let j = 0; j < tries; j += 1) {
-        const rule = VanillaLSystemRule.trimUnreachableConditions(VanillaLSystemRule.random(), initialCondition)
-        if (rule.isCirculated(initialCondition)) {
-          rules.push(rule)
-          break
-        }
-      }
-    }
-    if (rules.length === 0) {
-      rules.push(new VanillaLSystemRule(randomExampleRule()))
-    }
+    rules.push(SymmetricLSystemRule.random(constants.simulation.symmetric))
   }
-  const model = new ImmortalModel(
+  const model = new SymmetryModel(
     new Vector(fieldSize, fieldSize),
     constants.simulation.maxLineCount,
     rules,
     constants.simulation.mutationRate,
-    constants.simulation.lineLengthType,
+    constants.simulation.lineLifeSpan,
     constants.draw.colorTheme,
     constants.simulation.fixedStartPoint,
   )
@@ -118,7 +101,7 @@ function createModel(ruleString?: string): ImmortalModel {
 }
 
 function shouldSave(result: Result): boolean {
-  if (result.status.numberOfLines < 100) {
+  if (result.status.numberOfLines < 500) {
     return false
   }
   return true
