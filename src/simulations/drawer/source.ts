@@ -32,7 +32,11 @@ export const main = (p: p5): void => {
       return
     }
 
-    p.background(0x0, 0xFF)
+    if (constants.draw.colorTheme === "depth") {
+      p.background(0xFF, 0xFF)
+    } else {
+      p.background(0x0, 0xFF)
+    }
 
     if (t % constants.simulation.executionInterval === 0) {
       currentModel.execute()
@@ -102,6 +106,7 @@ function createModel(ruleString?: string): ImmortalModel {
     rules,
     constants.simulation.mutationRate,
     constants.simulation.lineLengthType,
+    constants.draw.colorTheme,
     constants.simulation.fixedStartPoint,
   )
   model.showsBorderLine = constants.draw.showsBorderLine

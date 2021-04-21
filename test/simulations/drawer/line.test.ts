@@ -1,32 +1,5 @@
 import { Vector } from "../../../src/classes/physics"
-import { Line, LinkedLine, isCollided } from "../../../src/simulations/drawer/line"
-
-function createLines(n: number, i?: number): LinkedLine {
-  const line = new LinkedLine(Vector.zero(), Vector.zero())
-  if (n <= 1) {
-    return line
-  }
-  for (let j = 0; j < (i ?? 1); j += 1) {
-    line.children.push(createLines(n - 1, i))
-  }
-
-  return line
-}
-
-describe("Number of leaves", () => {
-  test("One leaf", () => {
-    expect(createLines(1).numberOfLeaves).toBe(1)
-    expect(createLines(2).numberOfLeaves).toBe(1)
-    expect(createLines(5).numberOfLeaves).toBe(1)
-  })
-
-  test("Multiple leaves", () => {
-    expect(createLines(1, 2).numberOfLeaves).toBe(1)
-    expect(createLines(2, 2).numberOfLeaves).toBe(2)
-    expect(createLines(3, 2).numberOfLeaves).toBe(4)
-    expect(createLines(3, 3).numberOfLeaves).toBe(9)
-  })
-})
+import { Line, isCollided } from "../../../src/simulations/drawer/line"
 
 describe("Collision", () => {
   test("Collided", () => {

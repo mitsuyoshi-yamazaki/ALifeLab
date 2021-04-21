@@ -104,6 +104,7 @@ function createModel(ruleStrings: string[]): Model {
     constants.simulation.mutationRate,
     constants.simulation.lineLifeSpan,
     constants.system.run === false,
+    constants.draw.colorTheme,
     constants.simulation.fixedStartPoint,
   )
   model.showsBorderLine = constants.draw.showsBorderLine
