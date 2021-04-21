@@ -4,14 +4,12 @@ import { random } from "../../classes/utilities"
 import { Drawer, Action } from "./drawer"
 import { Line } from "./line"
 import { LSystemRule } from "./lsystem_rule"
-import { constants } from "./constants" // TODO: 独立性を高めるために外す
 
 const alpha = 0x80
 const depthColors: Color[] = []
 for (let i = 0; i < 2; i += 1) {  // FixMe: 3以上にするとcolorOfDepth()のdepthForCycle*depthColors.lengthを超えたあたりでグラデーションがかからない不具合がある
   depthColors.push(new Color(random(0xFF), random(0xFF), random(0xFF), 0xFF))
 }
-console.log(`colors: ${depthColors}`)
 
 function colorOfCondition(condition: string): Color {
   const code = condition.charCodeAt(0)
@@ -58,7 +56,8 @@ export class LSystemDrawer extends Drawer {
     condition: string,
     public readonly n: number,
     public readonly rule: LSystemRule,
-    public readonly lineLengthType: number,
+    public readonly lineLengthType: number, // TODO: 変化しない引数は引き回さなくて済むような作りにする
+    public readonly colorTheme: string, // FixMe: ColorThemeをconstants.tsから剥がして持ってくる
   ) {
     super(position, direction)
     this._condition = condition
@@ -77,7 +76,7 @@ export class LSystemDrawer extends Drawer {
     const nextPosition = this._position.moved(radian, length)
     const line = new Line(this._position, nextPosition)
     
-    switch (constants.draw.colorTheme) {
+    switch (this.colorTheme) {
     case "ascii":
       line.color = colorOfCondition(this._condition)
       break
@@ -100,7 +99,7 @@ export class LSystemDrawer extends Drawer {
         continue
       }
 
-      const child = new LSystemDrawer(nextPosition, newDirection, condition, this.n + 1, this.rule, this.lineLengthType)
+      const child = new LSystemDrawer(nextPosition, newDirection, condition, this.n + 1, this.rule, this.lineLengthType, this.colorTheme)
       children.push(child)
     }
 
@@ -117,7 +116,8 @@ export class LSystemDrawer extends Drawer {
       condition,
       this.n,
       this.rule,
-      this.lineLengthType
+      this.lineLengthType,
+      this.colorTheme,
     )
   }
 }

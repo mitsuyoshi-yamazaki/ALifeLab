@@ -1,4 +1,3 @@
-import p5 from "p5"
 import { Color } from "../../classes/color"
 import { Vector } from "../../classes/physics"
 import { QuadtreeObject } from "./quadtree"
@@ -35,7 +34,6 @@ export function isCollided(line1: Line, line2: Line): boolean {
 }
 
 export class Line implements QuadtreeObject {
-  public weight = 0.5
   public isHidden = false
   public color = Color.white(0xFF, 0x80)
   public get edgePoints(): Vector[] {
@@ -49,45 +47,4 @@ export class Line implements QuadtreeObject {
     public readonly start: Vector,
     public readonly end: Vector,
   ) { }
-
-  public draw(p: p5, alpha?: number): void {
-    if (this.isHidden === true) {
-      return
-    }
-
-    const color = this.color.p5(p, alpha ?? 0x80)
-    p.stroke(color)
-    p.strokeWeight(this.weight)
-    p.line(this.start.x, this.start.y, this.end.x, this.end.y)
-  }
-}
-
-export class LinkedLine extends Line {
-  public children: LinkedLine[] = []
-  public fixedWeight: number | undefined
-  public isHidden = false
-
-  public constructor(start: Vector, end: Vector) {
-    super(start, end)
-  }
-
-  public get numberOfLeaves(): number {
-    if (this.children.length === 0) {
-      return 1
-    }
-
-    return this.children.reduce((result, child) => result + child.numberOfLeaves, 0)
-  }
-
-  public draw(p: p5): void {
-    if (this.isHidden === true) {
-      return
-    }
-
-    const weight = this.fixedWeight ?? ((1 - 1 / (this.numberOfLeaves + 1)) * 5)
-
-    p.stroke(0xFF, 0x80)
-    p.strokeWeight(weight)
-    p.line(this.start.x, this.start.y, this.end.x, this.end.y)
-  }
 }

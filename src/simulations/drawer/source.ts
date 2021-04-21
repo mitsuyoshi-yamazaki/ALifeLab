@@ -106,6 +106,7 @@ function createModel(ruleString?: string): ImmortalModel {
     rules,
     constants.simulation.mutationRate,
     constants.simulation.lineLengthType,
+    constants.draw.colorTheme,
     constants.simulation.fixedStartPoint,
   )
   model.showsBorderLine = constants.draw.showsBorderLine
