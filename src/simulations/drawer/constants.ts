@@ -1,6 +1,4 @@
-import { random } from "../../classes/utilities"
 import { URLParameterParser } from "../../classes/url_parameter_parser"
-import { exampleRules } from "./rule_examples"
 
 /*
  * ascii: 状態により色が決まる
@@ -9,9 +7,6 @@ import { exampleRules } from "./rule_examples"
 type ColorTheme = "grayscale" | "ascii" | "depth"
 
 const parameters = new URLParameterParser()
-
-const defaultRule = exampleRules[Math.floor(random(exampleRules.length))]
-const lineLifeSpan = parameters.int("simulation.line_life_span", 0, "s.ls")
 
 // 指定できるURLパラメータの一覧
 // parameters.boolean/int/float/string("パラメータ名", 指定されない場合のデフォルト値, "パラメータ名省略記法")
@@ -27,7 +22,7 @@ export const constants = {
     autoDownload: parameters.boolean("system.auto_download", false, "d"),
 
     // 1で四分木による計算量削減を有効化
-    quadtreeEnabled: lineLifeSpan > 0 ? false : parameters.boolean("system.quadtree", true, "q"),
+    quadtreeEnabled: parameters.boolean("system.quadtree", true, "q"),
   },
   simulation: {
     // 動作を遅くしたい場合に増やす。1未満の値（高速化）は動作しない
@@ -40,7 +35,7 @@ export const constants = {
     lineCollisionEnabled: parameters.boolean("simulation.line_collision_enabled", true, "s.c"),
 
     // L-Systemのルールを指定する。 ルールの例はrule_examples.ts
-    lSystemRule: parameters.string("simulation.lsystem_rule", defaultRule, "s.r"),
+    lSystemRule: parameters.string("simulation.lsystem_rule", "", "s.r"),
 
     // L-Systemの **状態の** 突然変異率（ルールの、ではない）
     mutationRate: parameters.float("simulation.mutation_rate", 0, "s.m"),
@@ -52,7 +47,7 @@ export const constants = {
     fixedStartPoint: parameters.boolean("simulation.fixed_start_point", false, "s.f"),
 
     concurrentExecutionNumber: parameters.int("simulation.concurrent_execution", 100, "s.ce"),
-    lineLifeSpan,
+    lineLifeSpan: parameters.int("simulation.line_life_span", 10, "s.ls"),
     lineLengthType: parameters.int("simulation.line_line_length_type", 0, "s.ll"),
   },
   draw: {

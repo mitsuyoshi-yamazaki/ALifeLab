@@ -50,12 +50,13 @@ export class Line implements QuadtreeObject {
     public readonly end: Vector,
   ) { }
 
-  public draw(p: p5): void {
+  public draw(p: p5, alpha?: number): void {
     if (this.isHidden === true) {
       return
     }
 
-    p.stroke(this.color.p5(p))
+    const color = this.color.p5(p, alpha ?? 0x80)
+    p.stroke(color)
     p.strokeWeight(this.weight)
     p.line(this.start.x, this.start.y, this.end.x, this.end.y)
   }

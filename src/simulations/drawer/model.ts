@@ -26,7 +26,7 @@ export class Result {
 }
 
 export class Model {
-  public showsBorderLine = false
+  public showsBorderLine = false  // TODO: 消す
   public lineCollisionEnabled = true
   public quadtreeEnabled = true
   public concurrentExecutionNumber = 1
@@ -39,23 +39,22 @@ export class Model {
     return this._isCompleted
   }
 
-  public get result(): Result | undefined {
+  public get result(): Result | null {
     return this._result
   }
 
-  private _t = 0
-  private _isCompleted = false
-  private _drawers: LSystemDrawer[] = []
-  private _lines: Line[] = []
-  private _result: Result | undefined
-  private _rootNode: QuadtreeNode
+  protected _t = 0
+  protected _isCompleted = false
+  protected _drawers: LSystemDrawer[] = []
+  protected _lines: Line[] = []
+  protected _result: Result | null
+  protected _rootNode: QuadtreeNode
 
   public constructor(
     public readonly fieldSize: Vector,
     public readonly maxLineCount: number,
     public readonly lSystemRules: LSystemRule[],
     public readonly mutationRate: number,
-    public readonly lineLifeSpan: number,
     public readonly lineLengthType: number,
     fixedStartPoint: boolean,
   ) {
@@ -84,11 +83,24 @@ export class Model {
   }
 
   public draw(p: p5, showsQuadtree: boolean): void {
-    this._lines.forEach(line => line.draw(p))
-
     if (showsQuadtree === true) {
       this._rootNode.draw(p)
     }
+    this._lines.forEach(line => line.draw(p))
+  }
+
+  protected checkCompleted(): void {
+  }
+
+  protected preExecution(): void {
+  }
+
+  protected nodeContains(line: Line): QuadtreeNode | null {
+    if (this.quadtreeEnabled === false) {
+      return null
+    }
+
+    return this._rootNode.nodeContains(line)
   }
 
   private setupFirstDrawers(rules: LSystemRule[], fixedStartPoint: boolean): LSystemDrawer[] {
@@ -139,24 +151,13 @@ export class Model {
     if (this.isCompleted === true || drawerCount <= 0) {
       return
     }
-    drawerCount -= this._drawers.length
-
-    const completionReason = this.completedReason()
-    if (completionReason != undefined) {
-      this._isCompleted = true
-      this._result = this.currentResult(completionReason)
+    this.checkCompleted()
+    if (this._drawers.length <= 0) {
       return
     }
+    drawerCount -= this._drawers.length
 
-    if (this.lineLifeSpan > 0) {
-      if (this._lines.length > this.lineLifeSpan) {
-        if (this.quadtreeEnabled) {
-          throw new Error("TODO: 四分木から線分を削除する処理を実装する")
-        }
-        const initLine = this._lines.slice(0, 4)
-        this._lines = initLine.concat(this._lines.slice(Math.floor(this._lines.length / this.lineLifeSpan) + 5, this._lines.length - 4))
-      }
-    }
+    this.preExecution()
 
     const newDrawers: LSystemDrawer[] = []
     this._drawers.forEach(drawer => {
@@ -170,7 +171,7 @@ export class Model {
           this.addLine(action.line, node)
         }
       } else {
-        if (this.isCollided(action.line)) {
+        if (this.isCollided(action.line) === false) {
           newDrawers.push(...action.drawers)
           this.addLine(action.line, null)
         }
@@ -187,14 +188,6 @@ export class Model {
 
     this._t += 1
     this.executeSteps(drawerCount)
-  }
-
-  private nodeContains(line: Line): QuadtreeNode | null {
-    if (this.quadtreeEnabled === false) {
-      return null
-    }
-
-    return this._rootNode.nodeContains(line)
   }
 
   private isCollided(line: Line): boolean {
@@ -215,13 +208,22 @@ export class Model {
     }
     this._lines.push(line)
   }
+}
 
-  private removeLine(line: Line): void {
-    // TODO:
+export class ImmortalModel extends Model {
+  protected checkCompleted(): void {
+    const completionReason = this.completedReason()
+    if (completionReason != null) {
+      this._isCompleted = true
+      this._result = this.currentResult(completionReason)
+      return
+    }
   }
 
-  private completedReason(): string | undefined { // TODO: 適切な終了条件を設定する
-    // TODO: 定命モードの終了条件
+  protected preExecution(): void {
+  }
+
+  private completedReason(): string | null {
     if (this._lines.length > this.maxLineCount) {
       return "Filled"
     }
@@ -229,6 +231,6 @@ export class Model {
       return "All died"
     }
 
-    return undefined
+    return null
   }
 }

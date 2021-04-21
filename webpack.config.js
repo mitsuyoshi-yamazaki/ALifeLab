@@ -1,20 +1,21 @@
-const path = require('path');
+const path = require("path");
 
 module.exports = {
-  mode: 'development',
+  mode: "development",
   entry: {
-    index: './src/index/index.tsx',
-    meta_generative_art: './src/simulations/meta_generative_art/layout.tsx',
-    meta_generative_art_v2: './src/simulations/meta_generative_art_v2/layout.tsx',
-    meta_generative_art_v4: './src/simulations/meta_generative_art_v4/layout.tsx',
-    meta_generative_art_v5: './src/simulations/meta_generative_art_v5/layout.tsx',
-    machines_and_tapes: './src/simulations/machines_and_tapes/layout.tsx',
-    machines_and_tapes_ex2: './src/simulations/machines_and_tapes_ex2/layout.tsx',
-    drawer: './src/simulations/drawer/layout.tsx'
+    index: "./src/index/index.tsx",
+    meta_generative_art: "./src/simulations/meta_generative_art/layout.tsx",
+    meta_generative_art_v2: "./src/simulations/meta_generative_art_v2/layout.tsx",
+    meta_generative_art_v4: "./src/simulations/meta_generative_art_v4/layout.tsx",
+    meta_generative_art_v5: "./src/simulations/meta_generative_art_v5/layout.tsx",
+    machines_and_tapes: "./src/simulations/machines_and_tapes/layout.tsx",
+    machines_and_tapes_ex2: "./src/simulations/machines_and_tapes_ex2/layout.tsx",
+    drawer: "./src/simulations/drawer/layout.tsx",
+    drawer_mortal: "./src/simulations/drawer_mortal/layout.tsx",
   },
   output: {
-    path: path.resolve(__dirname, 'dist'),
-    filename: '[name].js'
+    path: path.resolve(__dirname, "dist"),
+    filename: "[name].js"
   },
   module: {
     rules: [
@@ -27,4 +28,4 @@ module.exports = {
     ],
     extensions: [".ts", ".js", ".tsx"]
   }
-};
+}
