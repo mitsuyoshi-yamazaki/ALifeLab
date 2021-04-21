@@ -85,6 +85,12 @@ export class LSystemDrawer extends Drawer {
       line.color = colorOfDepth(this.n)
       break
 
+    case "direction":
+      if (this.rule.colorOfCondition != null) {
+        line.color = this.rule.colorOfCondition(this._condition)
+      }
+      break
+
     default:
       break
     }

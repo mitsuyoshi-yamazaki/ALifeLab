@@ -1,7 +1,6 @@
 import p5 from "p5"
 import { constants } from "../drawer/constants"
 import { Vector } from "../../classes/physics"
-import { random } from "../../classes/utilities"
 import { defaultCanvasParentId } from "../../react-components/default_canvas_parent_id"
 import { Result, RuleDescription } from "../drawer/model"
 import { Downloader } from "../drawer/downloader"
@@ -31,7 +30,11 @@ export const main = (p: p5): void => {
       return
     }
 
-    p.background(0x0, 0xFF)
+    if (["depth", "direction"].includes(constants.draw.colorTheme)) {
+      p.background(0xFF, 0xFF)
+    } else {
+      p.background(0x0, 0xFF)
+    }
 
     if (t % constants.simulation.executionInterval === 0) {
       currentModel.execute()

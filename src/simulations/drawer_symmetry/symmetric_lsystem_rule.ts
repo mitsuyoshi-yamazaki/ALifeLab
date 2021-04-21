@@ -1,3 +1,4 @@
+import { Color } from "../../classes/color"
 import { random } from "../../classes/utilities"
 import { LSystemRule, LSystemCondition, LSystemCoordinate } from "../drawer/lsystem_rule"
 
@@ -49,7 +50,7 @@ export class SymmetricLSystemRule implements LSystemRule {
     const map = new Map<string, LSystemCondition[]>()
     const maxConditions = 10
     const finishRate = 0.5
-    const directionChangeRate = 0.05
+    const directionChangeRate = 0.2
 
     const randomCondition = (): string => {
       const index = Math.floor(random(conditions.length))
@@ -185,6 +186,10 @@ export class SymmetricLSystemRule implements LSystemRule {
       })
     }
     return nextCoordinates
+  }
+
+  public colorOfCondition(condition: string): Color {
+    return condition.length > 1 ? new Color(197, 134, 192) : new Color(79, 193, 255)
   }
 
   // A:A -> true

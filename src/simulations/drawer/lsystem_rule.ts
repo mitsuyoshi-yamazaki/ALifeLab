@@ -1,3 +1,5 @@
+import { Color } from "../../classes/color"
+
 export const defaultInitialCondition = "A"
 
 export type LSystemCondition = string | number
@@ -11,4 +13,5 @@ export interface LSystemRule {
   possibleConditions: string[]
   nextConditions(currentCondition: string): LSystemCondition[]
   nextCoordinates(condition: string, direction: number): LSystemCoordinate[]
+  colorOfCondition?(condition: string): Color
 }
