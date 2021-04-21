@@ -1,3 +1,5 @@
+export const defaultInitialCondition = "A"
+
 export type LSystemCondition = string | number
 export interface LSystemCoordinate {
   condition: string
@@ -5,6 +7,7 @@ export interface LSystemCoordinate {
 }
 
 export interface LSystemRule {
+  encoded: string
   possibleConditions: string[]
   nextConditions(currentCondition: string): LSystemCondition[]
   nextCoordinates(condition: string, direction: number): LSystemCoordinate[]

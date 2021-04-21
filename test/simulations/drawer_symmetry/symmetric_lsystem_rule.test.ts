@@ -7,10 +7,8 @@ describe("L-System rule", () => {
     expect(() => new SymmetricLSystemRule("A;B:")).toThrow()
     expect(() => new SymmetricLSystemRule("A:B:C")).toThrow()
     expect(() => new SymmetricLSystemRule("A:BC")).toThrow()
-    expect(() => new SymmetricLSystemRule("A:(B")).toThrow()
-    expect(() => new SymmetricLSystemRule("A:(,B")).toThrow()
-    expect(() => new SymmetricLSystemRule("A:B)")).toThrow()
-    expect(() => new SymmetricLSystemRule("A:B,)")).toThrow()
+    expect(() => new SymmetricLSystemRule("A:-B")).toThrow()
+    expect(() => new SymmetricLSystemRule("A:B-")).toThrow()
     // expect(() => new SymmetricLSystemRule("A:1B")).toThrow()  // TODO: 検出できないため
   })
 })

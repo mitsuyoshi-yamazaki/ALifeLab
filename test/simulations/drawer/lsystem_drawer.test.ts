@@ -1,4 +1,5 @@
-import { LSystemCondition, VanillaLSystemRule } from "../../../src/simulations/drawer/vanilla_lsystem_rule"
+import { LSystemCondition } from "../../../src/simulations/drawer/lsystem_rule"
+import { VanillaLSystemRule } from "../../../src/simulations/drawer/vanilla_lsystem_rule"
 
 describe("L-System rule", () => {
   test("Invalid rule", () => {

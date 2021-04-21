@@ -3,15 +3,15 @@ import { constants } from "../drawer/constants"
 import { Vector } from "../../classes/physics"
 import { random } from "../../classes/utilities"
 import { defaultCanvasParentId } from "../../react-components/default_canvas_parent_id"
-import { Model, Result, RuleDescription } from "../drawer/model"
-import { VanillaLSystemRule } from "../drawer/vanilla_lsystem_rule"
+import { Result, RuleDescription } from "../drawer/model"
 import { Downloader } from "../drawer/downloader"
 import { SymmetryModel } from "./symmetry_model"
+import { SymmetricLSystemRule } from "./symmetric_lsystem_rule"
 
 let t = 0
 const canvasId = "canvas"
 const fieldSize = constants.system.fieldSize
-let currentModel = createModel([])
+let currentModel = createModel([constants.simulation.lSystemRule])
 const downloader = new Downloader()
 
 export const canvasWidth = fieldSize
@@ -72,7 +72,7 @@ function createModel(ruleStrings: string[]): SymmetryModel {
   const model = new SymmetryModel(
     new Vector(fieldSize, fieldSize),
     constants.simulation.maxLineCount,
-    [new VanillaLSystemRule("A:-88,A,-152,A")],
+    [new SymmetricLSystemRule(ruleStrings[0])], // FixMe:
     constants.simulation.mutationRate,
     constants.simulation.lineLifeSpan,
     constants.draw.colorTheme,

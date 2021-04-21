@@ -145,7 +145,7 @@ export class VanillaLSystemRule implements LSystemRule {
         return []
       }
 
-      throw new Error(`Invalid condition ${currentCondition} (rule: ${this.encoded})`)
+      throw new Error(`Invalid condition "${currentCondition}" (rule: ${this.encoded})`)
     }
 
     return nextConditions

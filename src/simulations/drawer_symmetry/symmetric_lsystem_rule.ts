@@ -1,8 +1,7 @@
 import { random } from "../../classes/utilities"
+import { LSystemRule, LSystemCondition, LSystemCoordinate } from "../drawer/lsystem_rule"
 
-export type SymmetricLSystemCondition = string | number
-
-export class SymmetricLSystemRule {
+export class SymmetricLSystemRule implements LSystemRule {
   public static initialCondition = "A"
 
   public get possibleConditions(): string[] {
@@ -14,15 +13,13 @@ export class SymmetricLSystemRule {
   }
 
   private static endOfBranch = "."
-  private static pushCode = "("
-  private static popCode = ")"
+  private static directionChangeCode = "-"
   private static modifiers = [
     SymmetricLSystemRule.endOfBranch,
-    SymmetricLSystemRule.pushCode,
-    SymmetricLSystemRule.popCode,
+    SymmetricLSystemRule.directionChangeCode,
   ]
   private _encoded: string
-  private _map: Map<string, SymmetricLSystemCondition[]>
+  private _map: Map<string, LSystemCondition[]>
 
   /*
    * Encoding:
@@ -34,8 +31,8 @@ export class SymmetricLSystemRule {
      * A:-30,A,60,B;B:A
    */
   public constructor(encoded: string);
-  public constructor(map: Map<string, SymmetricLSystemCondition[]>);
-  public constructor(first: string | Map<string, SymmetricLSystemCondition[]>) {
+  public constructor(map: Map<string, LSystemCondition[]>);
+  public constructor(first: string | Map<string, LSystemCondition[]>) {
     if (typeof (first) === "string") {
       this._encoded = first
       this._map = SymmetricLSystemRule.decode(first)
@@ -49,7 +46,7 @@ export class SymmetricLSystemRule {
   public static random(): SymmetricLSystemRule { // FixMe: 適当に書いたので探索範囲が偏っているはず
     const alphabets = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("")
     const conditions = alphabets.slice(0, random(alphabets.length, 1))
-    const map = new Map<string, SymmetricLSystemCondition[]>()
+    const map = new Map<string, LSystemCondition[]>()
     const maxConditions = 10
 
     const randomCondition = (): string => {
@@ -59,7 +56,7 @@ export class SymmetricLSystemRule {
     }
 
     conditions.forEach(condition => {
-      const nextConditions: SymmetricLSystemCondition[] = []
+      const nextConditions: LSystemCondition[] = []
       for (let i = 0; i < maxConditions; i += 1) {
         if (random(1) > 0.5) {
           break
@@ -78,7 +75,7 @@ export class SymmetricLSystemRule {
     return new SymmetricLSystemRule(map)
   }
 
-  public static encode(map: Map<string, SymmetricLSystemCondition[]>): string {
+  public static encode(map: Map<string, LSystemCondition[]>): string {
     const result: string[] = []
     map.forEach((value, key) => {
       const nextCondition = value.map(v => `${v}`).join(",")
@@ -88,15 +85,15 @@ export class SymmetricLSystemRule {
     return result.join(";")
   }
 
-  public static decode(encoded: string): Map<string, SymmetricLSystemCondition[]> {
-    const map = new Map<string, SymmetricLSystemCondition[]>()
+  public static decode(encoded: string): Map<string, LSystemCondition[]> {
+    const map = new Map<string, LSystemCondition[]>()
     encoded.split(";").forEach(pair => {
       const keyValue = pair.split(":")
       if (keyValue.length !== 2) {
         throw new Error(`Invalid condition: next-condition pair ${pair}`)
       }
       const condition = keyValue[0]
-      const nextConditions = keyValue[1].split(",").map((stringValue: string): SymmetricLSystemCondition => {
+      const nextConditions = keyValue[1].split(",").map((stringValue: string): LSystemCondition => {
         const numberValue = parseInt(stringValue, 10)
         if (isNaN(numberValue) === true) {
           if (stringValue.length <= 0) {
@@ -119,7 +116,7 @@ export class SymmetricLSystemRule {
 
   // // Same as optimize_rule.py
   // public static trimUnreachableConditions(rule: SymmetricLSystemRule, initialCondition: string): SymmetricLSystemRule {
-  //   const trimmedRule = new Map<string, SymmetricLSystemCondition[]>()
+  //   const trimmedRule = new Map<string, LSystemCondition[]>()
   //   let conditionsToCheck = [initialCondition]
   //   while (conditionsToCheck.length > 0) {
   //     const additionalConditions: string[] = []
@@ -147,17 +144,42 @@ export class SymmetricLSystemRule {
   //   return new SymmetricLSystemRule(trimmedRule)
   // }
 
-  public nextConditions(currentCondition: string): SymmetricLSystemCondition[] {
+  public nextConditions(currentCondition: string): LSystemCondition[] {
     const nextConditions = this._map.get(currentCondition)
     if (nextConditions == null) {
       if (currentCondition === SymmetricLSystemRule.endOfBranch) {
         return []
       }
 
-      throw new Error(`Invalid condition ${currentCondition} (rule: ${this.encoded})`)
+      throw new Error(`Invalid condition "${currentCondition}" (rule: ${this.encoded})`)
     }
 
     return nextConditions
+  }
+
+  // condition: A or A-
+  public nextCoordinates(condition: string, direction: number): LSystemCoordinate[] {
+    let directionOverload = condition.length === 2 ? -1 : 1
+    let newDirection = direction
+    const nextConditions = this.nextConditions(condition[0])
+    const nextCoordinates: LSystemCoordinate[] = []
+
+    for (const condition of nextConditions) {
+      if (typeof (condition) === "number") {
+        newDirection += condition * directionOverload
+        continue
+      }
+      if (condition === SymmetricLSystemRule.directionChangeCode) {
+        directionOverload *= -1
+        continue
+      }
+
+      nextCoordinates.push({
+        condition: directionOverload === -1 ? `${condition}-` : condition,
+        direction: newDirection,
+      })
+    }
+    return nextCoordinates
   }
 
   // A:A -> true
