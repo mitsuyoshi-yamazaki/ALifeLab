@@ -118,16 +118,16 @@ export class Model {
   private setupFirstDrawers(rules: LSystemRule[], fixedStartPoint: boolean, lineLengthType: number, colorTheme: string): LSystemDrawer[] {
     const padding = 100
     const position = (): Vector => {
-      if (fixedStartPoint && rules.length === 1) {
+      // if (fixedStartPoint && rules.length === 1) {
         return this.fieldSize.div(2)
-      }
-      return new Vector(random(this.fieldSize.x - padding, padding), random(this.fieldSize.y - padding, padding))
+      // }
+      // return new Vector(random(this.fieldSize.x - padding, padding), random(this.fieldSize.y - padding, padding))
     }
     const direction = (): number => {
-      if (fixedStartPoint && rules.length === 1) {
+      // if (fixedStartPoint && rules.length === 1) {
         return 270
-      }
-      return random(360) - 180
+      // }
+      // return random(360) - 180
     }
 
     return rules.map(rule => new LSystemDrawer(

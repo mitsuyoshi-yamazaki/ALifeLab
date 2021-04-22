@@ -8,6 +8,9 @@ import { VanillaLSystemRule } from "./vanilla_lsystem_rule"
 import { exampleRules } from "./rule_examples"
 import { Downloader } from "./downloader"
 
+let fillRuleConditionIndex = 0
+let fillRuleNextConditionIndex = 0
+
 let t = 0
 const canvasId = "canvas"
 const fieldSize = constants.system.fieldSize
@@ -85,20 +88,21 @@ function createModel(ruleString?: string): ImmortalModel {
       throw error
     }
   } else {
-    const initialCondition = VanillaLSystemRule.initialCondition
-    for (let i = 0; i < constants.simulation.numberOfSeeds; i += 1) {
-      const tries = 20
-      for (let j = 0; j < tries; j += 1) {
-        const rule = VanillaLSystemRule.trimUnreachableConditions(VanillaLSystemRule.random(), initialCondition)
-        if (rule.isCirculated(initialCondition)) {
-          rules.push(rule)
-          break
-        }
-      }
-    }
-    if (rules.length === 0) {
-      rules.push(new VanillaLSystemRule(randomExampleRule()))
-    }
+    // const initialCondition = VanillaLSystemRule.initialCondition
+    // for (let i = 0; i < constants.simulation.numberOfSeeds; i += 1) {
+    //   const tries = 20
+    //   for (let j = 0; j < tries; j += 1) {
+    //     const rule = VanillaLSystemRule.trimUnreachableConditions(VanillaLSystemRule.random(), initialCondition)
+    //     if (rule.isCirculated(initialCondition)) {
+    //       rules.push(rule)
+    //       break
+    //     }
+    //   }
+    // }
+    // if (rules.length === 0) {
+    //   rules.push(new VanillaLSystemRule(randomExampleRule()))
+    // }
+    rules.push(nextFillRule())
   }
   const model = new ImmortalModel(
     new Vector(fieldSize, fieldSize),
@@ -126,4 +130,34 @@ function shouldSave(result: Result): boolean {
 
 function randomExampleRule(): string {
   return exampleRules[Math.floor(random(exampleRules.length))]
+}
+
+function nextFillRule(): VanillaLSystemRule {
+  // const fillRule = "Z:-28,Z,117,Z"
+  // const fillRule = "Z:-64,X,120,Z;X:125,Y;Y:-122,X,155,Z"
+  const fillRule = "Z:131,Y;Y:51,Z,141,Z"
+  const baseRuleString = "A:93,E;B:-113,H,-173,H,-76,E,152,C,62,C;C:-106,B;D:.;E:-34,F,-18,C,-41,B;F:-112,E,37,E,104,B;G:.;H:-155,F,130,D" + ";" + fillRule
+  const baseRule = VanillaLSystemRule.decode(baseRuleString)
+  const conditions = (new VanillaLSystemRule(baseRuleString)).possibleConditions
+  if (fillRuleConditionIndex >= conditions.length) {
+    throw new Error("finished!")
+  }
+  const condition = conditions[fillRuleConditionIndex]
+  const nextConditions = baseRule.get(condition)
+  if (nextConditions == null) {
+    throw new Error(`Unexpected error: no next condition for ${condition}`)
+  }
+  if (fillRuleNextConditionIndex >= nextConditions.length) {
+    fillRuleConditionIndex += 1
+    fillRuleNextConditionIndex = 0
+    return nextFillRule()
+  }
+  nextConditions.splice(fillRuleNextConditionIndex, 0, 0)
+  nextConditions.splice(fillRuleNextConditionIndex + 1, 0, "Z")
+
+  const rule = new VanillaLSystemRule(baseRule)
+  console.log(`Fill rule ${condition}, ${fillRuleNextConditionIndex}: ${rule.encoded}`)
+  fillRuleNextConditionIndex += 2
+
+  return rule
 }
