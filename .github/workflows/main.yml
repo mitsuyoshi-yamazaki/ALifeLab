@@ -6,11 +6,12 @@ on:
   workflow_dispatch:
 
 jobs:
-  deploy:
+  deploy-gh-pages:
+    name: Deploy to GitHub Pages
     runs-on: ubuntu-latest
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      # shellで $cd $GITHUB_WORKSPACE を行いmerge→github.tokenを用いてpushすれば良いと思われる
+      # shellで $cd $GITHUB_WORKSPACE を行いmerge→github.tokenを用いてpushすればdevmasx/merge-branch@v1.3.1を使用せずに書けると思われる
       - uses: actions/checkout@v2
       - name: Deploy
         uses: devmasx/merge-branch@v1.3.1
@@ -19,3 +20,10 @@ jobs:
           from_branch: main # ここでfrom_branchを指定するならactions/checkout@v2要らないのでは？？
           target_branch: gh-pages
           github_token: ${{ github.token }}
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        run: yarn jest
+
