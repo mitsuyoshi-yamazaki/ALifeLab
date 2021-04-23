@@ -1,4 +1,7 @@
 export const exampleRules: string[] = [
+  // // working
+  // "A:93,E;B:-113,H,-173,H,-76,E,152,C,62,C;C:-106,B;D:.;E:-34,F,-18,C,-41,B;F:-112,E,37,E,104,B;G:.;H:-155,F,130,D;Z:-101,Z,101,Z,5,Z",
+
   // favorite
   "A:-88,A,-152,A",
 

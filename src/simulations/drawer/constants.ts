@@ -60,5 +60,7 @@ export const constants = {
 
     // 色の設定
     colorTheme: parameters.string("draw.color_theme", "grayscale", "d.c") as ColorTheme,
+
+    lineWeight: parameters.float("draw.line_weight", 0.5, "d.w"),
   },
 }

@@ -25,7 +25,7 @@ export class SymmetryModel extends Model {
     if (showsQuadtree === true) {
       this._rootNode.draw(p)
     }
-    this._lines.forEach(line => this.drawLine(line, 0x80, this._lineWeight, p))
+    this._lines.forEach(line => this.drawLine(line, 0x80, 3.0, p))
   }
 
   protected checkCompleted(): void {
