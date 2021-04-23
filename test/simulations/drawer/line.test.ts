@@ -5,7 +5,7 @@ describe("Collision", () => {
   test("Collided", () => {
     const line1 = new Line(new Vector(0, 1), new Vector(3, 1))
     const line2 = new Line(new Vector(2, 0), new Vector(2, 3))
-    expect(isCollided(line1, line2)).toBe(true)
+    expect(isCollided(line1, line2)).toBe(false)
   })
 
   test("Not collided", () => {
