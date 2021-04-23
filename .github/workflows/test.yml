@@ -1,0 +1,14 @@
+name: Run Test
+
+on:
+  pull_request:
+    types: [ edited ]
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: yarn jest
+
