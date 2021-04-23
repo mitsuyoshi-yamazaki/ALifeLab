@@ -2,7 +2,8 @@ name: Run Test
 
 on:
   pull_request:
-    types: [ edited ]
+    types: [ opened, reopened, edited, synchronize ]
+  workflow_dispatch:
 
 jobs:
   test:
@@ -10,5 +11,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - run: yarn install
       - run: yarn jest
 
