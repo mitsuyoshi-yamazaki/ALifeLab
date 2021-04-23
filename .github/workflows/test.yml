@@ -3,6 +3,7 @@ name: Run Test
 on:
   pull_request:
     types: [ edited ]
+  workflow_dispatch:
 
 jobs:
   test:
