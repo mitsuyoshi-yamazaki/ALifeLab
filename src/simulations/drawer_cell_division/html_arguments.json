@@ -1,0 +1,6 @@
+{
+  "page_title": "細胞分裂モデル",
+  "og_description": "分裂してから描画する",
+  "og_image": "",
+  "script_path": "../dist/drawer_cell_division.js"
+}
