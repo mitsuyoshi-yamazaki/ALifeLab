@@ -56,6 +56,8 @@ export class Model {
 }
 
 function createState(size: Vector, type: InitialStateType): State {
+  const localityAlivePoints: Vector[] = [size.randomized(), size.randomized(), size.randomized(), size.randomized()]
+  const localityAliveDistance = Math.min(size.x, size.y) * 0.2
   const centerX = Math.floor(size.x / 2)
   const centerY = Math.floor(size.y / 2)
   const state: State = []
@@ -97,6 +99,31 @@ function createState(size: Vector, type: InitialStateType): State {
         }
         break
       }
+
+      case "locality": {
+        const currentPoint = new Vector(x, y)
+        const nearestAlivePoint = localityAlivePoints.sort((lhs: Vector, rhs: Vector): number => {
+          const distanceL = currentPoint.dist(lhs)
+          const distanceR = currentPoint.dist(rhs)
+          if (distanceL === distanceR) {
+            return 0
+          }
+          return distanceL > distanceR ? 1 : -1
+        })[0]
+
+        const distance = currentPoint.dist(nearestAlivePoint)
+        if (distance > localityAliveDistance) {
+          row.push(0)
+          break
+        }
+        if (random(1) > (distance / localityAliveDistance)) {
+          row.push(1)
+        } else {
+          row.push(0)
+        }
+        break
+      }
+
       default:
         console.error(`Not implemented: initial state type ${type}`)
         break
