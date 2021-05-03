@@ -1,7 +1,7 @@
 import p5 from "p5"
 import { random } from "../../classes/utilities"
 import { Vector } from "../../classes/physics"
-import { InitialState } from "./initial_state"
+import { InitialStateType } from "./initial_state_type"
 import { BinaryRule, State, Bit } from "./rule"
 
 export class Model {
@@ -18,7 +18,7 @@ export class Model {
   public constructor(
     public readonly size: Vector,
     public readonly rule: BinaryRule,
-    initialState: InitialState,
+    initialState: InitialStateType,
   ) {
     this._state = createState(size, initialState)
     console.log(`rule: ${rule.rule}, size: ${size}`)
@@ -55,7 +55,7 @@ export class Model {
   }
 }
 
-function createState(size: Vector, type: InitialState): State {
+function createState(size: Vector, type: InitialStateType): State {
   const centerX = Math.floor(size.x / 2)
   const centerY = Math.floor(size.y / 2)
   const state: State = []
