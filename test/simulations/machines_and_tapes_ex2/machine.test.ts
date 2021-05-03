@@ -60,12 +60,12 @@ describe("Connection", () => {
 describe("Connecting tapes", () => {
   test("No production", () => {
     expect(createMachine("01").connect(createTape("1")))
-      .toBeUndefined()
+      .toBeNull()
   })
 
   test("Connect single tape", () => {
     const newMachine = createMachine("01").connect(createTape("10"))
-    expect(newMachine != undefined)
+    expect(newMachine != null)
       .toBe(true)
     expect((newMachine as Machine).tape.binary)
       .toBe("10")
@@ -76,11 +76,11 @@ describe("Connecting tapes", () => {
     expect(machine.pointer)
       .toBe(0)
     expect(machine.connect(createTape("1")))
-      .toBeUndefined()
+      .toBeNull()
     expect(machine.pointer)
       .toBe(1)
     const newMachine = machine.connect(createTape("0"))
-    expect(newMachine != undefined)
+    expect(newMachine != null)
       .toBe(true)
     expect((newMachine as Machine).tape.binary)
       .toBe("10")
@@ -93,9 +93,9 @@ describe("Connecting tapes", () => {
   test("Mutation", () => {
     const machine = createMachine("01")
     expect(machine.connect(createTape("1")))
-      .toBeUndefined()
+      .toBeNull()
     const newMachine = machine.connect(createTape("01"))
-    expect(newMachine != undefined)
+    expect(newMachine != null)
       .toBe(true)
     expect((newMachine as Machine).tape.binary)
       .toBe("101")
