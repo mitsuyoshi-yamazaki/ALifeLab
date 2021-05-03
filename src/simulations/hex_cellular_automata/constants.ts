@@ -5,10 +5,15 @@ import { InitialState, isInitialState } from "./initial_state"
 const parameters = new URLParameterParser()
 
 const parseRule = (): BinaryRule => {
-  try {
-    return new BinaryRule(parameters.string("simulation.rule", "random", "s.r"))
-  } catch {
+  const rawRule = parameters.string("simulation.rule", "random", "s.r")
+  if (rawRule === "random") {
     return BinaryRule.random()
+  }
+  try {
+    return new BinaryRule(rawRule)
+  } catch (error) {
+    alert(`無効なルールです (${error})`)
+    throw error
   }
 }
 
