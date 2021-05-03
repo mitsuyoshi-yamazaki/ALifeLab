@@ -13,6 +13,7 @@ module.exports = {
     drawer: "./src/simulations/drawer/layout.tsx",
     drawer_mortal: "./src/simulations/drawer_mortal/layout.tsx",
     drawer_symmetry: "./src/simulations/drawer_symmetry/layout.tsx",
+    hex_cellular_automata: "./src/simulations/hex_cellular_automata/layout.tsx",
   },
   output: {
     path: path.resolve(__dirname, "dist"),
