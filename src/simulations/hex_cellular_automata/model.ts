@@ -86,6 +86,20 @@ function createState(size: Vector, type: InitialStateType): State {
           row.push(0)
         }
         break
+        
+      case "gradation": {
+        const simpleGradationValue = Math.abs(y - centerY) / centerY
+        const gradationValue = Math.max(Math.min(simpleGradationValue * 1.2 - 0.1, 1), 0)
+        if (random(1) < gradationValue) {
+          row.push(1)
+        } else {
+          row.push(0)
+        }
+        break
+      }
+      default:
+        console.error(`Not implemented: initial state type ${type}`)
+        break
       }
     }
     state.push(row)
