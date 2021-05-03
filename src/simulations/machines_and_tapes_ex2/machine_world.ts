@@ -87,7 +87,7 @@ export class MachineWorld extends VanillaWorld {
           newMachines.push(workingTapeMachine)
           _moved.push(workingTapeMachine)
         }
-        if (offspring != undefined) {
+        if (offspring != null) {
           _moved.push(offspring)
           newMachines.push(offspring)
         }

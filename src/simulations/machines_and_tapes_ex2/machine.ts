@@ -51,7 +51,7 @@ export class Machine extends Life {
   }
 
   // canConnect() == true である前提
-  public connect(tape: Tape): Machine | undefined {
+  public connect(tape: Tape): Machine | null {
     const translated: Bit[] = tape.bits // .map(x => (x ^ 1) as Bit) // TODO: 変換方法
     this._workingTape = this._workingTape.concat(translated)
     tape.bits.forEach((x: Bit, index: number) => {
@@ -71,7 +71,7 @@ export class Machine extends Life {
     } else {
       this.movePointer(tape.bits.length)
 
-      return undefined
+      return null
     }
   }
 
