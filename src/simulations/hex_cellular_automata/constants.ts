@@ -1,6 +1,25 @@
 import { URLParameterParser } from "../../classes/url_parameter_parser"
+import { BinaryRule } from "./rule"
+import { InitialState, isInitialState } from "./initial_state"
 
 const parameters = new URLParameterParser()
+
+const parseRule = (): BinaryRule => {
+  try {
+    return new BinaryRule(parameters.string("simulation.rule", "random", "s.r"))
+  } catch {
+    return BinaryRule.random()
+  }
+}
+
+const parseInitialState = (): InitialState => {
+  const defaultValue = "line"
+  const rawValue = parameters.string("simulation.initial_state", defaultValue, "s.is")
+  if (isInitialState(rawValue)) {
+    return rawValue
+  }
+  return defaultValue
+}
 
 // 指定できるURLパラメータの一覧
 // parameters.boolean/int/float/string("パラメータ名", 指定されない場合のデフォルト値, "パラメータ名省略記法")
@@ -13,13 +32,22 @@ export const constants = {
 
   // シミュレーション系に関する設定
   simulation: {
+    // 実行間隔
+    executionInterval: parameters.int("simulation.execution_interval", 1, "s.ei"),
+
     // セルの大きさ
     cellSize: parameters.float("simulation.cell_size", 10, "s.cs"),    
 
-    // 初期状態: ランダム or ルール
+    // ルール: ランダム or 指定
     // - ランダム: "random"
-    // - ルールを指定する場合: "" // TODO:
-    initialState: parameters.string("simulation.initial_state", "random", "s.is")
+    // - ルールを指定(例): "a:2,3;s:3"
+    rule: parseRule(),
+
+    // 初期状態: ランダム or aliveセルひとつ or aliveセル1行
+    // - ランダム: "random"
+    // - aliveセルひとつ: "one"
+    // - aliveセル1行: "line"
+    initialState: parseInitialState(),
   },
 
   // 描画に関する設定

@@ -3,11 +3,12 @@ import { defaultCanvasParentId } from "../../react-components/default_canvas_par
 import { Vector } from "../../classes/physics"
 import { constants } from "./constants"
 import { Model } from "./model"
+import { BinaryRule } from "./rule"
 
 let t = 0
 const canvasId = "canvas"
 const fieldSize = new Vector(constants.system.fieldSize, constants.system.fieldSize)
-const currentModel = createModel()
+const currentModel = createModel(constants.simulation.rule)
 
 export const main = (p: p5): void => {
   p.setup = () => {
@@ -19,10 +20,12 @@ export const main = (p: p5): void => {
   }
 
   p.draw = () => {
-    p.background(0, 0xFF)
+    if (t % constants.simulation.executionInterval === 0) {
+      p.background(0, 0xFF)
 
-    currentModel.next()
-    currentModel.draw(p)
+      currentModel.next()
+      currentModel.draw(p, fieldSize, constants.simulation.cellSize)
+    }
 
     t += 1
   }
@@ -32,6 +35,7 @@ export const getTimestamp = (): number => {
   return t
 }
 
-function createModel(): Model {
-  return new Model(fieldSize)
+function createModel(rule: BinaryRule): Model {
+  const automatonSize = fieldSize.div(constants.simulation.cellSize)
+  return new Model(automatonSize, rule || BinaryRule.random(), constants.simulation.initialState)
 }

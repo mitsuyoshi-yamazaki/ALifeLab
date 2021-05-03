@@ -1,4 +1,4 @@
-import { BinaryRule, Bit } from "../../../src/simulations/hex_cellular_automata/rule"
+import { BinaryRule, State } from "../../../src/simulations/hex_cellular_automata/rule"
 
 describe("Instantiate", () => {
   test("Succeed", () => {
@@ -66,7 +66,7 @@ describe("Transition", () => {
 
   test("neighbourSum()", () => {
     const rule = new BinaryRule("a:2,3;s:3")
-    const map: Bit[][] = [
+    const map: State = [
       [0, 0, 0],
       [0, 1, 1],
       [0, 1, 0],
@@ -85,12 +85,12 @@ describe("Transition", () => {
 
   test("next()", () => {
     const rule = new BinaryRule("a:2,3;s:3")
-    const map: Bit[][] = [
+    const map: State = [
       [0, 0, 0],
       [0, 1, 1],
       [0, 1, 0],
     ]
-    const expected: Bit[][] = [
+    const expected: State = [
       [1, 1, 0],
       [1, 0, 0],
       [1, 0, 1],

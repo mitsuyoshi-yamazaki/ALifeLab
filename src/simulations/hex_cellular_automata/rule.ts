@@ -1,5 +1,7 @@
+import { random } from "../../classes/utilities"
 
 export type Bit = 0 | 1
+export type State = Bit[][]
 
 /*
  * ルール
@@ -69,13 +71,17 @@ export class BinaryRule {
     this._stay = stay
   }
 
-  // TODO:
-  // public static random(): Rule {
+  public static random(): BinaryRule {
+    const candidates: number[] = [0, 1, 2, 3, 4, 5, 6]
+    const alive: number[] = candidates.filter(() => random(1) < 0.5)
+    const stay: number[] = candidates.filter(() => random(1) < 0.5)
+    const rule = `a:${alive.join(",")};s:${stay.join(",")}`
 
-  // }
+    return new BinaryRule(rule)
+  }
 
-  public next(map: Bit[][]): Bit[][] {
-    const result: Bit[][] = []
+  public next(map: State): State {
+    const result: State = []
     for (let y = 0; y < map.length; y += 1) {
       const row = map[y]
       const resultRow: Bit[] = []
@@ -97,7 +103,7 @@ export class BinaryRule {
     return 0
   }
 
-  public neighbourSum(map: Bit[][], x: number, y: number): number {
+  public neighbourSum(map: State, x: number, y: number): number {
     const radius = this.radius
     let result = 0
     const isEvenRow = y % 2 === 0
