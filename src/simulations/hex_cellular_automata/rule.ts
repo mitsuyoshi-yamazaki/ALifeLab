@@ -26,7 +26,7 @@ export class BinaryRule {
   private _alive: number[]
   private _stay: number[]
 
-  public constructor(rule: string) {
+  public constructor(public readonly rule: string) {
     const neighbours = this._radius * 6
     const parseIntArray = (s: string): number[] => {
       if (s.length === 0) {

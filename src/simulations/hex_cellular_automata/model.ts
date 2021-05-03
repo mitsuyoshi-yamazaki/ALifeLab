@@ -21,6 +21,7 @@ export class Model {
     initialState: InitialState,
   ) {
     this._state = createState(size, initialState)
+    console.log(`rule: ${rule.rule}, size: ${size}`)
   }
 
   public next(): void {
@@ -28,9 +29,11 @@ export class Model {
     this._t += 1
   }
 
-  public draw(p: p5, fieldSize: Vector, cellSize: number): void {
-    const cellRadius = cellSize / 2
+  public draw(p: p5, cellSize: number): void {
+    const cellHorizontalRadius = cellSize / 2
     const drawDiameter = cellSize * 0.9
+    const rowHeight = cellSize * (Math.sqrt(3) / 2)
+    const cellVerticalRadius = rowHeight / 2
       
     p.noStroke()
     p.fill(0xFF, 0xD0)
@@ -43,8 +46,8 @@ export class Model {
         if (cell !== 1) {
           continue
         }
-        const centerX = isEvenRow ? (x * cellSize) + cellRadius : (x * cellSize)
-        const centerY = (y * cellSize) + cellRadius
+        const centerX = isEvenRow ? (x * cellSize) + cellHorizontalRadius : (x * cellSize)
+        const centerY = (y * rowHeight) + cellVerticalRadius
         
         p.circle(centerX, centerY, drawDiameter)
       }

@@ -24,7 +24,7 @@ export const main = (p: p5): void => {
       p.background(0, 0xFF)
 
       currentModel.next()
-      currentModel.draw(p, fieldSize, constants.simulation.cellSize)
+      currentModel.draw(p, constants.simulation.cellSize)
     }
 
     t += 1
@@ -36,6 +36,7 @@ export const getTimestamp = (): number => {
 }
 
 function createModel(rule: BinaryRule): Model {
-  const automatonSize = fieldSize.div(constants.simulation.cellSize)
-  return new Model(automatonSize, rule || BinaryRule.random(), constants.simulation.initialState)
+  const cellSize = constants.simulation.cellSize
+  const automatonSize = new Vector(Math.floor(fieldSize.x / cellSize), Math.floor(fieldSize.y / ((cellSize * Math.sqrt(3)) / 2)))
+  return new Model(automatonSize, rule, constants.simulation.initialState)
 }
