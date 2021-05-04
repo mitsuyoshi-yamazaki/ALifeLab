@@ -1,10 +1,19 @@
 import React, { CSSProperties } from "react"
 import ReactDOM from "react-dom"
-import { AppBar, Toolbar, Breadcrumbs, Typography } from "@material-ui/core"
+import { AppBar, Toolbar, Breadcrumbs, Typography, ThemeProvider, createMuiTheme } from "@material-ui/core"
 import { LinkCard } from "../react-components/link_card"
 import { fontFamily } from "../react-components/font_family"
 
 const App = () => {
+  const theme = createMuiTheme({
+    palette: {
+      primary: {
+        light: "#8a8a8a",
+        main: "#575757",
+        dark: "#454545",
+      }
+    }
+  })
   const breadcrumbsTextColor: CSSProperties = {
     color: "white",
   }
@@ -17,7 +26,7 @@ const App = () => {
   }
 
   return (
-    <div>
+    <ThemeProvider theme={theme}>
       <AppBar position="static">
         <Toolbar>
           <Breadcrumbs aria-label="breadcrumb" style={breadcrumbsTextColor}>
@@ -37,7 +46,7 @@ const App = () => {
         <LinkCard title="Extended Machines and Tapes" link="pages/machines_and_tapes.html?d=1&m=attracted&a=0&t=0&si=200&s=1000&f=0.94&g=&ig=0&p=200&ls=6&mr=0&l=40&bl=20&mi=210&ri=210&af=0.6&rf=0.5&fd=0.05&fv=0.45" />
         <LinkCard title="Extended Machines and Tapes v2" link="pages/machines_and_tapes_ex2.html" />
       </div>
-    </div>
+    </ThemeProvider>
   )
 }
 
