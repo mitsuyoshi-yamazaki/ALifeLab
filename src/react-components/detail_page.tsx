@@ -2,7 +2,8 @@ import React, { CSSProperties, ReactNode } from "react"
 import { Breadcrumbs } from "./breadcrumbs"
 import { ScreenShotButton } from "./screenshot_button"
 import { defaultCanvasParentId } from "./default_canvas_parent_id"
-import { fontFamily } from "./font_family"
+import { defaultTheme } from "../react-components/default_theme"
+import { ThemeProvider } from "@material-ui/styles"
 
 export interface ScreenshotButtonNone { kind: "none" }
 export interface ScreenshotButtonDefault { kind: "default", getTimestamp(): number, getDescription?(): string }
@@ -22,7 +23,7 @@ export class DetailPage extends React.Component<Props> {
       display: "table", // horizontal center
       margin: "auto",
       marginTop: "2rem",
-      fontFamily: fontFamily,
+      fontFamily: defaultTheme.typography.fontFamily, // FixMe: 直接pにテキストを入力するのではなくMaterialUIのコンポーネントに入れればこの設定無くせるのでは
       fontSize: "14px",
       lineHeight: "1.5",
       color: "#24292e",
@@ -80,7 +81,7 @@ export class DetailPage extends React.Component<Props> {
     }
 
     return (
-      <div>
+      <ThemeProvider theme={defaultTheme}>
         <Breadcrumbs />
         <div style={bodyStyle}>
           <div style={sectionStyle}>
@@ -91,7 +92,7 @@ export class DetailPage extends React.Component<Props> {
           </div>
           {additionalDescriptions()}
         </div>
-      </div>
+      </ThemeProvider>
     )
   }
 }
