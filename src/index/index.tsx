@@ -27,12 +27,41 @@ const App = () => {
     marginLeft: "4rem",
     marginRight: "4rem",
   }
+  const backgroundListColor1 = defaultTheme.customized.background.list1
+  const backgroundListColor2 = defaultTheme.customized.background.list2
 
   return (
     <ThemeProvider theme={defaultTheme}>
       <Title />
-      <Display />
-      <hr />
+      <Display
+        imagePath="./resources/blindpainter.jpg"
+        title="BlindPainter"
+        subtitle="2019, ALife, Processing"
+        description="人工生命の栄枯盛衰"
+        backgroundColor={backgroundListColor1}
+      />
+      <Display
+        imagePath="./resources/lsystem_artboard.jpg"
+        title="線と角度"
+        subtitle="2021, L-System, Processing"
+        description="自動生成された幾何学図形"
+        backgroundColor={backgroundListColor2}
+      />
+      <Display
+        imagePath="./resources/blindpainter.jpg"
+        title="BlindPainter"
+        subtitle="2019, ALife, Processing"
+        description="人工生命の栄枯盛衰"
+        backgroundColor={backgroundListColor1}
+      />
+      <Display
+        imagePath="./resources/lsystem_artboard.jpg"
+        title="線と角度"
+        subtitle="2021, L-System, Processing"
+        description="自動生成された幾何学図形"
+        backgroundColor={backgroundListColor2}
+      />
+      <hr style={{marginTop: "5rem"}} />
       <div style={bodyStyle}>
         <LinkCard title="幾何学図形ジェネレータ" link="pages/drawer.html?system.run=0&system.auto_download=0" />
         <LinkCard title="L-Systemの水槽" link="pages/drawer_mortal.html?simulation.mutation_rate=0.0005" />

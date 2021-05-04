@@ -4,6 +4,11 @@ import { CaptionCard } from "./caption_card"
 import { Typography } from "@material-ui/core"
 
 interface Props {
+  imagePath: string
+  title: string
+  subtitle: string
+  description: string
+  backgroundColor: string
 }
 
 export class Display extends React.Component<Props> {
@@ -12,7 +17,7 @@ export class Display extends React.Component<Props> {
       width: "100%",
       paddingTop: "90px",
       paddingBottom: "90px",
-      backgroundColor: defaultTheme.customized.background.list2,  // TODO: 行ごと切り替え
+      backgroundColor: this.props.backgroundColor,
     }
     const contentStyle: CSSProperties = {
       display: "table", // horizontal center
@@ -33,11 +38,10 @@ export class Display extends React.Component<Props> {
     return (
       <div style={style}>
         <div style={contentStyle}>
-          <img src="./resources/lsystem_artboard.jpg" style={imageStyle} />
-          <CaptionCard title="線と角度" subtitle="2021, L-System, Processing" style={captionStyle}>
-          {/* TODO: title の値 */}
+          <img src={this.props.imagePath} style={imageStyle} />
+          <CaptionCard title={this.props.title} subtitle={this.props.subtitle} style={captionStyle}>
             <Typography paragraph={true}>
-              自動生成された幾何学図形
+              {this.props.description}
             </Typography>
           </CaptionCard>
         </div>
