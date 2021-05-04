@@ -39,28 +39,15 @@ const App = () => {
         subtitle="2019, ALife, Processing"
         description="人工生命の栄枯盛衰"
         backgroundColor={backgroundListColor1}
+        link="https://mitsuyoshi-yamazaki.github.io/ALifeGameJam2019/pages/blind_painter_classic.html"
+      />
+      <Display
+        imagePath="./resources/lsystem_artboard.jpg"
+        title="線と角度"
+        subtitle="2021, L-System, Processing"
+        description="自動生成された幾何学図形"
+        backgroundColor={backgroundListColor2}
         link="pages/drawer.html?system.run=0&system.auto_download=0"
-      />
-      <Display
-        imagePath="./resources/lsystem_artboard.jpg"
-        title="線と角度"
-        subtitle="2021, L-System, Processing"
-        description="自動生成された幾何学図形"
-        backgroundColor={backgroundListColor2}
-      />
-      <Display
-        imagePath="./resources/blindpainter.jpg"
-        title="BlindPainter"
-        subtitle="2019, ALife, Processing"
-        description="人工生命の栄枯盛衰"
-        backgroundColor={backgroundListColor1}
-      />
-      <Display
-        imagePath="./resources/lsystem_artboard.jpg"
-        title="線と角度"
-        subtitle="2021, L-System, Processing"
-        description="自動生成された幾何学図形"
-        backgroundColor={backgroundListColor2}
       />
       <hr style={{marginTop: "5rem"}} />
       <div style={bodyStyle}>
