@@ -1,6 +1,6 @@
 import React, { CSSProperties } from "react"
 import ReactDOM from "react-dom"
-import { ThemeProvider } from "@material-ui/core"
+import { ThemeProvider, Link } from "@material-ui/core"
 import { LinkCard } from "../react-components/link_card"
 import { defaultTheme } from "../react-components/default_theme"
 import { Display } from "../react-components/display"
@@ -39,6 +39,7 @@ const App = () => {
         subtitle="2019, ALife, Processing"
         description="人工生命の栄枯盛衰"
         backgroundColor={backgroundListColor1}
+        link="pages/drawer.html?system.run=0&system.auto_download=0"
       />
       <Display
         imagePath="./resources/lsystem_artboard.jpg"
