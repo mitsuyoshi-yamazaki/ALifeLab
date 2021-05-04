@@ -1,13 +1,25 @@
 import React, { CSSProperties } from "react"
 import ReactDOM from "react-dom"
-import { AppBar, Toolbar, Breadcrumbs, Typography, ThemeProvider } from "@material-ui/core"
+import { ThemeProvider } from "@material-ui/core"
 import { LinkCard } from "../react-components/link_card"
 import { defaultTheme } from "../react-components/default_theme"
 
-const App = () => {
-  const breadcrumbsTextColor: CSSProperties = {
-    color: "white",
+const Title = () => {
+  const style: CSSProperties = {
+    display: "table", // horizontal center
+    margin: "auto",
+    marginTop: "90px",
+    marginBottom: "90px",
   }
+
+  return (
+    <div>
+      <img src={"resources/title.svg"} style={style} /> {/* Dunno how to show Futura as text */}
+    </div>
+  )
+}
+
+const App = () => {
   const bodyStyle: CSSProperties = {
     display: "table",
     marginTop: "4rem",
@@ -17,13 +29,7 @@ const App = () => {
 
   return (
     <ThemeProvider theme={defaultTheme}>
-      <AppBar position="static">
-        <Toolbar>
-          <Breadcrumbs aria-label="breadcrumb" style={breadcrumbsTextColor}>
-            <Typography>{document.title}</Typography>
-          </Breadcrumbs>
-        </Toolbar>
-      </AppBar>
+      <Title />
       <div style={bodyStyle}>
         <LinkCard title="幾何学図形ジェネレータ" link="pages/drawer.html?system.run=0&system.auto_download=0" />
         <LinkCard title="L-Systemの水槽" link="pages/drawer_mortal.html?simulation.mutation_rate=0.0005" />
