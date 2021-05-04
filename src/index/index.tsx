@@ -3,7 +3,6 @@ import ReactDOM from "react-dom"
 import { AppBar, Toolbar, Breadcrumbs, Typography, ThemeProvider } from "@material-ui/core"
 import { LinkCard } from "../react-components/link_card"
 import { defaultTheme } from "../react-components/default_theme"
-import { fontFamily } from "../react-components/font_family"
 
 const App = () => {
   const breadcrumbsTextColor: CSSProperties = {
@@ -14,7 +13,6 @@ const App = () => {
     marginTop: "4rem",
     marginLeft: "4rem",
     marginRight: "4rem",
-    fontFamily,
   }
 
   return (
