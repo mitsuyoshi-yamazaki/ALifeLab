@@ -1,19 +1,11 @@
 import React, { CSSProperties } from "react"
 import ReactDOM from "react-dom"
-import { AppBar, Toolbar, Breadcrumbs, Typography, ThemeProvider, createMuiTheme } from "@material-ui/core"
+import { AppBar, Toolbar, Breadcrumbs, Typography, ThemeProvider } from "@material-ui/core"
 import { LinkCard } from "../react-components/link_card"
+import { defaultTheme } from "../react-components/default_theme"
 import { fontFamily } from "../react-components/font_family"
 
 const App = () => {
-  const theme = createMuiTheme({
-    palette: {
-      primary: {
-        light: "#8a8a8a",
-        main: "#575757",
-        dark: "#454545",
-      }
-    }
-  })
   const breadcrumbsTextColor: CSSProperties = {
     color: "white",
   }
@@ -26,7 +18,7 @@ const App = () => {
   }
 
   return (
-    <ThemeProvider theme={theme}>
+    <ThemeProvider theme={defaultTheme}>
       <AppBar position="static">
         <Toolbar>
           <Breadcrumbs aria-label="breadcrumb" style={breadcrumbsTextColor}>
