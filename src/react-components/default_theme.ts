@@ -1,4 +1,4 @@
-import { createMuiTheme } from "@material-ui/core"
+import { createMuiTheme, Theme } from "@material-ui/core"
 
 const fontFamily = [
   "-apple-system",
@@ -15,13 +15,33 @@ const fontFamily = [
 
 const fontFamilyOverride = { fontFamily }
 
-export const defaultTheme = createMuiTheme({
+export interface ThemeExtension {
+  customized: {
+    background: {
+      list1: "#f8f8f8",
+      list2: "#f3f0f5",
+    }
+  },
+} 
+
+const themeExtension: ThemeExtension = {
+  customized: {
+    background: {
+      list1: "#f8f8f8",
+      list2: "#f3f0f5",
+    }
+  }
+}
+
+export interface CustomTheme extends Theme, ThemeExtension { }
+
+export const defaultTheme: CustomTheme = createMuiTheme({
   palette: {
     primary: {
       light: "#8a8a8a",
       main: "#575757",
       dark: "#454545",
-    }
+    },
   },
   typography: {
     fontFamily,
@@ -38,5 +58,5 @@ export const defaultTheme = createMuiTheme({
     button: fontFamilyOverride,
     caption: fontFamilyOverride,
     overline: fontFamilyOverride,
-  }
-})
+  },
+}, themeExtension) as CustomTheme

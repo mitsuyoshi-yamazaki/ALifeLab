@@ -3,6 +3,7 @@ import ReactDOM from "react-dom"
 import { ThemeProvider } from "@material-ui/core"
 import { LinkCard } from "../react-components/link_card"
 import { defaultTheme } from "../react-components/default_theme"
+import { Display } from "../react-components/display"
 
 const Title = () => {
   const style: CSSProperties = {
@@ -30,6 +31,8 @@ const App = () => {
   return (
     <ThemeProvider theme={defaultTheme}>
       <Title />
+      <Display />
+      <hr />
       <div style={bodyStyle}>
         <LinkCard title="幾何学図形ジェネレータ" link="pages/drawer.html?system.run=0&system.auto_download=0" />
         <LinkCard title="L-Systemの水槽" link="pages/drawer_mortal.html?simulation.mutation_rate=0.0005" />
