@@ -7,7 +7,7 @@ export interface ColorProfile {
 }
 
 export interface DrawableObject {
-  position: Vector
+  relativePosition: Vector
   anchorPoint: Vector
   angle: number
 
@@ -16,9 +16,9 @@ export interface DrawableObject {
 
 export class Line implements DrawableObject {
   public constructor(
-    public readonly position: Vector,
+    public readonly relativePosition: Vector,
     public readonly anchorPoint: Vector,
-    public readonly angle: number,
+    public angle: number,
     public readonly weight: number,
     public readonly length: number,
   ) { }
@@ -30,9 +30,9 @@ export class Line implements DrawableObject {
 
 export class Oval implements DrawableObject {
   public constructor(
-    public readonly position: Vector,
+    public readonly relativePosition: Vector,
     public readonly anchorPoint: Vector,
-    public readonly angle: number,
+    public angle: number,
     public readonly weight: number,
   ) { }
 
@@ -43,19 +43,23 @@ export class Oval implements DrawableObject {
 
 export class Square implements DrawableObject {
   public constructor(
-    public readonly position: Vector,
+    public readonly relativePosition: Vector,
     public readonly anchorPoint: Vector,
-    public readonly angle: number,
+    public angle: number,
     public readonly weight: number,
     public readonly size: number,
   ) { }
 
   draw(p: p5, color: ColorProfile): void {
+    p.push()
     p.noFill()
     p.strokeWeight(this.weight)
     p.stroke(color.color.p5(p))
 
     const halfSize = this.size / 2
-    p.rect(this.position.x - halfSize, this.position.y - halfSize, this.size, this.size)
+    p.translate(this.anchorPoint.x, this.anchorPoint.y)
+    p.rotate(this.angle)
+    p.rect(this.relativePosition.x, this.relativePosition.y, this.size, this.size)
+    p.pop()
   }
 }

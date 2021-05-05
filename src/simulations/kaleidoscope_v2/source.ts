@@ -15,12 +15,15 @@ export const main = (p: p5): void => {
     canvas.id(canvasId)
     canvas.parent(defaultCanvasParentId)
 
+    p.rectMode(p.CENTER)
+
     p.background(0, 0xFF)
   }
 
   p.draw = () => {
     if (t % constants.simulation.executionInterval === 0) {
       p.background(0, 0xFF)
+      kaleidoscope.next()
       kaleidoscope.draw(p)
     }
 
