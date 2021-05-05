@@ -4,6 +4,8 @@ import { Vector } from "../../classes/physics"
 
 export interface ColorProfile {
   color: Color
+
+  set?(t: number): void
 }
 
 export interface DrawableObject {
