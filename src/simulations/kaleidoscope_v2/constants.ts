@@ -15,6 +15,9 @@ export const constants = {
   simulation: {
     // 実行間隔
     executionInterval: parameters.int("simulation.execution_interval", 1, "s.ei"),
+
+    // オブジェクトの配置間隔（角度）
+    objectSpacing: parameters.float("simulation.object_spacing", 60, "s.os"),
   },
 
   // 描画に関する設定
