@@ -43,6 +43,7 @@ const App = () => {
         backgroundColor={backgroundListColor2}
         link={path("/pages/drawer.html?system.run=0&system.auto_download=0")}
       />
+      <div style={{marginBottom: "5rem"}} />
     </ThemeProvider>
   )
 }
