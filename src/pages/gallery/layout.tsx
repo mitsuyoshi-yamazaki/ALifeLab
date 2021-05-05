@@ -41,7 +41,7 @@ const App = () => {
         subtitle="2021, L-System, Processing"
         description="自動生成された幾何学図形"
         backgroundColor={backgroundListColor2}
-        link="pages/drawer.html?system.run=0&system.auto_download=0"
+        link={path("/pages/drawer.html?system.run=0&system.auto_download=0")}
       />
     </ThemeProvider>
   )
