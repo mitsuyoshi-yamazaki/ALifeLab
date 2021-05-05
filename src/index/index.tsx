@@ -61,6 +61,7 @@ const App = () => {
         <LinkCard title="Meta Generative Art v5" link="pages/meta_generative_art_v5.html?s=600&o=40&a=1&w=10&fr=0.5&fs=0.1&ff=0.999&fa=200&fw=0.4&d.d=0&d.f=0.1&d.c=1&d.fi=0.5" />
         <LinkCard title="Extended Machines and Tapes" link="pages/machines_and_tapes.html?d=1&m=attracted&a=0&t=0&si=200&s=1000&f=0.94&g=&ig=0&p=200&ls=6&mr=0&l=40&bl=20&mi=210&ri=210&af=0.6&rf=0.5&fd=0.05&fv=0.45" />
         <LinkCard title="Extended Machines and Tapes v2" link="pages/machines_and_tapes_ex2.html" />
+        <LinkCard title="万華鏡" link="pages/kaleidoscope_v2.html" />
       </div>
     </ThemeProvider>
   )
