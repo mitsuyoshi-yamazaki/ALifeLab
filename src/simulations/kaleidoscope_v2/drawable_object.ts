@@ -49,7 +49,7 @@ export class Square implements DrawableObject {
     public readonly anchorPoint: Vector,
     public angle: number,
     public readonly weight: number,
-    public readonly size: number,
+    public size: number,
   ) { }
 
   draw(p: p5, color: ColorProfile): void {
