@@ -1,6 +1,6 @@
 import React, { CSSProperties } from "react"
 import ReactDOM from "react-dom"
-import { ThemeProvider, Link } from "@material-ui/core"
+import { ThemeProvider } from "@material-ui/core"
 import { LinkCard } from "../react-components/link_card"
 import { defaultTheme } from "../react-components/default_theme"
 import { Display } from "../react-components/display"
