@@ -45,8 +45,8 @@ function createKaleidoscope(): Kaleidoscope {
   const objects: DrawableObject[] = []
   const centerPoint = fieldSize.div(2)
   const angle = constants.simulation.objectSpacing
-  const size = 100
-  const distance = size * 0.6
+  const size = constants.simulation.objectSize
+  const distance = constants.simulation.objectDistance
   for (let a = 0; a < 360; a += angle) {
     const radian = Math.PI * a / 180
     const x = Math.cos(radian) * distance
