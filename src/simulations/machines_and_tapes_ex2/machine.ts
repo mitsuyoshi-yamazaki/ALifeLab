@@ -84,7 +84,7 @@ export class Machine extends Life {
     return decomposedTapes.map(t => new Machine(this.position, t))
   }
 
-  public draw(p: p5) {
+  public draw(p: p5): void {
     p.noStroke()
     p.fill(this.color.p5(p))
 

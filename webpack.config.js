@@ -14,6 +14,7 @@ module.exports = {
     drawer_mortal: "./src/simulations/drawer_mortal/layout.tsx",
     drawer_symmetry: "./src/simulations/drawer_symmetry/layout.tsx",
     hex_cellular_automata: "./src/simulations/hex_cellular_automata/layout.tsx",
+    kaleidoscope_v2: "./src/simulations/kaleidoscope_v2/layout.tsx",
   },
   output: {
     path: path.resolve(__dirname, "dist"),
