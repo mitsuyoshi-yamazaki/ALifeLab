@@ -3,7 +3,6 @@ import { defaultCanvasParentId } from "../../react-components/default_canvas_par
 import { Vector } from "../../classes/physics"
 import { constants } from "./constants"
 import { AutoSearch, AutoSearchConfig } from "./autosearch"
-import { Model } from "./model"
 
 let t = 0
 const canvasId = "canvas"

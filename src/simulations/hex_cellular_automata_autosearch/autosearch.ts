@@ -1,7 +1,7 @@
 import p5 from "p5"
 import { Vector } from "../../classes/physics"
-import { Model } from "./model"
-import { BinaryRule } from "./rule"
+import { Model } from "../hex_cellular_automata/model"
+import { BinaryRule } from "../hex_cellular_automata/rule"
 
 export interface AutoSearchConfig {
   fieldSize: Vector
