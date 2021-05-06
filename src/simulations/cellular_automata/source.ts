@@ -3,7 +3,8 @@ import { Vector } from "../../classes/physics"
 import { defaultCanvasParentId } from "../../react-components/common/default_canvas_parent_id"
 import { constants } from "./constants"
 import { Model } from "./model"
-import { isPresetRule, Rule, SimpleBubbleRule } from "./rule"
+import { isPresetRule, Rule } from "./rule"
+import { SimpleBubbleRule } from "./rules/simple_bubble_rule"
 import { BinaryColorPalette } from "./color_palette"
 
 let t = 0
