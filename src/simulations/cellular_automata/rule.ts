@@ -1,5 +1,3 @@
-import { random } from "../../classes/utilities"
-
 export type State = number
 
 export interface Rule {

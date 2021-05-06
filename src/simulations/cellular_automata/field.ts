@@ -103,7 +103,6 @@ export class Field {
   }
 
   public stateCounts(x: number, y: number, radius: number, weight: number[]): StateMap {
-    // console.log("stateCounts")
     const states = new StateMap()
     const oddRowIndex = (index: number): number => {
       if (y % 2 === 0) {
@@ -116,15 +115,12 @@ export class Field {
       const row = this.states[(y + j + this.states.length) % this.states.length]
       const distanceFromCenter = Math.abs(j)
       const dx = radius - (distanceFromCenter / 2)
-      // console.log(`distanceFromCenter: ${distanceFromCenter}`)
       for (let i = -dx; i <= dx; i += 1) {
         if (i === 0 && j === 0) {
-          // console.log("self return")
           continue
         }
         const index = j % 2 === 0 ? i : oddRowIndex(i)
         const state = row[(x + index + row.length) % row.length]
-        // console.log(`${i}, ${index}, ${(x + index + row.length) % row.length}, ${state}`)
         states.increment(state, 1)  // TODO: weight考慮
       }
     }
