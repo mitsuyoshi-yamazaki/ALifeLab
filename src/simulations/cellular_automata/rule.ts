@@ -24,6 +24,7 @@ export class StateMap extends Map<State, number> {
 
 const presetRules = [
   "bubble",
+  "membrane",
 ] as const
 export type PresetRule = typeof presetRules[number]
 

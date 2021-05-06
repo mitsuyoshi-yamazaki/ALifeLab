@@ -5,6 +5,7 @@ import { constants } from "./constants"
 import { Model } from "./model"
 import { isPresetRule, Rule } from "./rule"
 import { SimpleBubbleRule } from "./rules/simple_bubble_rule"
+import { SimpleMembraneRule } from "./rules/simple_membrane_rule"
 import { BinaryColorPalette } from "./color_palette"
 
 let t = 0
@@ -47,6 +48,9 @@ function createRule(): Rule {
     switch (constants.simulation.presetRule) {
     case "bubble":
       return createSimpleBubbleRule()
+      
+    case "membrane":
+      return createSimpleMembraneRule()
     }
   } else {
     return createSimpleBubbleRule()
@@ -55,4 +59,8 @@ function createRule(): Rule {
 
 function createSimpleBubbleRule(): Rule {
   return new SimpleBubbleRule(constants.simulation.radius, new BinaryColorPalette())
+}
+
+function createSimpleMembraneRule(): Rule {
+  return new SimpleMembraneRule(constants.simulation.radius)
 }
