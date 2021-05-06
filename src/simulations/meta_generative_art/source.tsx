@@ -3,7 +3,7 @@ import { ParameterDownloader, StringElementConvertible } from "../../classes/dow
 import { Vector } from "../../classes/physics"
 import { random } from "../../classes/utilities"
 import React from "react"
-import { defaultCanvasParentId } from "../../react-components/default_canvas_parent_id"
+import { defaultCanvasParentId } from "../../react-components/common/default_canvas_parent_id"
 
 /*
 * https://vimeo.com/22955812
