@@ -4,6 +4,7 @@ import { defaultCanvasParentId } from "../../react-components/common/default_can
 import { constants } from "./constants"
 import { Model } from "./model"
 import { SimpleMembraneRule } from "./rule"
+import { BinaryColorPalette } from "./color_palette"
 
 let t = 0
 const canvasId = "canvas"
@@ -37,5 +38,5 @@ function createModel(): Model {
   const cellSize = constants.simulation.cellSize
   const automatonSize = new Vector(Math.floor(fieldSize.x / cellSize), Math.floor(fieldSize.y / ((cellSize * Math.sqrt(3)) / 2)))
   const rule = new SimpleMembraneRule(constants.simulation.radius)
-  return new Model(automatonSize, rule, constants.simulation.initialState)
+  return new Model(automatonSize, rule, new BinaryColorPalette(), constants.simulation.initialState)
 }

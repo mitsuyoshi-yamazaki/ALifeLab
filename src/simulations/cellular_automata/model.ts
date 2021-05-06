@@ -3,6 +3,7 @@ import { Vector } from "../../classes/physics"
 import { InitialStateType } from "./initial_state_type"
 import { Rule, State } from "./rule"
 import { Field } from "./field"
+import { ColorPalette } from "./color_palette"
 
 export class Model {
   public get t(): number {
@@ -18,6 +19,7 @@ export class Model {
   public constructor(
     public readonly size: Vector,
     public readonly rule: Rule,
+    public readonly colorPalette: ColorPalette,
     initialState: InitialStateType,
   ) {
     this._field = Field.create(size, initialState)
@@ -50,19 +52,16 @@ export class Model {
     const cellVerticalRadius = rowHeight / 2
 
     p.noStroke()
-    p.fill(0xFF, 0xD0)
 
     for (let y = 0; y < this.field.states.length; y += 1) {
       const row = this.field.states[y]
       const isEvenRow = y % 2 === 0
       for (let x = 0; x < row.length; x += 1) {
-        const cell = row[x]
-        if (cell !== 1) {
-          continue
-        }
+        const state = row[x]
         const centerX = isEvenRow ? (x * cellSize) + cellHorizontalRadius : (x * cellSize)
         const centerY = (y * rowHeight) + cellVerticalRadius
 
+        p.fill(this.colorPalette.colorOf(state).p5(p))
         p.circle(centerX, centerY, drawDiameter)
       }
     }
