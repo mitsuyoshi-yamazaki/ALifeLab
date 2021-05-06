@@ -3,6 +3,7 @@ import ReactDOM from "react-dom"
 import { ThemeProvider } from "@material-ui/styles"
 import { LinkCard } from "../../react-components/lab/link_card"
 import { defaultTheme } from "../../react-components/common/default_theme"
+import { Footer } from "../../react-components/common/footer"
 
 const App = () => {
   const bodyStyle: CSSProperties = {
@@ -10,6 +11,7 @@ const App = () => {
     marginTop: "4rem",
     marginLeft: "4rem",
     marginRight: "4rem",
+    paddingBottom: "5rem",
   }
 
   return (
@@ -27,6 +29,7 @@ const App = () => {
         <LinkCard title="Extended Machines and Tapes v2" link="machines_and_tapes_ex2.html" />
         <LinkCard title="万華鏡" link="kaleidoscope_v2.html" />
       </div>
+      <Footer homePath="../" />
     </ThemeProvider>
   )
 }
