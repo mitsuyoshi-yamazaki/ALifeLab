@@ -2,5 +2,5 @@
   "page_title": "Hex Cellular Automata",
   "og_description": "六角セルオートマトン",
   "og_image": "",
-  "script_path": "../dist/hex_cellular_automata.js"
+  "script_path": "../dist/hex_cellular_automata_autosearch.js"
 }
