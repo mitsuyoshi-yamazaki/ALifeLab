@@ -2,7 +2,7 @@ import p5 from "p5"
 import { Button } from "@material-ui/core"
 import React, { CSSProperties, ReactNode } from "react"
 import ReactDOM from "react-dom"
-import { DetailPage, ScreenshotButtonCustom } from "../../react-components/detail_page"
+import { DetailPage, ScreenshotButtonCustom } from "../../react-components/lab/detail_page"
 import { main, saveCurrentState, canvasWidth } from "./source"
 
 const App = () => {

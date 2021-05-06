@@ -1,8 +1,8 @@
 import React, { CSSProperties } from "react"
 import ReactDOM from "react-dom"
 import { ThemeProvider } from "@material-ui/styles"
-import { LinkCard } from "../../react-components/link_card"
-import { defaultTheme } from "../../react-components/default_theme"
+import { LinkCard } from "../../react-components/lab/link_card"
+import { defaultTheme } from "../../react-components/common/default_theme"
 
 const App = () => {
   const bodyStyle: CSSProperties = {

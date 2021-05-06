@@ -1,9 +1,9 @@
 import React, { CSSProperties, ReactNode } from "react"
 import ReactDOM from "react-dom"
 import { Link, ThemeProvider, Typography } from "@material-ui/core"
-import { defaultTheme } from "../../react-components/default_theme"
-import { webConstants } from "../../react-components/web_constants"
-import { Display } from "../../react-components/display"
+import { defaultTheme } from "../../react-components/common/default_theme"
+import { webConstants } from "../../react-components/common/web_constants"
+import { Display } from "../../react-components/art/display"
 
 const path = (relativePath: string): string => `..${relativePath}`
 const Title = () => {
