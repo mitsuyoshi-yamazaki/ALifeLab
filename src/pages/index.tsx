@@ -20,8 +20,8 @@ const App = () => {
   return (
     <ThemeProvider theme={defaultTheme}>
       <div>
-        {createLink("Gallery", "/pages/gallery.html")}
-        {createLink("Lab", "/pages/lab.html")}
+        {createLink("Gallery", "pages/gallery.html")}
+        {createLink("Lab", "pages/lab.html")}
       </div>
     </ThemeProvider>
   )
