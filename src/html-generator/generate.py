@@ -1,12 +1,11 @@
 import os, sys
+from glob import glob
 
 DEBUG = True
 root_path = '../../'
-source_path = root_path + 'src/simulations/'
+simulation_page_source_path = root_path + 'src/simulations/'
+list_page_source_path = root_path + 'src/pages/'
 output_path = root_path + 'pages/'
-index_page_name = 'index'
-index_page_source_path = root_path + 'src/'
-index_page_output_path = root_path
 template_filepath = 'template.html'
 arguments_filename = 'html_arguments.json'
 excluded_paths = ['template']
@@ -19,9 +18,13 @@ def log(message):
 def log_error(message):
   print('\033[31m{}\033[0m'.format(message))
 
-def page_names():
-  from glob import glob
-  path = source_path + '*/'
+def list_page_paths(path):
+  paths = [p for p in glob(path + '*') if os.path.isdir(p)]
+  from itertools import chain
+  return paths + list(chain.from_iterable([list_page_paths(p + '/') for p in paths]))
+
+def simulation_page_names():
+  path = simulation_page_source_path + '*/'
   return list(filter(lambda x: x not in excluded_paths, [path.split('/')[-2] for path in glob(path)]))
 
 def read_arguments(filepath):
@@ -48,7 +51,7 @@ def generate_html(page_name, template, source_path, output_path, og_type, og_url
   try:
     html_filepath = output_path + page_name + '.html'
     log('\ngenerate: {}'.format(html_filepath))
-    arguments = read_arguments(source_path + page_name + '/' + arguments_filename)
+    arguments = read_arguments(source_path + arguments_filename)
     arguments["og_type"] = og_type
     arguments["og_url"] = og_url
     og_image = arguments["og_image"]
@@ -59,17 +62,27 @@ def generate_html(page_name, template, source_path, output_path, og_type, og_url
   except:
     log_error(sys.exc_info()[1])
 
-def generate_index_page_html():
+def generate_index_page_html(template):
   og_url = og_url_root + '/'
-  generate_html(index_page_name, template, index_page_source_path, index_page_output_path, 'website', og_url)
+  generate_html('index', template, root_path + 'src/pages/', root_path, 'website', og_url)
 
-def generate_article_page_html(page_name):
+def generate_list_page_htmls(template):
+  paths = list_page_paths(list_page_source_path)
+  print(paths) # TODO:
+  for path in paths:
+    page_name = path.split('/')[-1]
+    og_url = og_url_root + '/pages/' + page_name + '.html'
+    generate_html(page_name, template, path + '/', output_path, 'website', og_url)
+
+def generate_simulation_page_html(template, page_name):
+  source_path = simulation_page_source_path + page_name + '/'
   og_url = og_url_root + '/pages/' + page_name + '.html'
   generate_html(page_name, template, source_path, output_path, 'article', og_url)
 
 if __name__ == '__main__':
   os.chdir(os.path.dirname(__file__))
   template = read_template()
-  generate_index_page_html()
-  for page_name in page_names():
-    generate_article_page_html(page_name)
+  generate_index_page_html(template)
+  generate_list_page_htmls(template)
+  for page_name in simulation_page_names():
+    generate_simulation_page_html(template, page_name)

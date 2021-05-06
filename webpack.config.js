@@ -3,7 +3,9 @@ const path = require("path");
 module.exports = {
   mode: "development",
   entry: {
-    index: "./src/index/index.tsx",
+    index: "./src/pages/index.tsx",
+    gallery: "./src/pages/gallery/layout.tsx",
+    lab: "./src/pages/lab/layout.tsx",
     meta_generative_art: "./src/simulations/meta_generative_art/layout.tsx",
     meta_generative_art_v2: "./src/simulations/meta_generative_art_v2/layout.tsx",
     meta_generative_art_v4: "./src/simulations/meta_generative_art_v4/layout.tsx",

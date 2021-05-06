@@ -1,0 +1,6 @@
+{
+  "page_title": "ALife & Art Gallery",
+  "og_description": "ALife & Generative Art Gallery by Mitsuyoshi",
+  "og_image": "../resources/blindpainter.jpg",
+  "script_path": "../dist/gallery.js"
+}

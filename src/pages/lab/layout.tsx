@@ -1,24 +1,8 @@
 import React, { CSSProperties } from "react"
 import ReactDOM from "react-dom"
-import { ThemeProvider } from "@material-ui/core"
-import { LinkCard } from "../react-components/link_card"
-import { defaultTheme } from "../react-components/default_theme"
-import { Display } from "../react-components/display"
-
-const Title = () => {
-  const style: CSSProperties = {
-    display: "table", // horizontal center
-    margin: "auto",
-    marginTop: "90px",
-    marginBottom: "90px",
-  }
-
-  return (
-    <div>
-      <img src={"resources/title.svg"} style={style} /> {/* Dunno how to show Futura as text */}
-    </div>
-  )
-}
+import { ThemeProvider } from "@material-ui/styles"
+import { LinkCard } from "../../react-components/link_card"
+import { defaultTheme } from "../../react-components/default_theme"
 
 const App = () => {
   const bodyStyle: CSSProperties = {
@@ -27,29 +11,9 @@ const App = () => {
     marginLeft: "4rem",
     marginRight: "4rem",
   }
-  const backgroundListColor1 = defaultTheme.customized.background.list1
-  const backgroundListColor2 = defaultTheme.customized.background.list2
 
   return (
     <ThemeProvider theme={defaultTheme}>
-      <Title />
-      <Display
-        imagePath="./resources/blindpainter.jpg"
-        title="BlindPainter"
-        subtitle="2019, ALife, Processing"
-        description="人工生命の栄枯盛衰"
-        backgroundColor={backgroundListColor1}
-        link="https://mitsuyoshi-yamazaki.github.io/ALifeGameJam2019/pages/blind_painter_classic.html"
-      />
-      <Display
-        imagePath="./resources/lsystem_artboard.jpg"
-        title="線と角度"
-        subtitle="2021, L-System, Processing"
-        description="自動生成された幾何学図形"
-        backgroundColor={backgroundListColor2}
-        link="pages/drawer.html?system.run=0&system.auto_download=0"
-      />
-      <hr style={{marginTop: "5rem"}} />
       <div style={bodyStyle}>
         <LinkCard title="幾何学図形ジェネレータ" link="pages/drawer.html?system.run=0&system.auto_download=0" />
         <LinkCard title="L-Systemの水槽" link="pages/drawer_mortal.html?simulation.mutation_rate=0.0005" />
