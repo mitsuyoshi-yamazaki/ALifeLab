@@ -19,6 +19,16 @@ export class StateMap extends Map<State, number> {
   }
 }
 
+const presetRules = [
+  "membrane",
+] as const
+export type PresetRule = typeof presetRules[number]
+
+export const isPresetRule = (obj: string): obj is PresetRule => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return presetRules.includes(obj as any)
+}
+
 export class SimpleMembraneRule implements Rule {
   public numberOfStates = 2
   public get weights(): number[] {

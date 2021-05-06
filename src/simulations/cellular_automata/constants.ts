@@ -32,6 +32,9 @@ export const constants = {
     // 近傍半径
     radius: parameters.int("simulation.radius", 1, "s.r"),
 
+    // ルールを指定する
+    presetRule: parameters.string("simulation.automaton_rule", "", "s.ar"),
+
     // 初期状態を指定する
     // see: initial_state_type.ts
     initialState: parseInitialState(),

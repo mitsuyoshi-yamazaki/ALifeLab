@@ -19,6 +19,7 @@ const initialStateTypes = [
 ] as const
 export type InitialStateType = typeof initialStateTypes[number]
 
-export const isInitialStateType = (obj: any): obj is InitialStateType => {
-  return initialStateTypes.includes(obj)
+export const isInitialStateType = (obj: string): obj is InitialStateType => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return initialStateTypes.includes(obj as any)
 }
