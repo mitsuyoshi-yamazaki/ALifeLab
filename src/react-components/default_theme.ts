@@ -18,8 +18,8 @@ const fontFamilyOverride = { fontFamily }
 export interface ThemeExtension {
   customized: {
     background: {
-      list1: "#f8f8f8",
-      list2: "#f3f0f5",
+      list1: string
+      list2: string
     }
   },
 } 
@@ -28,7 +28,7 @@ const themeExtension: ThemeExtension = {
   customized: {
     background: {
       list1: "#f8f8f8",
-      list2: "#f3f0f5",
+      list2: "#ffffff",
     }
   }
 }
