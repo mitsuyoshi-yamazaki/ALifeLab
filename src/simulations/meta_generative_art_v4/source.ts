@@ -1,7 +1,7 @@
 import p5 from "p5"
 import { Vector } from "../../classes/physics"
 import { random, toggleFullscreen } from "../../classes/utilities"
-import { defaultCanvasParentId } from "../../react-components/default_canvas_parent_id"
+import { defaultCanvasParentId } from "../../react-components/common/default_canvas_parent_id"
 import { constants } from "../meta_generative_art_v2/constants"
 import { Obj, CollisionTag, Circle } from "../meta_generative_art_v2/objects"
 import {

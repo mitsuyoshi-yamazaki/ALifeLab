@@ -1,7 +1,7 @@
 import React, { CSSProperties, ReactNode } from "react"
 import ReactDOM from "react-dom"
 import { Link, ThemeProvider } from "@material-ui/core"
-import { defaultTheme } from "../react-components/default_theme"
+import { defaultTheme } from "../react-components/common/default_theme"
 
 const App = () => {
   const createLink = (title: string, link: string): ReactNode => {
