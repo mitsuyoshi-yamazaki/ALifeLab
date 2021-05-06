@@ -1,5 +1,5 @@
 import p5 from "p5"
-import { defaultCanvasParentId } from "../../react-components/default_canvas_parent_id"
+import { defaultCanvasParentId } from "../../react-components/common/default_canvas_parent_id"
 import { Vector } from "../../classes/physics"
 import { constants } from "./constants"
 import { AutoSearch, AutoSearchConfig } from "./autosearch"
