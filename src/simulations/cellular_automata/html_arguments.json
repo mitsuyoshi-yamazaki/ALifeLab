@@ -2,5 +2,5 @@
   "page_title": "汎用セルオートマトン",
   "og_description": "汎用セルオートマトン",
   "og_image": "",
-  "script_path": "../dist/hex_cellular_automata_generic.js"
+  "script_path": "../dist/cellular_automata.js"
 }
