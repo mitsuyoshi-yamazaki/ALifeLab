@@ -3,7 +3,7 @@ import { Vector } from "../../classes/physics"
 import { defaultCanvasParentId } from "../../react-components/common/default_canvas_parent_id"
 import { constants } from "./constants"
 import { Model } from "./model"
-import { isPresetRule, Rule, SimpleMembraneRule } from "./rule"
+import { isPresetRule, Rule, SimpleBubbleRule } from "./rule"
 import { BinaryColorPalette } from "./color_palette"
 
 let t = 0
@@ -44,14 +44,14 @@ function createModel(): Model {
 function createRule(): Rule {
   if (isPresetRule(constants.simulation.presetRule)) {
     switch (constants.simulation.presetRule) {
-    case "membrane":
-      return createSimpleMembraneRule()
+    case "bubble":
+      return createSimpleBubbleRule()
     }
   } else {
-    return createSimpleMembraneRule()
+    return createSimpleBubbleRule()
   }
 }
 
-function createSimpleMembraneRule(): Rule {
-  return new SimpleMembraneRule(constants.simulation.radius, new BinaryColorPalette())
+function createSimpleBubbleRule(): Rule {
+  return new SimpleBubbleRule(constants.simulation.radius, new BinaryColorPalette())
 }

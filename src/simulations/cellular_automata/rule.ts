@@ -23,7 +23,7 @@ export class StateMap extends Map<State, number> {
 }
 
 const presetRules = [
-  "membrane",
+  "bubble",
 ] as const
 export type PresetRule = typeof presetRules[number]
 
@@ -32,7 +32,7 @@ export const isPresetRule = (obj: string): obj is PresetRule => {
   return presetRules.includes(obj as any)
 }
 
-export class SimpleMembraneRule implements Rule {
+export class SimpleBubbleRule implements Rule {
   public numberOfStates = 2
   public get weights(): number[] {
     return this._weights
@@ -50,7 +50,7 @@ export class SimpleMembraneRule implements Rule {
   }
 
   public toString(): string {
-    return `SimpleMembraneRule with ${this.colorPalette.toString()}`
+    return `SimpleBubbleRule with ${this.colorPalette.toString()}`
   }
 
   public nextState(state: State, states: StateMap): State {
