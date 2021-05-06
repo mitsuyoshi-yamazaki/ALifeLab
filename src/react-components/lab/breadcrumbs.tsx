@@ -10,7 +10,7 @@ export class Breadcrumbs extends React.Component<Props> {
     const breadcrumbsTextColor: CSSProperties = {
       color: "white",
     }
-    const link = "../"
+    const link = "lab.html"
 
     return (
       <div>
