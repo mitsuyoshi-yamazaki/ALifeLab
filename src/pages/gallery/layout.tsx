@@ -4,7 +4,6 @@ import { Link, ThemeProvider, Typography } from "@material-ui/core"
 import { defaultTheme } from "../../react-components/default_theme"
 import { webConstants } from "../../react-components/web_constants"
 import { Display } from "../../react-components/display"
-import createTypography from "@material-ui/core/styles/createTypography"
 
 const path = (relativePath: string): string => `..${relativePath}`
 const Title = () => {
