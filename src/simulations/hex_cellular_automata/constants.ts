@@ -1,6 +1,6 @@
 import { URLParameterParser } from "../../classes/url_parameter_parser"
 import { BinaryRule } from "./rule"
-import { InitialState, isInitialState } from "./initial_state"
+import { InitialStateType, isInitialStateType } from "./initial_state_type"
 
 const parameters = new URLParameterParser()
 
@@ -17,10 +17,10 @@ const parseRule = (): BinaryRule => {
   }
 }
 
-const parseInitialState = (): InitialState => {
+const parseInitialState = (): InitialStateType => {
   const defaultValue = "line"
   const rawValue = parameters.string("simulation.initial_state", defaultValue, "s.is")
-  if (isInitialState(rawValue)) {
+  if (isInitialStateType(rawValue)) {
     return rawValue
   }
   return defaultValue
@@ -48,10 +48,8 @@ export const constants = {
     // - ルールを指定(例): "a:2,3;s:3"
     rule: parseRule(),
 
-    // 初期状態: ランダム or aliveセルひとつ or aliveセル1行
-    // - ランダム: "random"
-    // - aliveセルひとつ: "one"
-    // - aliveセル1行: "line"
+    // 初期状態を指定する
+    // see: initial_state_type.ts
     initialState: parseInitialState(),
   },
 

@@ -1,7 +1,7 @@
 import p5 from "p5"
 import { random } from "../../classes/utilities"
 import { Vector } from "../../classes/physics"
-import { InitialState } from "./initial_state"
+import { InitialStateType } from "./initial_state_type"
 import { BinaryRule, State, Bit } from "./rule"
 
 export class Model {
@@ -18,7 +18,7 @@ export class Model {
   public constructor(
     public readonly size: Vector,
     public readonly rule: BinaryRule,
-    initialState: InitialState,
+    initialState: InitialStateType,
   ) {
     this._state = createState(size, initialState)
     console.log(`rule: ${rule.rule}, size: ${size}`)
@@ -55,7 +55,9 @@ export class Model {
   }
 }
 
-function createState(size: Vector, type: InitialState): State {
+function createState(size: Vector, type: InitialStateType): State {
+  const localityAlivePoints: Vector[] = [size.randomized(), size.randomized(), size.randomized(), size.randomized()]
+  const localityAliveDistance = Math.min(size.x, size.y) * 0.2
   const centerX = Math.floor(size.x / 2)
   const centerY = Math.floor(size.y / 2)
   const state: State = []
@@ -85,6 +87,45 @@ function createState(size: Vector, type: InitialState): State {
         } else {
           row.push(0)
         }
+        break
+        
+      case "gradation": {
+        const simpleGradationValue = Math.abs(y - centerY) / centerY
+        const gradationValue = Math.max(Math.min(simpleGradationValue * 1.2 - 0.1, 1), 0)
+        if (random(1) < gradationValue) {
+          row.push(1)
+        } else {
+          row.push(0)
+        }
+        break
+      }
+
+      case "locality": {
+        const currentPoint = new Vector(x, y)
+        const nearestAlivePoint = localityAlivePoints.sort((lhs: Vector, rhs: Vector): number => {
+          const distanceL = currentPoint.dist(lhs)
+          const distanceR = currentPoint.dist(rhs)
+          if (distanceL === distanceR) {
+            return 0
+          }
+          return distanceL > distanceR ? 1 : -1
+        })[0]
+
+        const distance = currentPoint.dist(nearestAlivePoint)
+        if (distance > localityAliveDistance) {
+          row.push(0)
+          break
+        }
+        if (random(1) > (distance / localityAliveDistance)) {
+          row.push(1)
+        } else {
+          row.push(0)
+        }
+        break
+      }
+
+      default:
+        console.error(`Not implemented: initial state type ${type}`)
         break
       }
     }
