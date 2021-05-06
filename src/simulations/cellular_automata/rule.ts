@@ -1,9 +1,12 @@
+import { ColorPalette } from "./color_palette"
+
 export type State = number
 
 export interface Rule {
   radius: number
   numberOfStates: number
   weights: number[]
+  colorPalette: ColorPalette
 
   toString(): string
   nextState(state: State, states: StateMap): State
@@ -37,7 +40,7 @@ export class SimpleMembraneRule implements Rule {
 
   private _weights: number[] = []
 
-  public constructor(public readonly radius: number) {
+  public constructor(public readonly radius: number, public readonly colorPalette: ColorPalette) {
     if (radius <= 0) {
       throw new Error(`Invalid argument: radius should be > 0 (${radius})`)
     }
@@ -47,7 +50,7 @@ export class SimpleMembraneRule implements Rule {
   }
 
   public toString(): string {
-    return "Simple membrane automaton"
+    return `SimpleMembraneRule with ${this.colorPalette.toString()}`
   }
 
   public nextState(state: State, states: StateMap): State {
