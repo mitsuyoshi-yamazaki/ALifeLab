@@ -1,6 +1,6 @@
 import { Typography } from "@material-ui/core"
 import React, { CSSProperties, ReactNode } from "react"
-import { defaultTheme } from "./default_theme"
+import { defaultTheme } from "../common/default_theme"
 
 interface Props {
   title: string

@@ -1,6 +1,6 @@
 import { Button } from "@material-ui/core"
 import React, { ReactNode } from "react"
-import { ScreenshotDownloader } from "../classes/downloader"
+import { ScreenshotDownloader } from "../../classes/downloader"
 
 interface Props {
   getTimestamp(): number

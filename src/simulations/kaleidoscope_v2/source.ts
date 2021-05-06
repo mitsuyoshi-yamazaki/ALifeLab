@@ -1,7 +1,7 @@
 import p5 from "p5"
 import { Color } from "../../classes/color"
 import { Vector } from "../../classes/physics"
-import { defaultCanvasParentId } from "../../react-components/default_canvas_parent_id"
+import { defaultCanvasParentId } from "../../react-components/common/default_canvas_parent_id"
 import { constants } from "./constants"
 import { ColorProfile, DrawableObject, Square } from "./drawable_object"
 import { Kaleidoscope } from "./kaleidoscope"

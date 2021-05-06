@@ -1,8 +1,8 @@
 import React, { CSSProperties, ReactNode } from "react"
 import { Breadcrumbs } from "./breadcrumbs"
-import { ScreenShotButton } from "./screenshot_button"
-import { defaultCanvasParentId } from "./default_canvas_parent_id"
-import { defaultTheme } from "../react-components/default_theme"
+import { ScreenShotButton } from "../common/screenshot_button"
+import { defaultCanvasParentId } from "../common/default_canvas_parent_id"
+import { defaultTheme } from "../common/default_theme"
 import { ThemeProvider } from "@material-ui/styles"
 
 export interface ScreenshotButtonNone { kind: "none" }

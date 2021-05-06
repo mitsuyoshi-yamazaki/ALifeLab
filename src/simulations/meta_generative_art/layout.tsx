@@ -1,7 +1,7 @@
 import p5 from "p5"
 import React from "react"
 import ReactDOM from "react-dom"
-import { DetailPage, ScreenshotButtonDefault } from "../../react-components/detail_page"
+import { DetailPage, ScreenshotButtonDefault } from "../../react-components/lab/detail_page"
 import { main, getTimestamp } from "./source"
 
 const App = () => {

@@ -1,6 +1,6 @@
 import p5 from "p5"
 import { random, toggleFullscreen } from "../../classes/utilities"
-import { defaultCanvasParentId } from "../../react-components/default_canvas_parent_id"
+import { defaultCanvasParentId } from "../../react-components/common/default_canvas_parent_id"
 import { FrictedTerrain } from "../../alife-game-jam/terrain"
 import { Vector } from "../../classes/physics"
 import { Machine } from "./machine"
