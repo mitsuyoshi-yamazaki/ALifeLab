@@ -2,7 +2,7 @@ import p5 from "p5"
 import { defaultCanvasParentId } from "../../react-components/common/default_canvas_parent_id"
 import { Vector } from "../../classes/physics"
 import { constants } from "./constants"
-import { AutoSearch, AutoSearchConfig } from "./autosearch"
+import { AutoSearch, AutoSearchConfig, InitialState } from "./autosearch"
 
 let t = 0
 const canvasId = "canvas"
@@ -35,9 +35,16 @@ export const getTimestamp = (): number => {
 }
 
 function createAutoSearch(): AutoSearch {
+  const initialState = (): InitialState | null => {
+    return {  // FixMe: constantsにデフォルト値が入る実装のため、nullにならない
+      rule: constants.simulation.rule,
+      initialStateType: constants.simulation.initialState,
+    }
+  }
   const config: AutoSearchConfig = {
     fieldSize,
     cellSize: constants.simulation.cellSize,
+    initialState: initialState()
   }
   return new AutoSearch(config)
 }

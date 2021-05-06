@@ -31,11 +31,13 @@ const App = () => {
           2状態, 近傍半径1, 近傍セル数6<br />
           ルール総数 = 2^7 x 2^7 = 16,384 
         </p>
+
         <Typography variant="h6">興味深いルールの条件</Typography>
         <ul>
           <li>停止または周期状態にならないか、そうなるまでの時間が長い</li>
           <li>後述の興味深いパターンを育む余地をもつ</li>
         </ul>
+
         <Typography variant="h6">興味深いパターンの条件</Typography>
         <ul>
           <li>停止または周期状態にならないか、そうなるまでの時間が長い</li>
@@ -43,6 +45,9 @@ const App = () => {
           <li>一見、ルールの制約を外れたふるまいをする</li>
           <li>構造化する</li>
         </ul>
+        
+        <Typography variant="h6">ルールの性質</Typography>
+        # TODO: 
       </div>
     </DetailPage>
   )
