@@ -54,7 +54,7 @@ export class SimpleMembraneRule implements Rule {
     const emptyCount = states.stateCount(empty)
     const liquidCount = states.stateCount(liquid) + states.stateCount(membrane)
     const diff = liquidCount - emptyCount
-    if (diff >= 0 && diff <= this.radius * 3 + 1) {
+    if (diff >= 0 && diff <= this.radius * 4 + 1) {
       return membrane
     }
     return emptyCount > liquidCount ? empty : liquid
