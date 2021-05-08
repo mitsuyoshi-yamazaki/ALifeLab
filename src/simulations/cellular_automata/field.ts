@@ -14,7 +14,7 @@ export class Field {
     this._states = states
   }
 
-  public static create(size: Vector, type: InitialStateType): Field {
+  public static create(size: Vector, type: InitialStateType, numberOfStates: number): Field {
     const localityAlivePoints: Vector[] = [size.randomized(), size.randomized(), size.randomized(), size.randomized()]
     const localityAliveDistance = Math.min(size.x, size.y) * 0.2
     const centerX = Math.floor(size.x / 2)
@@ -25,11 +25,8 @@ export class Field {
       for (let x = 0; x < size.x; x += 1) {
         switch (type) {
         case "random":
-          if (random(1) < 0.5) {
-            row.push(1)
-          } else {
-            row.push(0)
-          }
+          // row.push(Math.max(Math.floor(random(numberOfStates + 1)) - 1, 0))
+          row.push(Math.floor(random(numberOfStates)))
           break
 
         case "one":
@@ -90,6 +87,10 @@ export class Field {
           }
           break
         }
+            
+        case "manual":
+          row.push(Math.floor((y % 6) / 2))
+          break
 
         default:
           console.error(`Not implemented: initial state type ${type}`)

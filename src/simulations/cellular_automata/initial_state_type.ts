@@ -16,6 +16,8 @@ const initialStateTypes = [
 
   // 状態の偏りに局所性がある
   "locality",
+
+  "manual",
 ] as const
 export type InitialStateType = typeof initialStateTypes[number]
 

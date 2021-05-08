@@ -6,9 +6,10 @@ import { Model } from "./model"
 import { isPresetRule, Rule } from "./rule"
 import { SimpleBubbleRule } from "./rules/simple_bubble_rule"
 import { SimpleMembraneRule } from "./rules/simple_membrane_rule"
+import { SimpleDropletRule } from "./rules/simple_droplet_rule"
 import { BinaryColorPalette } from "./color_palette"
 
-let t = 0
+let t = 1
 const canvasId = "canvas"
 const fieldSize = new Vector(constants.system.fieldSize, constants.system.fieldSize)
 const model = createModel()
@@ -20,6 +21,7 @@ export const main = (p: p5): void => {
     canvas.parent(defaultCanvasParentId)
 
     p.background(0, 0xFF)
+    model.draw(p, constants.simulation.cellSize)  // 初期状態を描画
   }
 
   p.draw = () => {
@@ -51,6 +53,9 @@ function createRule(): Rule {
       
     case "membrane":
       return createSimpleMembraneRule()
+      
+    case "droplet":
+      return createSimpleDropletRule()
     }
   } else {
     return createSimpleBubbleRule()
@@ -63,4 +68,8 @@ function createSimpleBubbleRule(): Rule {
 
 function createSimpleMembraneRule(): Rule {
   return new SimpleMembraneRule(constants.simulation.radius)
+}
+
+function createSimpleDropletRule(): Rule {
+  return new SimpleDropletRule(constants.simulation.radius)
 }

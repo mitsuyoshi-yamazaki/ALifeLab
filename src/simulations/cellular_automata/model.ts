@@ -20,7 +20,7 @@ export class Model {
     public readonly rule: Rule,
     initialState: InitialStateType,
   ) {
-    this._field = Field.create(size, initialState)
+    this._field = Field.create(size, initialState, rule.numberOfStates)
     console.log(`rule: ${rule.toString()}, size: ${size}`)
   }
 
