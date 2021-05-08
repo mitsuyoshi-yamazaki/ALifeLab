@@ -22,6 +22,7 @@ class SimpleDropletColorPalette implements ColorPalette {
   }
 }
 
+// ?s.ei=1&s.ar=droplet&s.cs=5&s.r=1&s.is=random
 export class SimpleDropletRule implements Rule {
   public numberOfStates = 3
   public get weights(): number[] {
