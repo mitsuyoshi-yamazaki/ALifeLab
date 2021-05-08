@@ -2,6 +2,9 @@ const initialStateTypes = [
   // 一様にランダム
   "random",
 
+  // 半分が0
+  "zero_random",
+
   // 中心の1セルのみ1
   "one",
 

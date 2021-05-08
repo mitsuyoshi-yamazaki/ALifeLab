@@ -25,8 +25,15 @@ export class Field {
       for (let x = 0; x < size.x; x += 1) {
         switch (type) {
         case "random":
-          // row.push(Math.max(Math.floor(random(numberOfStates + 1)) - 1, 0))
           row.push(Math.floor(random(numberOfStates)))
+          break
+          
+        case "zero_random":
+          if (random(1) < 0.75) {
+            row.push(0)
+          } else {
+            row.push(Math.floor(random(numberOfStates - 1)) + 1)
+          }
           break
 
         case "one":

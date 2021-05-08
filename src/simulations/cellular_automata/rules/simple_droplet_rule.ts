@@ -4,13 +4,19 @@ import { ColorPalette } from "../color_palette"
 
 const empty = 0
 const head = 1
-const tail = 2
+const body = 2
+const tail = 3
 
 class SimpleDropletColorPalette implements ColorPalette {
+  public get numberOfColors(): number {
+    return this._colors.length
+  }
+
   private _colors: Color[] = [
     Color.white(0x0),             // empty
     Color.white(0xFF, 0xD8),      // head
     new Color(0xFC, 0x88, 0x45),  // tail
+    new Color(83, 150, 205),      // body
   ]
 
   public toString(): string {
@@ -22,18 +28,19 @@ class SimpleDropletColorPalette implements ColorPalette {
   }
 }
 
-// ?s.ei=1&s.ar=droplet&s.cs=5&s.r=1&s.is=random
 export class SimpleDropletRule implements Rule {
-  public numberOfStates = 3
+  public get numberOfStates(): number {
+    return this.colorPalette.numberOfColors
+  }
   public get weights(): number[] {
     return this._weights
   }
-  public get colorPalette(): ColorPalette {
+  public get colorPalette(): SimpleDropletColorPalette {
     return this._colorPalette
   }
 
   private _weights: number[] = []
-  private _colorPalette: ColorPalette
+  private _colorPalette: SimpleDropletColorPalette
 
   public constructor(public readonly radius: number) {
     this._colorPalette = new SimpleDropletColorPalette()
@@ -55,8 +62,33 @@ export class SimpleDropletRule implements Rule {
 
     const emptyCount = states.stateCount(empty)
     const headCount = states.stateCount(head)
+    const bodyCount = states.stateCount(body)
     const tailCount = states.stateCount(tail)
     
+    if (headCount > 0 && headCount <= (this.radius * 2 + 1) && tailCount <= 0 && bodyCount > 0) {
+      return head
+    }
+    if (tailCount > 0 && tailCount <= (this.radius * 2 + 1) && headCount <= 0 && bodyCount > 0) {
+      return tail
+    }
+    if (headCount > 0 && tailCount > 0) {
+      return body
+    }
+    return empty
+  }
+}
+
+/* MEMO
+// Glider
+?s.ei=1&s.ar=droplet&s.cs=5&s.r=1&s.is=random
+  public nextState(state: State, states: StateMap): State {
+    // FixMe: weights計算は面倒なので無視している
+    states.increment(state, 1)
+
+    const emptyCount = states.stateCount(empty)
+    const headCount = states.stateCount(head)
+    const tailCount = states.stateCount(tail)
+
     if (headCount > 0 && headCount <= (this.radius * 2 + 1) && tailCount <= 0 && emptyCount > 0) {
       return head
     }
@@ -65,4 +97,26 @@ export class SimpleDropletRule implements Rule {
     }
     return empty
   }
-}
+
+  // Glider2
+    public nextState(state: State, states: StateMap): State {
+    // FixMe: weights計算は面倒なので無視している
+    states.increment(state, 1)
+
+    const emptyCount = states.stateCount(empty)
+    const headCount = states.stateCount(head)
+    const bodyCount = states.stateCount(body)
+    const tailCount = states.stateCount(tail)
+
+    if (headCount > 0 && headCount <= (this.radius * 2 + 1) && tailCount <= 0 && bodyCount > 0) {
+      return head
+    }
+    if (tailCount > 0 && tailCount <= (this.radius * 2 + 1) && headCount <= 0 && bodyCount > 0) {
+      return tail
+    }
+    if (headCount > 0 && tailCount > 0) {
+      return body
+    }
+    return empty
+  }
+*/
