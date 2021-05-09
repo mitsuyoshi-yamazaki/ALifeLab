@@ -22,6 +22,7 @@ const App = () => {
         <LinkCard title="鏡像対称" link="drawer_symmetry.html" />
         <LinkCard title="六角セルオートマトン" link="hex_cellular_automata.html?s.ei=10&s.r=random&s.is=random" />
         <LinkCard title="六角セルオートマトン自動探索" link="hex_cellular_automata_autosearch.html?s.ei=10&s.r=random&s.is=random" />
+        <LinkCard title="汎用セルオートマトン" link="cellular_automata.html" />
         <LinkCard title="Meta Generative Art" link="meta_generative_art.html" />
         <LinkCard title="Meta Generative Art v2" link="meta_generative_art_v2.html?s=600&o=100&a=1&fr=0.5&fs=0.1&ff=0.999&fa=200&d.d=0&d.f=0.1&d.c=1&d.fi=0.5" />
         <LinkCard title="Meta Generative Art v4" link="meta_generative_art_v4.html?s=600&o=100&a=1&fr=0.5&fs=0.1&ff=0.999&fa=200&d.d=0&d.f=0.1&d.c=1&d.fi=0.5" />

@@ -1,6 +1,6 @@
 {
-  "page_title": "Hex Cellular Automata",
-  "og_description": "六角セルオートマトン",
+  "page_title": "Hex Cellular Automata Pattern Search",
+  "og_description": "六角セルオートマトン自動探索",
   "og_image": "",
   "script_path": "../dist/hex_cellular_automata_autosearch.js"
 }
