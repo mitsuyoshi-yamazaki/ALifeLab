@@ -1,17 +1,21 @@
-import { SimpleMembraneRule, StateMap } from "../../../src/simulations/cellular_automata/rule"
+import { BinaryColorPalette } from "../../../src/simulations/cellular_automata/color_palette"
+import { StateMap } from "../../../src/simulations/cellular_automata/rule"
+import { SimpleBubbleRule } from "../../../src/simulations/cellular_automata/rules/simple_bubble_rule"
 
-describe("SimpleMembraneRule", () => {
+const colorPalette = new BinaryColorPalette()
+
+describe("SimpleBubbleRule", () => {
   test("Instantiate", () => {
-    expect(() => new SimpleMembraneRule(1)).not.toThrow()
+    expect(() => new SimpleBubbleRule(1, colorPalette)).not.toThrow()
   })
 
   test("Instantiate error", () => {
-    expect(() => new SimpleMembraneRule(0)).toThrow()
-    expect(() => new SimpleMembraneRule(-1)).toThrow()
+    expect(() => new SimpleBubbleRule(0, colorPalette)).toThrow()
+    expect(() => new SimpleBubbleRule(-1, colorPalette)).toThrow()
   })
 
   test("Execute", () => {
-    const rule = new SimpleMembraneRule(1)
+    const rule = new SimpleBubbleRule(1, colorPalette)
 
     const stateMap1 = new StateMap()
     stateMap1.increment(0, 4)
