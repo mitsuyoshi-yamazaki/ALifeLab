@@ -2,12 +2,10 @@ import { State, StateMap, Rule } from "../rule"
 import { ColorPalette } from "../color_palette"
 
 export class SimpleBubbleRule implements Rule {
-  public numberOfStates = 2
-  public get weights(): number[] {
-    return this._weights
-  }
+  public readonly numberOfStates = 2
+  public readonly weights = null
 
-  private _weights: number[] = []
+  private readonly _weights: number[] = []
 
   public constructor(public readonly radius: number, public readonly colorPalette: ColorPalette) {
     if (radius <= 0) {

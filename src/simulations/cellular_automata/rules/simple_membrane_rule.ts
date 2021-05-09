@@ -23,16 +23,14 @@ class SimpleMembraneColorPalette implements ColorPalette {
 }
 
 export class SimpleMembraneRule implements Rule {
-  public numberOfStates = 2
-  public get weights(): number[] {
-    return this._weights
-  }
+  public readonly numberOfStates = 2
+  public readonly weights = null
   public get colorPalette(): ColorPalette {
     return this._colorPalette
   }
 
-  private _weights: number[] = []
-  private _colorPalette: ColorPalette
+  private readonly _weights: number[] = []
+  private readonly _colorPalette: ColorPalette
 
   public constructor(public readonly radius: number) {
     this._colorPalette = new SimpleMembraneColorPalette()
@@ -49,7 +47,6 @@ export class SimpleMembraneRule implements Rule {
   }
 
   public nextState(state: State, states: StateMap): State {
-    // FixMe: weights計算は面倒なので無視している
     states.increment(state, 1)
     const emptyCount = states.stateCount(empty)
     const liquidCount = states.stateCount(liquid) + states.stateCount(membrane)

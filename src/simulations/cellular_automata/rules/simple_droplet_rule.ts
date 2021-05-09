@@ -32,15 +32,13 @@ export class SimpleDropletRule implements Rule {
   public get numberOfStates(): number {
     return this.colorPalette.numberOfColors
   }
-  public get weights(): number[] {
-    return this._weights
-  }
+  public readonly weights = null
   public get colorPalette(): SimpleDropletColorPalette {
     return this._colorPalette
   }
 
-  private _weights: number[] = []
-  private _colorPalette: SimpleDropletColorPalette
+  private readonly _weights: number[] = []
+  private readonly _colorPalette: SimpleDropletColorPalette
 
   public constructor(public readonly radius: number) {
     this._colorPalette = new SimpleDropletColorPalette()
@@ -57,12 +55,10 @@ export class SimpleDropletRule implements Rule {
   }
 
   public nextState(state: State, states: StateMap): State {
-    // FixMe: weights計算は面倒なので無視している
     states.increment(state, 1)
 
     const unit = 6
     const maxUnit = this.radius * (this.radius + 1) / 2
-    const emptyCount = states.stateCount(empty)
     const headCount = states.stateCount(head)
     const bodyCount = states.stateCount(body)
     const tailCount = states.stateCount(tail)

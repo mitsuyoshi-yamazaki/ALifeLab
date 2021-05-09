@@ -5,7 +5,7 @@ export type State = number
 export interface Rule {
   radius: number
   numberOfStates: number
-  weights: number[]
+  weights: number[] | null
   colorPalette: ColorPalette
 
   toString(): string

@@ -39,13 +39,14 @@ const colorPalette: ColorPalette = {
 }
 
 export class ChemicalCharacteristicRule implements Rule {
-  public numberOfStates = stateInfo.length
-  public colorPalette = colorPalette
+  public readonly numberOfStates = stateInfo.length
+  public readonly colorPalette = colorPalette
   public get weights(): number[] {
     return this._weights
   }
 
-  private _weights: number[] = []
+  private readonly _weights: number[] = []
+  private readonly _maxScore: number
 
   public constructor(public readonly radius: number) {
     if (radius <= 0) {
@@ -54,6 +55,14 @@ export class ChemicalCharacteristicRule implements Rule {
     for (let i = 0; i <= radius; i += 1) {
       this._weights.push(1)
     }
+
+    let maxScore = 0
+    for (let i = 0; i <= radius; i += 1) {
+      const score = radius - i + 1
+      const numberOfCells = Math.max(6 * i, 1)
+      maxScore += score + numberOfCells
+    }
+    this._maxScore = maxScore
   }
 
   public toString(): string {
@@ -61,11 +70,10 @@ export class ChemicalCharacteristicRule implements Rule {
   }
 
   public nextState(state: State, states: StateMap): State {
-    // FixMe: weights計算は面倒なので無視している
     states.increment(state, 1)
 
-    const unit = 6
-    const maxUnit = this.radius * (this.radius + 1) / 2
+    // const unit = 6
+    // const maxUnit = this.radius * (this.radius + 1) / 2
 
     let hydrophilic = 0
     const oilCount = states.stateCount(oil)
@@ -76,7 +84,7 @@ export class ChemicalCharacteristicRule implements Rule {
     hydrophilic += stateInfo[water].hydrophilic * waterCount
     hydrophilic += stateInfo[membrane].hydrophilic * membraneCount
 
-    if (Math.abs(hydrophilic) < unit * maxUnit * 0.2) {
+    if (Math.abs(hydrophilic) < this._maxScore * 0.2) {
       return membrane
     }
     return hydrophilic > 0 ? water : oil
