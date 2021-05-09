@@ -29,7 +29,7 @@ export class Field {
           break
           
         case "zero_random":
-          if (random(1) < 0.75) {
+          if (random(1) < 0.5) {
             row.push(0)
           } else {
             row.push(Math.floor(random(numberOfStates - 1)) + 1)
@@ -95,9 +95,19 @@ export class Field {
           break
         }
             
-        case "manual":
-          row.push(Math.floor((y % 6) / 2))
+        case "manual": {
+          const margin = 0.2
+          if (x < size.x * margin || x > size.x * (1 - margin) || y < size.y * margin || y > size.y * (1 - margin)) {
+            row.push(0)
+            break
+          }
+          if (random(1) < 0.75) {
+            row.push(0)
+          } else {
+            row.push(Math.floor(random(numberOfStates - 1)) + 1)
+          }
           break
+        }
 
         default:
           console.error(`Not implemented: initial state type ${type}`)

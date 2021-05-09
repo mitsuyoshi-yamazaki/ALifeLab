@@ -60,19 +60,21 @@ export class SimpleDropletRule implements Rule {
     // FixMe: weights計算は面倒なので無視している
     states.increment(state, 1)
 
+    const unit = 6
+    const maxUnit = this.radius * (this.radius + 1) / 2
     const emptyCount = states.stateCount(empty)
     const headCount = states.stateCount(head)
     const bodyCount = states.stateCount(body)
     const tailCount = states.stateCount(tail)
     
-    if (headCount > 0 && headCount <= (this.radius * 2 + 1) && tailCount <= 0 && bodyCount > 0) {
-      return head
-    }
-    if (tailCount > 0 && tailCount <= (this.radius * 2 + 1) && headCount <= 0 && bodyCount > 0) {
+    if (bodyCount > unit * maxUnit) {
       return tail
     }
-    if (headCount > 0 && tailCount > 0) {
+    if (headCount > unit * maxUnit) {
       return body
+    }
+    if (headCount > unit * maxUnit * 0.4 && tailCount <= 0) {
+      return head
     }
     return empty
   }
