@@ -103,6 +103,7 @@ export class BinaryRule {
     return 0
   }
 
+  // FixMe: この辺間違ってる: cellular_automaton を参照
   public neighbourSum(map: State, x: number, y: number): number {
     const radius = this.radius
     let result = 0
