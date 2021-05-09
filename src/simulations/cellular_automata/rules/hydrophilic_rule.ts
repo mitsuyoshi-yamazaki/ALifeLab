@@ -38,7 +38,7 @@ const colorPalette: ColorPalette = {
   }
 }
 
-export class ChemicalCharacteristicRule implements Rule {
+export class HydrophilicRule implements Rule {
   public readonly numberOfStates = stateInfo.length
   public readonly colorPalette = colorPalette
   public get weights(): number[] {
@@ -66,7 +66,7 @@ export class ChemicalCharacteristicRule implements Rule {
   }
 
   public toString(): string {
-    return `ChemicalCharacteristicRule with ${this.colorPalette.toString()}`
+    return `HydrophilicRule with ${this.colorPalette.toString()}`
   }
 
   public nextState(state: State, states: StateMap): State {

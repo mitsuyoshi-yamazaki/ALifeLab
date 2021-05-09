@@ -8,7 +8,7 @@ import { SimpleBubbleRule } from "./rules/simple_bubble_rule"
 import { SimpleMembraneRule } from "./rules/simple_membrane_rule"
 import { SimpleDropletRule } from "./rules/simple_droplet_rule"
 import { BinaryColorPalette } from "./color_palette"
-import { ChemicalCharacteristicRule } from "./rules/chemical_characteristic_rule"
+import { HydrophilicRule } from "./rules/hydrophilic_rule"
 
 let t = 1
 const canvasId = "canvas"
@@ -58,8 +58,8 @@ function createRule(): Rule {
     case "droplet":
       return createSimpleDropletRule()
       
-    case "CC":
-      return createCCRule()
+    case "hydrophilic":
+      return createHydrophilicRule()
     }
   } else {
     return createSimpleBubbleRule()
@@ -78,6 +78,6 @@ function createSimpleDropletRule(): Rule {
   return new SimpleDropletRule(constants.simulation.radius)
 }
 
-function createCCRule(): Rule {
-  return new ChemicalCharacteristicRule(constants.simulation.radius)
+function createHydrophilicRule(): Rule {
+  return new HydrophilicRule(constants.simulation.radius)
 }
