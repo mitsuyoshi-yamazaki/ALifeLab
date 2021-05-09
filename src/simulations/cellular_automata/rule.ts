@@ -26,6 +26,7 @@ const presetRules = [
   "bubble",
   "membrane",
   "droplet",
+  "CC", // Chemical Characteristic
 ] as const
 export type PresetRule = typeof presetRules[number]
 

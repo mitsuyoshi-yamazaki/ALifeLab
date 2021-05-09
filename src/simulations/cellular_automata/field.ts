@@ -129,17 +129,27 @@ export class Field {
         return index - 0.5
       }
     }
+    const distance = (k: number, j: number): number => {
+      for (let n = radius; n >= 0; n -= 1) {
+        if (k === radius - n || k === (2 * n - Math.abs(j)) + (radius - n) || j === -n || j === n) {
+          return n
+        }
+      }
+      throw new Error(`Bug!!! (${k}, ${j}), radius: ${radius}`)
+    }
+    
     for (let j = -radius; j <= radius; j += 1) {
       const row = this.states[(y + j + this.states.length) % this.states.length]
       const distanceFromCenter = Math.abs(j)
       const dx = radius - (distanceFromCenter / 2)
-      for (let i = -dx; i <= dx; i += 1) {
+      for (let i = -dx, k = 0; i <= dx; i += 1, k += 1) {
         if (i === 0 && j === 0) {
           continue
         }
         const index = j % 2 === 0 ? i : oddRowIndex(i)
         const state = row[(x + index + row.length) % row.length]
-        states.increment(state, 1)  // TODO: weight考慮
+        // states.increment(state, distance(k, j))  // 使っていないので計算量削減のためコメントアウト
+        states.increment(state, 1)
       }
     }
     return states
