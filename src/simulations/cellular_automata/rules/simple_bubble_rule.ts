@@ -5,14 +5,9 @@ export class SimpleBubbleRule implements Rule {
   public readonly numberOfStates = 2
   public readonly weights = null
 
-  private readonly _weights: number[] = []
-
   public constructor(public readonly radius: number, public readonly colorPalette: ColorPalette) {
     if (radius <= 0) {
       throw new Error(`Invalid argument: radius should be > 0 (${radius})`)
-    }
-    for (let i = 0; i <= radius; i += 1) {
-      this._weights.push(1)
     }
   }
 

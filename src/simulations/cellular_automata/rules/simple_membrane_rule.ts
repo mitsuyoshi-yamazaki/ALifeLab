@@ -29,16 +29,12 @@ export class SimpleMembraneRule implements Rule {
     return this._colorPalette
   }
 
-  private readonly _weights: number[] = []
   private readonly _colorPalette: ColorPalette
 
   public constructor(public readonly radius: number) {
     this._colorPalette = new SimpleMembraneColorPalette()
     if (radius <= 0) {
       throw new Error(`Invalid argument: radius should be > 0 (${radius})`)
-    }
-    for (let i = 0; i <= radius; i += 1) {
-      this._weights.push(1)
     }
   }
 

@@ -53,7 +53,7 @@ export class HydrophilicRule implements Rule {
       throw new Error(`Invalid argument: radius should be > 0 (${radius})`)
     }
     for (let i = 0; i <= radius; i += 1) {
-      this._weights.push(1)
+      this._weights.push(radius - i + 1)
     }
 
     let maxScore = 0
@@ -87,6 +87,11 @@ export class HydrophilicRule implements Rule {
     if (Math.abs(hydrophilic) < this._maxScore * 0.2) {
       return membrane
     }
+
+    // ネットワークができる
+    // if (hydrophilic > this._maxScore * 0.8) {
+    //   return membrane
+    // }
     return hydrophilic > 0 ? water : oil
   }
 }
