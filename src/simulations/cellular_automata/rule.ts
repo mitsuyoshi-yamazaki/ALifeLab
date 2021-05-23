@@ -10,16 +10,3 @@ export interface Rule {
   toString(): string
   nextState(state: State, states: StateMap): State
 }
-
-const presetRules = [
-  "bubble",
-  "membrane",
-  "droplet",
-  "hydrophilic",
-] as const
-export type PresetRule = typeof presetRules[number]
-
-export const isPresetRule = (obj: string): obj is PresetRule => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return presetRules.includes(obj as any)
-}

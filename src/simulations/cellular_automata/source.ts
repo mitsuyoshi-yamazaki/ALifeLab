@@ -3,7 +3,7 @@ import { Vector } from "../../classes/physics"
 import { defaultCanvasParentId } from "../../react-components/common/default_canvas_parent_id"
 import { constants } from "./constants"
 import { Model } from "./model"
-import { isPresetRule, Rule } from "./rule"
+import { Rule } from "./rule"
 import { SimpleBubbleRule } from "./rules/simple_bubble_rule"
 import { SimpleMembraneRule } from "./rules/simple_membrane_rule"
 import { SimpleDropletRule } from "./rules/simple_droplet_rule"
@@ -44,6 +44,19 @@ function createModel(): Model {
   const automatonSize = new Vector(Math.floor(fieldSize.x / cellSize), Math.floor(fieldSize.y / ((cellSize * Math.sqrt(3)) / 2)))
   const rule = createRule()
   return new Model(automatonSize, rule, constants.simulation.initialState)
+}
+
+const presetRules = [
+  "bubble",
+  "membrane",
+  "droplet",
+  "hydrophilic",
+] as const
+type PresetRule = typeof presetRules[number]
+
+const isPresetRule = (obj: string): obj is PresetRule => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return presetRules.includes(obj as any)
 }
 
 function createRule(): Rule {
