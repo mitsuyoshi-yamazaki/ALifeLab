@@ -1,5 +1,5 @@
 import { Color } from "../../classes/color"
-import { State } from "./rule"
+import { State } from "./state"
 
 export interface ColorPalette {
   toString(): string

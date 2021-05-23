@@ -1,6 +1,6 @@
 import { random } from "../../classes/utilities"
 import { Vector } from "../../classes/physics"
-import { State, StateMap } from "./rule"
+import { State, StateMap } from "./state"
 import { InitialStateType } from "./initial_state_type"
 
 export class Field {

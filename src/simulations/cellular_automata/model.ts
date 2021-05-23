@@ -1,7 +1,8 @@
 import p5 from "p5"
 import { Vector } from "../../classes/physics"
 import { InitialStateType } from "./initial_state_type"
-import { Rule, State } from "./rule"
+import { Rule } from "./rule"
+import { State } from "./state"
 import { Field } from "./field"
 
 export class Model {

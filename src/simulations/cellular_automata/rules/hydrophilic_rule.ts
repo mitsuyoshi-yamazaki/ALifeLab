@@ -1,4 +1,5 @@
-import { State, StateMap, Rule } from "../rule"
+import { Rule } from "../rule"
+import { State, StateMap } from "../state"
 import { ColorPalette } from "../color_palette"
 import { Color } from "../../../classes/color"
 
