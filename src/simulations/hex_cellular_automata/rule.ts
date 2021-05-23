@@ -1,7 +1,16 @@
 import { random } from "../../classes/utilities"
+import { Color } from "../../classes/color"
 
-export type Bit = 0 | 1
+export interface Bit {
+  value: 0 | 1
+  color: Color | null
+}
 export type State = Bit[][]
+
+interface Neighbours {
+  count: number
+  color: Color | null
+}
 
 /*
  * ルール
@@ -86,28 +95,30 @@ export class BinaryRule {
       const row = map[y]
       const resultRow: Bit[] = []
       for (let x = 0; x < row.length; x += 1) {
-        resultRow.push(this.nextBit(row[x], this.neighbourSum(map, x, y)))
+        const neighbours = this.neighbourSum(map, x, y)
+        resultRow.push(this.nextBit(row[x], neighbours.count, neighbours.color))
       }
       result.push(resultRow)
     }
     return result
   }
 
-  public nextBit(current: Bit, neighbours: number): Bit {
-    if (current === 0 && this.alive.includes(neighbours)) {
-      return 1
+  public nextBit(current: Bit, neighbours: number, color: Color | null): Bit {
+    if (current.value === 0 && this.alive.includes(neighbours)) {
+      return { value: 1, color: color ?? Color.white() }
     }
-    if (current === 1 && this.stay.includes(neighbours)) {
-      return 1
+    if (current.value === 1 && this.stay.includes(neighbours)) {
+      return current
     }
-    return 0
+    return { value: 0, color: null }
   }
 
   // FixMe: この辺間違ってる: cellular_automaton を参照
-  public neighbourSum(map: State, x: number, y: number): number {
+  public neighbourSum(map: State, x: number, y: number): Neighbours {
     const radius = this.radius
     let result = 0
     const isEvenRow = y % 2 === 0
+    let color: Color | null = null
     for (let j = -radius; j <= radius; j += 1) {
       const neighbourRow = map[(y + j + map.length) % map.length]
       for (let i = -radius; i <= radius; i += 1) {
@@ -123,9 +134,12 @@ export class BinaryRule {
           }
         }
         const cell = neighbourRow[(x + i + neighbourRow.length) % neighbourRow.length]
-        result += cell
+        if (color == null && cell.value === 1) {
+          color = cell.color
+        }
+        result += cell.value
       }
     }
-    return result
+    return { count: result, color: color }
   }
 }
