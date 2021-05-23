@@ -1,6 +1,7 @@
 import p5 from "p5"
 import { random } from "../../classes/utilities"
 import { Vector } from "../../classes/physics"
+import { Color } from "../../classes/color"
 import { InitialStateType } from "./initial_state_type"
 import { BinaryRule, State, Bit } from "./rule"
 
@@ -36,19 +37,19 @@ export class Model {
     const cellVerticalRadius = rowHeight / 2
       
     p.noStroke()
-    p.fill(0xFF, 0xD0)
 
     for (let y = 0; y < this.state.length; y += 1) {
       const row = this.state[y]
       const isEvenRow = y % 2 === 0
       for (let x = 0; x < row.length; x += 1) {
         const cell = row[x]
-        if (cell !== 1) {
+        if (cell.value !== 1) {
           continue
         }
         const centerX = isEvenRow ? (x * cellSize) + cellHorizontalRadius : (x * cellSize)
         const centerY = (y * rowHeight) + cellVerticalRadius
         
+        p.fill((cell.color ?? Color.white()).p5(p))
         p.circle(centerX, centerY, drawDiameter)
       }
     }
@@ -61,31 +62,44 @@ function createState(size: Vector, type: InitialStateType): State {
   const centerX = Math.floor(size.x / 2)
   const centerY = Math.floor(size.y / 2)
   const state: State = []
+  const colors: (Color | null)[] = [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    new Color(0xFC, 0x88, 0x45),
+    new Color(83, 150, 205),
+  ]
+  const color = (): Color | null => colors[Math.floor(random(colors.length))]
+
   for (let y = 0; y < size.y; y += 1) {
     const row: Bit[] = []
     for (let x = 0; x < size.x; x += 1) {
       switch (type) {
       case "random":
         if (random(1) < 0.5) {
-          row.push(1)
+          row.push({ value: 1, color: color() })
         } else {
-          row.push(0)
+          row.push({ value: 0, color: null })
         }
         break
         
       case "one":
         if (x === centerX && y === centerY) {
-          row.push(1)
+          row.push({ value: 1, color: color() })
         } else {
-          row.push(0)
+          row.push({ value: 0, color: null })
         }
         break
         
       case "line":
         if (y === centerY) {
-          row.push(1)
+          row.push({ value: 1, color: color() })
         } else {
-          row.push(0)
+          row.push({ value: 0, color: null })
         }
         break
         
@@ -93,9 +107,9 @@ function createState(size: Vector, type: InitialStateType): State {
         const simpleGradationValue = Math.abs(y - centerY) / centerY
         const gradationValue = Math.max(Math.min(simpleGradationValue * 1.2 - 0.1, 1), 0)
         if (random(1) < gradationValue) {
-          row.push(1)
+          row.push({ value: 1, color: color() })
         } else {
-          row.push(0)
+          row.push({ value: 0, color: null })
         }
         break
       }
@@ -113,13 +127,13 @@ function createState(size: Vector, type: InitialStateType): State {
 
         const distance = currentPoint.dist(nearestAlivePoint)
         if (distance > localityAliveDistance) {
-          row.push(0)
+          row.push({ value: 0, color: null })
           break
         }
         if (random(1) > (distance / localityAliveDistance)) {
-          row.push(1)
+          row.push({ value: 1, color: color() })
         } else {
-          row.push(0)
+          row.push({ value: 0, color: null })
         }
         break
       }
