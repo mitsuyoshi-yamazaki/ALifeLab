@@ -59,6 +59,8 @@ export const main = (p: p5): void => {
       currentModel = createModel()
     }
 
+    drawRule(p, currentModel.lSystemRules[0].encoded)
+
     t += 1
   }
 }
@@ -105,4 +107,13 @@ function nextRule(): string {
     rules = [...exampleRules]
   }
   return rules.splice(Math.floor(random(rules.length)), 1)[0]
+}
+
+function drawRule(p: p5, rule: string): void {
+  const textSize = 12
+  const margin = 10
+
+  p.fill(0xFF)
+  p.textSize(textSize)
+  p.text(rule, margin, fieldSize - margin)
 }
