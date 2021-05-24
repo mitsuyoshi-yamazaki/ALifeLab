@@ -12,15 +12,14 @@ const executionInterval = 1
 const canvasId = "canvas"
 const fieldSize = 600 // TODO: 決める
 
-const numberOfSeeds = 1
 const maxLineCount = 5000
 const mutationRate = 0
 const lineLengthType = 0
 const colorTheme = "grayscale"
 const fixedStartPoint = false
 
-const firstRule: string | undefined = randomExampleRule()
-let currentModel = createModel(firstRule)
+let rules = [...exampleRules]
+let currentModel = createModel()
 const downloader = new Downloader()
 
 export const canvasWidth = fieldSize
@@ -75,30 +74,14 @@ export const saveCurrentState = (): void => {
   downloader.save("", rules, t, result.t)
 }
 
-function createModel(ruleString?: string): ImmortalModel {
+function createModel(): ImmortalModel {
+  const rule = nextRule()
   const rules: VanillaLSystemRule[] = []
-  if (ruleString != null) {
-    try {
-      rules.push(new VanillaLSystemRule(ruleString))
-    } catch (error) {
-      alert(`Invalid rule ${ruleString}`)
-      throw error
-    }
-  } else {
-    const initialCondition = VanillaLSystemRule.initialCondition
-    for (let i = 0; i < numberOfSeeds; i += 1) {
-      const tries = 20
-      for (let j = 0; j < tries; j += 1) {
-        const rule = VanillaLSystemRule.trimUnreachableConditions(VanillaLSystemRule.random(), initialCondition)
-        if (rule.isCirculated(initialCondition)) {
-          rules.push(rule)
-          break
-        }
-      }
-    }
-    if (rules.length === 0) {
-      rules.push(new VanillaLSystemRule(randomExampleRule()))
-    }
+  try {
+    rules.push(new VanillaLSystemRule(rule))
+  } catch (error) {
+    alert(`Invalid rule ${rule}`)
+    throw error
   }
   const model = new ImmortalModel(
     new Vector(fieldSize, fieldSize),
@@ -117,6 +100,9 @@ function createModel(ruleString?: string): ImmortalModel {
   return model
 }
 
-function randomExampleRule(): string {
-  return exampleRules[Math.floor(random(exampleRules.length))]
+function nextRule(): string {
+  if (rules.length === 0) {
+    rules = [...exampleRules]
+  }
+  return rules.splice(Math.floor(random(rules.length)), 1)[0]
 }
