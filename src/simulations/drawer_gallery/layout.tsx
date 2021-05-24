@@ -1,13 +1,13 @@
 import p5 from "p5"
 import React from "react"
 import ReactDOM from "react-dom"
-import { DetailPage, ScreenshotButtonDefault } from "../../react-components/lab/detail_page"
-import { main, getTimestamp } from "./source"
+import { DetailPage, ScreenshotButtonDefault } from "../../react-components/lab/detail_page"  // TODO: 詳細ページのレイアウトを変更
+import { main } from "./source"
 
 const App = () => {
   const screenshotButton: ScreenshotButtonDefault = {
     kind: "default",
-    getTimestamp,
+    getTimestamp: (() => 0),
     getDescription: () => document.location.search
   }
   return (
