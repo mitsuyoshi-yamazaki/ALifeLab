@@ -1,5 +1,6 @@
 import { Color } from "../../../classes/color"
-import { State, StateMap, Rule } from "../rule"
+import { Rule } from "../rule"
+import { State, StateMap } from "../state"
 import { ColorPalette } from "../color_palette"
 
 const empty = 0

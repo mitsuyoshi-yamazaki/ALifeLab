@@ -1,8 +1,6 @@
 import p5 from "p5"
 import { Vector } from "../../classes/physics"
-import { InitialStateType } from "./initial_state_type"
-import { Rule } from "./rule"
-import { State } from "./state"
+import { Rule, State } from "./rule"
 import { Field } from "./field"
 
 export class Model {
@@ -19,9 +17,8 @@ export class Model {
   public constructor(
     public readonly size: Vector,
     public readonly rule: Rule,
-    initialState: InitialStateType,
   ) {
-    this._field = Field.create(size, initialState, rule.numberOfStates)
+    this._field = Field.create(size, rule.numberOfStates)
     console.log(`rule: ${rule.toString()}, size: ${size}`)
   }
 

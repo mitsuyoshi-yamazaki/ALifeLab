@@ -1,6 +1,6 @@
-import { Rule } from "../rule"
-import { State, StateMap } from "../state"
-import { ColorPalette } from "../color_palette"
+import { Rule } from "../cellular_automata/rule"
+import { State, StateMap } from "../cellular_automata/state"
+import { ColorPalette } from "../cellular_automata/color_palette"
 
 export class SimpleBubbleRule implements Rule {
   public readonly numberOfStates = 2
