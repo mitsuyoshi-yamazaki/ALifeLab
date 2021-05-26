@@ -49,10 +49,11 @@ export class Drawer {
       break
       
     case "fade_rule": {
-      const maxTimestamp = 100
       p.background(0x0, 0xFF)
       this._currentModel.draw(p, false)
-      this.drawRule(p, this.currentRule.encoded, this._stateTimestamp / maxTimestamp) // progressを文字あたり一定の速度にする
+      const rule = this.currentRule.encoded
+      const maxTimestamp = rule.length
+      this.drawRule(p, rule, this._stateTimestamp / maxTimestamp) // progressを文字あたり一定の速度にする
       if (this._stateTimestamp >= maxTimestamp) {
         this._drawState = "pause"
         this._stateTimestamp = 0
@@ -64,14 +65,14 @@ export class Drawer {
       p.background(0x0, 0xFF)
       this._currentModel.draw(p, false)
       this.drawRule(p, this.currentRule.encoded, 1)
-      if (this._stateTimestamp > 100) {
+      if (this._stateTimestamp > 150) {
         this._drawState = "fade"
         this._stateTimestamp = 0
       }
       break
       
     case "fade": {
-      const maxTimestamp = 100
+      const maxTimestamp = 80
       p.fill(0x0, 0xFF * (1 / maxTimestamp))
       p.rect(0, 0, this.fieldSize, this.fieldSize)
       if (this._stateTimestamp >= maxTimestamp) {
@@ -114,7 +115,7 @@ export class Drawer {
     model.showsBorderLine = false
     model.lineCollisionEnabled = true
     model.quadtreeEnabled = true
-    model.concurrentExecutionNumber = 100 // TODO: 調整する
+    model.concurrentExecutionNumber = 50 // TODO: 調整する
 
     return model
   }
@@ -134,7 +135,8 @@ export class Drawer {
     const endIndex = Math.min(Math.floor(progress * rule.length), rule.length - 1)
     const displayRule = rule.slice(0, endIndex)
 
-    p.fill(0xFF)
+    p.fill(0xFF, 0xC0)
+    p.textStyle(p.NORMAL)
     p.textSize(textSize)
     p.text(displayRule, margin, this.fieldSize - margin)
   }
