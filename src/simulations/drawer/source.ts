@@ -2,11 +2,12 @@ import p5 from "p5"
 import { constants } from "./constants"
 import { Vector } from "../../classes/physics"
 import { random } from "../../classes/utilities"
-import { ImmortalModel, Result, RuleDescription } from "./model"
+import { ImmortalModel, Model, Result, RuleDescription } from "./model"
 import { defaultCanvasParentId } from "../../react-components/common/default_canvas_parent_id"
 import { VanillaLSystemRule } from "./vanilla_lsystem_rule"
 import { exampleRules } from "./rule_examples"
 import { Downloader } from "./downloader"
+import { TransitionColoredModel } from "./transition_colored_model"
 
 let t = 0
 const canvasId = "canvas"
@@ -32,7 +33,7 @@ export const main = (p: p5): void => {
       return
     }
 
-    if (constants.draw.colorTheme === "depth") {
+    if (["depth", "transition"].includes(constants.draw.colorTheme)) {
       p.background(0xFF, 0xFF)
     } else {
       p.background(0x0, 0xFF)
@@ -75,7 +76,7 @@ export const saveCurrentState = (): void => {
   downloader.save("", rules, t, result.t)
 }
 
-function createModel(ruleString?: string): ImmortalModel {
+function createModel(ruleString?: string): Model {
   const rules: VanillaLSystemRule[] = []
   if (ruleString != null) {
     try {
@@ -100,15 +101,30 @@ function createModel(ruleString?: string): ImmortalModel {
       rules.push(new VanillaLSystemRule(randomExampleRule()))
     }
   }
-  const model = new ImmortalModel(
-    new Vector(fieldSize, fieldSize),
-    constants.simulation.maxLineCount,
-    rules,
-    constants.simulation.mutationRate,
-    constants.simulation.lineLengthType,
-    constants.draw.colorTheme,
-    constants.simulation.fixedStartPoint,
-  )
+  const modelOf = (colorTheme: string): Model => {
+    if (colorTheme === "transition") {
+      return new TransitionColoredModel(
+        new Vector(fieldSize, fieldSize),
+        constants.simulation.maxLineCount,
+        rules,
+        constants.simulation.mutationRate,
+        constants.simulation.lineLengthType,
+        colorTheme,
+        constants.simulation.fixedStartPoint,
+      )
+    } else {
+      return new ImmortalModel(
+        new Vector(fieldSize, fieldSize),
+        constants.simulation.maxLineCount,
+        rules,
+        constants.simulation.mutationRate,
+        constants.simulation.lineLengthType,
+        colorTheme,
+        constants.simulation.fixedStartPoint,
+      )
+    }
+  }
+  const model = modelOf(constants.draw.colorTheme)
   model.showsBorderLine = constants.draw.showsBorderLine
   model.lineCollisionEnabled = constants.simulation.lineCollisionEnabled
   model.quadtreeEnabled = constants.system.quadtreeEnabled
