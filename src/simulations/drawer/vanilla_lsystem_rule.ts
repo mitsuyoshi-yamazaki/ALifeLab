@@ -1,6 +1,8 @@
 import { random } from "../../classes/utilities"
 import { LSystemRule, LSystemCondition, LSystemCoordinate } from "./lsystem_rule"
 
+export type LSystemStateLoop = string[]
+
 export class VanillaLSystemRule implements LSystemRule {
   public static initialCondition = "A"
 
@@ -198,5 +200,51 @@ export class VanillaLSystemRule implements LSystemRule {
     }
 
     return isCirculated
+  }
+
+  /*
+   * 複数の状態遷移をもつ場合、状態遷移ごとに分割したルールを返す
+   */
+  public transitions(): LSystemStateLoop[] {
+    const initialCondition = VanillaLSystemRule.initialCondition
+    const trimmedRule = VanillaLSystemRule.trimUnreachableConditions(this, initialCondition)
+
+    const check = (condition: string, transition: string[]): LSystemStateLoop[] => {
+      const currentTransition = transition.concat([condition])
+      const nextConditions: string[] = (trimmedRule._map.get(condition) ?? []).filter(c => typeof c === "string") as string[]
+      const transitions: LSystemStateLoop[] = []
+      const checked: string[] = []
+
+      nextConditions.forEach(c => {
+        if (checked.includes(c)) {
+          return
+        }
+        checked.push(c)
+        const index = currentTransition.indexOf(c)
+        if (index >= 0) {
+          transitions.push(currentTransition.slice(index))
+          return
+        }
+
+        transitions.push(...check(c, currentTransition))
+      })
+      return transitions
+    }
+
+    const filterDuplicate = (transitions: LSystemStateLoop[]): LSystemStateLoop[] => {
+      const allPossibleLoops: string[] = []
+      const r = transitions.filter(loop => {
+        if (allPossibleLoops.includes(loop.join())) {
+          return false
+        }
+        for (let i = 0; i < loop.length; i += 1) {
+          allPossibleLoops.push(loop.slice(i).concat(loop.slice(0, i)).join())
+        }
+        return true
+      })
+      return r
+    }
+
+    return filterDuplicate(check(initialCondition, []))
   }
 }
