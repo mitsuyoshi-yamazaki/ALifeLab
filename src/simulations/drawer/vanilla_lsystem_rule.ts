@@ -4,6 +4,17 @@ import { LSystemRule, LSystemCondition, LSystemCoordinate } from "./lsystem_rule
 
 export type LSystemStateLoop = string
 
+const niceColors: Color[] = [
+  new Color(51, 127, 214),
+  new Color(182, 11, 145),
+  new Color(27, 45, 108),
+  new Color(128, 57, 241),
+  new Color(39, 86, 26),
+  new Color(217, 76, 62),
+  new Color(92, 115, 151),
+  new Color(172, 84, 60),
+]
+
 export class LSystemStateTransition {
   public readonly maxLoopLength: number
 
@@ -11,7 +22,15 @@ export class LSystemStateTransition {
 
   public constructor(public readonly loops: LSystemStateLoop[]) {
     this.maxLoopLength = Math.max(...loops.map(l => l.length))
-    loops.forEach(loop => this.colors.set(loop, Color.random()))
+    for (let i = 0; i < loops.length; i += 1) {
+      const loop = loops[i]
+      if (i >= niceColors.length) {
+        console.log("色が足りない")
+        this.colors.set(loop, Color.random())
+      } else {
+        this.colors.set(loop, niceColors[i])
+      }
+    }
   }
   
   public colorOf(loop: LSystemStateLoop): Color {
