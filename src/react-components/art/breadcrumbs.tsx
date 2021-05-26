@@ -6,7 +6,7 @@ interface Props {
 
 export class Breadcrumbs extends React.Component<Props> {
   public render(): ReactNode {
-    const mainPageTitle = "Artificial Life and Generative Art Lab"  // TODO: 動的に取得
+    const mainPageTitle = "Gallery"  // TODO: 動的に取得
     const breadcrumbsTextColor: CSSProperties = {
       color: "white",
     }

@@ -1,7 +1,7 @@
 import p5 from "p5"
 import React from "react"
 import ReactDOM from "react-dom"
-import { DetailPage, ScreenshotButtonDefault } from "../../react-components/lab/detail_page"  // TODO: 詳細ページのレイアウトを変更
+import { DetailPage, ScreenshotButtonDefault } from "../../react-components/art/detail_page"
 import { main } from "./source"
 
 const App = () => {
