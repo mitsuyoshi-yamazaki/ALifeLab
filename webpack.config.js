@@ -15,6 +15,7 @@ module.exports = {
     drawer: "./src/simulations/drawer/layout.tsx",
     drawer_mortal: "./src/simulations/drawer_mortal/layout.tsx",
     drawer_symmetry: "./src/simulations/drawer_symmetry/layout.tsx",
+    drawer_gallery: "./src/simulations/drawer_gallery/layout.tsx",
     cellular_automata: "./src/simulations/cellular_automata/layout.tsx",
     hex_cellular_automata: "./src/simulations/hex_cellular_automata/layout.tsx",
     hex_cellular_automata_autosearch: "./src/simulations/hex_cellular_automata_autosearch/layout.tsx",

@@ -40,9 +40,9 @@ const App = () => {
         imagePath={path("/resources/lsystem_artboard.jpg")}
         title="線と角度"
         subtitle="2021, L-System, Processing"
-        description="自動生成された幾何学図形"
+        description="自動生成される幾何学図形"
         backgroundColor={backgroundListColor2}
-        link={path("/pages/drawer.html?system.run=0&system.auto_download=0")}
+        link={path("/pages/drawer_gallery.html")}
       />
       <Footer homePath={path("/")} />
     </ThemeProvider>
