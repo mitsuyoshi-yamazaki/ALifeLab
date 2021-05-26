@@ -269,7 +269,8 @@ export class VanillaLSystemRule implements LSystemRule {
         return pattern
       }
     }
-    throw new Error(`想定しない挙動です. loop: ${lastLoop}, loops: ${this.transition.loops}`)
+    // TODO: 「状態遷移の切り替わり」がループしている状態を検出できるようにする
+    return null
   }
 
   /*
