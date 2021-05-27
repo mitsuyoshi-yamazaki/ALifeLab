@@ -48,7 +48,7 @@ function colorOfDepth(depth: number): Color {
 }
 
 export class LSystemDrawer extends Drawer {
-  private _condition: string
+  protected _condition: string
 
   public constructor(
     position: Vector,
@@ -77,6 +77,9 @@ export class LSystemDrawer extends Drawer {
     const line = new Line(this._position, nextPosition)
     
     switch (this.colorTheme) {
+    case "grayscale":
+      break
+
     case "ascii":
       line.color = colorOfCondition(this._condition)
       break
@@ -90,9 +93,9 @@ export class LSystemDrawer extends Drawer {
         line.color = this.rule.colorOfCondition(this._condition)
       }
       break
-
-    default:
-      break
+      
+    case "transition":
+      throw new Error("TransitionColoredModelを利用してください")
     }
 
     const drawerFromCoordinate = (coordinate: LSystemCoordinate): LSystemDrawer => {

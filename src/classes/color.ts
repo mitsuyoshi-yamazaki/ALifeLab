@@ -1,4 +1,5 @@
 import p5 from "p5"
+import { random } from "./utilities"
 
 export class Color {
   public alpha: number
@@ -9,6 +10,10 @@ export class Color {
 
   public static white(white?: number, alpha?: number): Color {
     return new Color(white ?? 0xFF, white ?? 0xFF, white ?? 0xFF, alpha ?? 0xFF)
+  }
+
+  public static random(alpha?: number): Color {
+    return new Color(Math.floor(random(0xFF)), Math.floor(random(0xFF)), Math.floor(random(0xFF)), alpha ?? 0xFF)
   }
 
   public p5(p: p5, alpha?: number): p5.Color {

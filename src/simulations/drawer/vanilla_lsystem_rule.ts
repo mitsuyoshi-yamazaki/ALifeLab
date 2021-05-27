@@ -1,13 +1,51 @@
 import { random } from "../../classes/utilities"
+import { Color } from "../../classes/color"
 import { LSystemRule, LSystemCondition, LSystemCoordinate } from "./lsystem_rule"
+
+export type LSystemStateLoop = string
+
+const niceColors: Color[] = [
+  new Color(51, 127, 214),
+  new Color(182, 11, 145),
+  new Color(27, 45, 108),
+  new Color(128, 57, 241),
+  new Color(39, 86, 26),
+  new Color(217, 76, 62),
+  new Color(92, 115, 151),
+  new Color(172, 84, 60),
+]
+
+export class LSystemStateTransition {
+  public readonly maxLoopLength: number
+
+  private readonly colors = new Map<LSystemStateLoop, Color>()
+
+  public constructor(public readonly loops: LSystemStateLoop[]) {
+    this.maxLoopLength = Math.max(...loops.map(l => l.length))
+    for (let i = 0; i < loops.length; i += 1) {
+      const loop = loops[i]
+      if (i >= niceColors.length) {
+        console.log("色が足りない")
+        this.colors.set(loop, Color.random())
+      } else {
+        this.colors.set(loop, niceColors[i])
+      }
+    }
+  }
+  
+  public colorOf(loop: LSystemStateLoop): Color {
+    return this.colors.get(loop) ?? Color.white(0x0)
+  }
+}
 
 export class VanillaLSystemRule implements LSystemRule {
   public static initialCondition = "A"
 
+  public readonly transition: LSystemStateTransition
+
   public get possibleConditions(): string[] {
     return Array.from(this._map.keys())
   }
-
   public get encoded(): string {
     return this._encoded
   }
@@ -35,6 +73,7 @@ export class VanillaLSystemRule implements LSystemRule {
       this._encoded = VanillaLSystemRule.encode(first)
       this._map = first
     }
+    this.transition = this.calculateTransition()
   }
 
   public static random(): VanillaLSystemRule { // FixMe: 適当に書いたので探索範囲が偏っているはず
@@ -199,4 +238,89 @@ export class VanillaLSystemRule implements LSystemRule {
 
     return isCirculated
   }
+
+  public loopOf(condition: string, conditionHistory: string, loopCount: number): LSystemStateLoop | null {
+    if (loopCount < 2) {
+      throw new Error(`2未満のloopCountではループを検出できません. loopCount: ${loopCount}`)
+    }
+    const historyArray = conditionHistory.split("")
+    const reversedIndex = historyArray.reverse().indexOf(condition)
+    if (reversedIndex < 0) {
+      return null
+    }
+    const index = conditionHistory.length - reversedIndex - 1
+    const lastLoop = conditionHistory.slice(index)
+    for (let i = 1; i < loopCount; i += 1) {
+      const startIndex = index - (lastLoop.length * i)
+      const endIndex = startIndex + lastLoop.length
+      if (startIndex < 0) {
+        return null
+      }
+      const loop = conditionHistory.slice(startIndex, endIndex)
+      if (loop !== lastLoop) {
+        return null
+      }
+    }
+
+    const possiblePatterns = possibleLoopPatterns(lastLoop)
+    for (let i = 0; i < possiblePatterns.length; i += 1) {
+      const pattern = possiblePatterns[i]
+      if (this.transition.loops.includes(pattern)) {
+        return pattern
+      }
+    }
+    // TODO: 「状態遷移の切り替わり」がループしている状態を検出できるようにする
+    return null
+  }
+
+  /*
+   * 複数の状態遷移をもつ場合、状態遷移ごとに分割したルールを返す
+   */
+  private calculateTransition(): LSystemStateTransition {
+    const initialCondition = VanillaLSystemRule.initialCondition
+
+    const check = (condition: string, transition: string): LSystemStateLoop[] => {
+      const currentTransition = transition + condition
+      const nextConditions: string[] = (this._map.get(condition) ?? []).filter(c => typeof c === "string") as string[]
+      const transitions: LSystemStateLoop[] = []
+      const checked: string[] = []
+
+      nextConditions.forEach(c => {
+        if (checked.includes(c)) {
+          return
+        }
+        checked.push(c)
+        const index = currentTransition.indexOf(c)
+        if (index >= 0) {
+          transitions.push(currentTransition.slice(index))
+          return
+        }
+
+        transitions.push(...check(c, currentTransition))
+      })
+      return transitions
+    }
+
+    const filterDuplicate = (transitions: LSystemStateLoop[]): LSystemStateLoop[] => {
+      const allPossibleLoops: string[] = []
+      const r = transitions.filter(loop => {
+        if (allPossibleLoops.includes(loop)) {
+          return false
+        }
+        allPossibleLoops.push(...possibleLoopPatterns(loop))
+        return true
+      })
+      return r
+    }
+
+    return new LSystemStateTransition(filterDuplicate(check(initialCondition, "")))
+  }
+}
+
+export function possibleLoopPatterns(original: string): string[] {
+  const patterns: string[] = []
+  for (let i = 0; i < original.length; i += 1) {
+    patterns.push(original.slice(i).concat(original.slice(0, i)))
+  }
+  return patterns
 }
