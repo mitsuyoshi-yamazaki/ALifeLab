@@ -115,6 +115,18 @@ export class Model {
     p.line(line.start.x, line.start.y, line.end.x, line.end.y)
   }
 
+  protected newDrawer(position: Vector, direction: number, condition: string, rule: LSystemRule, lineLengthType: number, colorTheme: string): LSystemDrawer {
+    return new LSystemDrawer(
+      position,
+      direction,
+      condition,
+      1,
+      rule,
+      lineLengthType,
+      colorTheme,
+    )
+  }
+
   private setupFirstDrawers(rules: LSystemRule[], fixedStartPoint: boolean, lineLengthType: number, colorTheme: string): LSystemDrawer[] {
     const padding = 100
     const position = (): Vector => {
@@ -130,11 +142,10 @@ export class Model {
       return random(360) - 180
     }
 
-    return rules.map(rule => new LSystemDrawer(
+    return rules.map(rule => this.newDrawer(
       position(),
       direction(),
       defaultInitialCondition,
-      1,
       rule,
       lineLengthType,
       colorTheme,
