@@ -111,6 +111,7 @@ function createModel(ruleString?: string): Model {
         constants.simulation.lineLengthType,
         colorTheme,
         constants.simulation.fixedStartPoint,
+        constants.simulation.obstacle,
       )
     } else {
       return new ImmortalModel(
@@ -121,6 +122,7 @@ function createModel(ruleString?: string): Model {
         constants.simulation.lineLengthType,
         colorTheme,
         constants.simulation.fixedStartPoint,
+        constants.simulation.obstacle,
       )
     }
   }

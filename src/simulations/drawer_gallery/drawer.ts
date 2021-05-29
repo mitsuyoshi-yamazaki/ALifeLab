@@ -102,6 +102,7 @@ export class Drawer {
     const lineLengthType = 0
     const colorTheme = "grayscale"
     const fixedStartPoint = false
+    const addObstacle = false
 
     const model = new ImmortalModel(  // TODO: 生成箇所を中心に寄せる
       new Vector(this.fieldSize, this.fieldSize),
@@ -111,6 +112,7 @@ export class Drawer {
       lineLengthType,
       colorTheme,
       fixedStartPoint,
+      addObstacle,
     )
     model.showsBorderLine = false
     model.lineCollisionEnabled = true

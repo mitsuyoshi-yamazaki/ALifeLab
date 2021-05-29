@@ -46,6 +46,9 @@ export const constants = {
     // 1で描画開始位置を固定する。system.run=0のときのみ有効
     fixedStartPoint: parameters.boolean("simulation.fixed_start_point", false, "s.f"),
 
+    // 障害物を配置
+    obstacle: parameters.boolean("simulation.obstacle", false, "s.ob"),
+
     concurrentExecutionNumber: parameters.int("simulation.concurrent_execution", 100, "s.ce"),
     lineLifeSpan: parameters.int("simulation.line_life_span", 10, "s.ls"),
     lineLengthType: parameters.int("simulation.line_line_length_type", 0, "s.ll"),
