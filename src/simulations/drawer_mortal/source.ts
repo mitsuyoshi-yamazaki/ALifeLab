@@ -106,6 +106,7 @@ function createModel(ruleStrings: string[]): Model {
     constants.system.run === false,
     constants.draw.colorTheme,
     constants.simulation.fixedStartPoint,
+    constants.simulation.obstacle,
   )
   model.showsBorderLine = constants.draw.showsBorderLine
   model.lineCollisionEnabled = constants.simulation.lineCollisionEnabled

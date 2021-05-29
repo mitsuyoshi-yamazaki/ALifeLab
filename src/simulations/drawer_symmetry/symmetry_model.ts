@@ -14,8 +14,9 @@ export class SymmetryModel extends Model {
     lineLengthType: number,
     colorTheme: string,
     fixedStartPoint: boolean,
+    addObstacle: boolean,
   ) {
-    super(fieldSize, maxLineCount, lSystemRules, mutationRate, lineLengthType, colorTheme, fixedStartPoint)
+    super(fieldSize, maxLineCount, lSystemRules, mutationRate, lineLengthType, colorTheme, fixedStartPoint, addObstacle)
     if (colorTheme === "direction") {
       this._lineWeight = 1.0
     }

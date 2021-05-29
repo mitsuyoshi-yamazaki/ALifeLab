@@ -16,8 +16,9 @@ export class MortalModel extends Model {
     public readonly isContinuous: boolean,
     colorTheme: string,
     fixedStartPoint: boolean,
+    addObstacle: boolean,
   ) {
-    super(fieldSize, maxLineCount, lSystemRules, mutationRate, 1, colorTheme, fixedStartPoint)
+    super(fieldSize, maxLineCount, lSystemRules, mutationRate, 1, colorTheme, fixedStartPoint, addObstacle)
   }
 
   public draw(p: p5, showsQuadtree: boolean): void {

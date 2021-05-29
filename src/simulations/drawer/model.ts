@@ -57,9 +57,13 @@ export class Model {
     lineLengthType: number,
     colorTheme: string,
     fixedStartPoint: boolean,
+    addObstacle: boolean,
   ) {
     this._rootNode = new QuadtreeNode(new Vector(0, 0), fieldSize, null)
     this.setupBorderLines()
+    if (addObstacle) {
+      this.setupObstacle()
+    }
     this._drawers.push(...this.setupFirstDrawers(lSystemRules, fixedStartPoint, lineLengthType, colorTheme))
   }
 
@@ -152,7 +156,7 @@ export class Model {
     ))
   }
 
-  private setupBorderLines() {
+  private setupBorderLines() {  // TODO: Line.rect()に置き換え
     const points: [Vector, Vector][] = []
     for (let i = 0; i < 2; i += 1) {
       for (let j = 0; j < 2; j += 1) {
@@ -167,6 +171,18 @@ export class Model {
       const line = new Line(p[0], p[1])
       line.isHidden = !this.showsBorderLine
 
+      this.addLine(line, this.nodeContains(line))
+    })
+  }
+
+  private setupObstacle() {
+    const center = this.fieldSize.div(2)
+    const size = this.fieldSize.div(3)
+    const origin = center.sub(size.div(2))
+    const rect = Line.rect(origin, size)
+
+    rect.forEach(line => {
+      line.isHidden = !this.showsBorderLine
       this.addLine(line, this.nodeContains(line))
     })
   }

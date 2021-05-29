@@ -47,4 +47,26 @@ export class Line implements QuadtreeObject {
     public readonly start: Vector,
     public readonly end: Vector,
   ) { }
+
+  /*
+   * return value:
+   * [
+   *   ((0, 0), (0, size.y)),
+   *   ((0, 0), (size.x, 0)),
+   *   ((size.x, size.y), (0, size.y)),
+   *   ((size.x, size.y), (size.x, 0)),
+   * ].map(v => v + origin)
+   */
+  public static rect(origin: Vector, size: Vector): Line[] {
+    const rect: Line[] = []
+    for (let i = 0; i < 2; i += 1) {
+      for (let j = 0; j < 2; j += 1) {
+        rect.push(new Line(
+          new Vector(i * size.x + origin.x, i * size.y + origin.y),
+          new Vector(j * size.x + origin.x, ((j + 1) % 2) * size.y + origin.y),
+        ))
+      }
+    }
+    return rect
+  }
 }
