@@ -131,7 +131,7 @@ export class Model {
     )
   }
 
-  private setupFirstDrawers(rules: LSystemRule[], fixedStartPoint: boolean, lineLengthType: number, colorTheme: string): LSystemDrawer[] {
+  protected setupFirstDrawers(rules: LSystemRule[], fixedStartPoint: boolean, lineLengthType: number, colorTheme: string): LSystemDrawer[] {
     const padding = 100
     const position = (): Vector => {
       if (fixedStartPoint && rules.length === 1) {
