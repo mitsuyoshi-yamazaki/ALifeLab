@@ -171,7 +171,7 @@ export class Model {
       const line = new Line(p[0], p[1])
       line.isHidden = !this.showsBorderLine
 
-      this.addLine(line, this.nodeContains(line))
+      this.addLine(line, this.nodeContains(line)) // TODO: this._rootNodeで良いのでは
     })
   }
 
@@ -183,7 +183,7 @@ export class Model {
 
     rect.forEach(line => {
       line.isHidden = !this.showsBorderLine
-      this.addLine(line, this.nodeContains(line))
+      this.addLine(line, this.nodeContains(line)) // TODO: this._rootNodeで良いのでは
     })
   }
 
