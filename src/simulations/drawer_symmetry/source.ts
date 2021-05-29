@@ -91,6 +91,7 @@ function createModel(ruleString: string | null): SymmetryModel {
     constants.simulation.lineLifeSpan,
     constants.draw.colorTheme,
     constants.simulation.fixedStartPoint,
+    constants.simulation.obstacle,
   )
   model.showsBorderLine = constants.draw.showsBorderLine
   model.lineCollisionEnabled = constants.simulation.lineCollisionEnabled
