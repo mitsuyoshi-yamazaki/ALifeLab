@@ -190,6 +190,30 @@ export class VanillaLSystemRule implements LSystemRule {
     return nextConditions
   }
 
+  public nextCoordinatesAndDirections(condition: string, direction: number): [LSystemCoordinate, number][] {
+    let newDirection = direction
+    const nextConditions = this.nextConditions(condition)
+    const nextCoordinates: [LSystemCoordinate, number][] = []
+    let previousDirection = 0
+
+    for (const condition of nextConditions) {
+      if (typeof (condition) === "number") {
+        newDirection += condition
+        previousDirection = condition
+        continue
+      }
+
+      nextCoordinates.push([
+        {
+          condition: condition,
+          direction: newDirection,
+        },
+        previousDirection
+      ])
+    }
+    return nextCoordinates
+  }
+
   public nextCoordinates(condition: string, direction: number): LSystemCoordinate[] {
     let newDirection = direction
     const nextConditions = this.nextConditions(condition)

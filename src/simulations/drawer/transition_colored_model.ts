@@ -40,7 +40,29 @@ export class TransitionColoredModel extends Model {
       rule,
       lineLengthType,
       "",
+      null,
+      0,
     )
+  }
+
+  public calculateTransition(): void {
+    console.log("calculateTransition")
+    const leaves: LinkedLine[] = this._lines.filter(line => {
+      if (line instanceof LinkedLine) {
+        return line.isLeaf
+      }
+      return false
+    }) as LinkedLine[]
+
+    const transitions: string[] = []
+    leaves.forEach(line => {
+      if (transitions.includes(line.transitions)) {
+        return
+      }
+      transitions.push(line.transitions)
+    })
+    transitions.sort().forEach(t => console.log(t))
+    console.log(`${transitions.length} transitions`)
   }
 }
 
@@ -55,6 +77,8 @@ class TransitionColoredDrawer extends LSystemDrawer {
     public readonly rule: VanillaLSystemRule,
     public readonly lineLengthType: number, // TODO: 変化しない引数は引き回さなくて済むような作りにする
     public readonly conditionHistory: string,
+    public readonly parentLine: LinkedLine | null,
+    public readonly relativeDirection: number,
   ) {
     super(position, direction, condition, n, rule, lineLengthType, "transition")
   }
@@ -70,13 +94,17 @@ class TransitionColoredDrawer extends LSystemDrawer {
     }
     const radian = this._direction * (Math.PI / 180)
     const nextPosition = this._position.moved(radian, length)
-    const line = new Line(this._position, nextPosition)
+    const line = new LinkedLine(this.parentLine, this.relativeDirection, this._condition, this._position, nextPosition)
     line.color = this.lineColor() ?? Color.white(0x0)
 
     const sliceIndex = Math.max((this.conditionHistory.length + 1) - this.rule.transition.maxLoopLength * this._loopCount, 0)
-    const nextHistory = `${this.conditionHistory}${this._condition}`.slice(sliceIndex)
+    const nextHistory = `${this.conditionHistory}${this._condition}`//.slice(sliceIndex)
 
-    const drawerFromCoordinate = (coordinate: LSystemCoordinate): TransitionColoredDrawer => {
+    let isLeaf = true
+    const drawerFromCoordinate = (args: [LSystemCoordinate, number]): TransitionColoredDrawer => {
+      isLeaf = false
+      const coordinate = args[0]
+      const direction = args[1]
       return new TransitionColoredDrawer(
         nextPosition,
         coordinate.direction,
@@ -84,10 +112,13 @@ class TransitionColoredDrawer extends LSystemDrawer {
         this.n + 1,
         this.rule,
         this.lineLengthType,
-        nextHistory
+        nextHistory,
+        line,
+        direction,
       )
     }
-    const children: LSystemDrawer[] = this.rule.nextCoordinates(this._condition, this._direction).map(drawerFromCoordinate)
+    line.isLeaf = isLeaf
+    const children: LSystemDrawer[] = this.rule.nextCoordinatesAndDirections(this._condition, this._direction).map(drawerFromCoordinate)
     return new Action(line, children)
   }
 
@@ -97,5 +128,25 @@ class TransitionColoredDrawer extends LSystemDrawer {
       return null
     }
     return this.rule.transition.colorOf(loop)
+  }
+}
+
+class LinkedLine extends Line {
+  public get transitions(): string {
+    return this._transitions
+  }
+  public isLeaf = true
+
+  private _transitions: string
+
+  public constructor(
+    public readonly parent: LinkedLine | null,
+    public readonly direction: number,
+    public readonly condition: string,
+    start: Vector,
+    end: Vector,
+  ) {
+    super(start, end)
+    this._transitions = `${parent?.transitions ?? ""}${direction}${condition}`
   }
 }
