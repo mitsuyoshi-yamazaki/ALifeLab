@@ -63,10 +63,7 @@ export const main = (p: p5): void => {
     } else if (currentModel.result != null && analyzed === false) {
       analyzed = true
       if (currentModel instanceof TransitionColoredModel) {
-        console.log("TransitionColoredModel")
         currentModel.calculateTransition()
-      } else {
-        console.log("not")
       }
     }
 
