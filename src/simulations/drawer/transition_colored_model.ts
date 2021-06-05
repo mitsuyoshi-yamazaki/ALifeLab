@@ -249,7 +249,7 @@ class TransitionColoredDrawer extends LSystemDrawer {
     public readonly lineLengthType: number, // TODO: 変化しない引数は引き回さなくて済むような作りにする
     public readonly conditionHistory: string,
     public readonly parentLine: LinkedLine | null,
-    public readonly relativeDirection: number,
+    public readonly absoluteDirection: number,
   ) {
     super(position, direction, condition, n, rule, lineLengthType, "transition")
   }
@@ -265,7 +265,7 @@ class TransitionColoredDrawer extends LSystemDrawer {
     }
     const radian = this._direction * (Math.PI / 180)
     const nextPosition = this._position.moved(radian, length)
-    const transition = `${this.relativeDirection}${this._condition}`
+    const transition = `${this.absoluteDirection}${this._condition}`
     const line = new LinkedLine(this.parentLine, transition, this._position, nextPosition)
     line.color = this.lineColor() ?? Color.white(0x0)
 
