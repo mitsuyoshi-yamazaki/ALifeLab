@@ -6,15 +6,62 @@ import { LSystemCoordinate } from "./lsystem_rule"
 import { Model } from "./model"
 import { LSystemDrawer } from "./lsystem_drawer"
 import { VanillaLSystemRule } from "./vanilla_lsystem_rule"
-import transitions from "@material-ui/core/styles/transitions"
 
 // "<direction><condition>" ("-152A")
 // "(<conditions>)^<n>" ("(-152A,32B)^3", "((2A)^2,-54A)^3")
 type Transition = string
 
-interface TransitionStruct {
-  transition: Transition
-  count: number
+type TransitionInstance = Transition | TransitionStruct
+
+// interface TransitionStruct {
+//   readonly value: TransitionStruct[]
+//   readonly count: number
+// }
+
+// class SingleTransitionStruct implements TransitionStruct {
+//   public readonly value: TransitionStruct[]
+//   public readonly count = 1
+
+//   public constructor(transition: Transition) {
+//     this.value = 
+//   }
+// }
+
+// class MultipleTransitionStruct implements TransitionStruct {
+
+// }
+
+export class TransitionStruct {
+  public readonly transitions: TransitionInstance[]
+  public readonly count: number
+
+  public constructor(transition: Transition);
+  public constructor(transitions: TransitionInstance[], count: number);
+  public constructor(first: string | TransitionInstance[], second?: number) {
+    if (typeof (first) === "string") {
+      this.transitions = [first]
+      this.count = 1
+    } else if (second != null) {
+      this.transitions = first
+      this.count = second
+    } else {
+      throw new Error("Invalid arguments")
+    }
+  }
+
+  public withCount(count: number): TransitionStruct {
+    return new TransitionStruct(this.transitions, count)
+  }
+
+  public toString(): string {
+    if (this.count <= 1) {
+      return this.transitions.map(t => t.toString()).join(",")
+    }
+    if (this.transitions.length <= 1) {
+      return `${this.transitions.map(t => t.toString()).join(",")}^${this.count}`
+    }
+    return `(${this.transitions.map(t => t.toString()).join(",")})^${this.count}`
+  }
 }
 
 export class TransitionColoredModel extends Model {
@@ -77,30 +124,34 @@ export class TransitionColoredModel extends Model {
       }
       return l.length < r.length ? 1 : -1
     }
-    // transitions.map(t => analyzeTransition(t)).sort(sort).slice(0, 100).forEach(t => console.log(t))
-    transitions.sort(sort).slice(0, 100).forEach(t => console.log(analyzeTransition(t)))
+    // transitions.sort(sort).slice(0, 100).forEach(t => console.log(analyzeTransition(t)))
+
     console.log(`${transitions.length} transitions (${leaves.length} leaves)`)
   }
 }
 
-export function analyzeTransition(transitions: Transition[]): Transition {
+export function analyzeTransition(transitions: Transition[]): TransitionStruct {
   return analyzeTransitionRecursively(transitions, 1)
 }
 
-function analyzeTransitionRecursively(transitions: Transition[], searchLength: number): Transition {
+function analyzeTransitionRecursively(transitions: TransitionInstance[], searchLength: number): TransitionStruct {
   if (transitions.length === 0) {
-    return ""
+    throw new Error("Invalid arguments")
   } else if (transitions.length <= 1) {
-    return transitions[0]
+    if (transitions[0] instanceof TransitionStruct) {
+      return transitions[0]
+    } else {
+      return new TransitionStruct(transitions[0])
+    }
   } else if (transitions.length / 2 < searchLength) {
     return concatTransitions(transitions)
   }
 
   let changed = false
-  const result: Transition[] = []
+  const result: TransitionInstance[] = []
   for (let i = 0; i < transitions.length; i += 1) {
     if (i + searchLength > transitions.length) {
-      result.push(...transitions.slice(i))
+      result.push(new TransitionStruct(transitions.slice(i), 1))
       // console.log(`${concatTransitions(transitions.slice(i))}, ${i}, ${0}, ${searchLength}, ${transitions.join(";")},, ${result.join(";")}`)  // FixMe: 消す
       break
     }
@@ -110,7 +161,7 @@ function analyzeTransitionRecursively(transitions: Transition[], searchLength: n
     let count = 1
     for (let j = i + searchLength; j <= (transitions.length - searchLength); j += searchLength) {
       const compare = concatTransitions(transitions.slice(j, j + searchLength))
-      if (searchTransition === compare) {
+      if (searchTransition.toString() === compare.toString()) {
         count += 1
         i = j + searchLength - 1
       } else {
@@ -118,7 +169,7 @@ function analyzeTransitionRecursively(transitions: Transition[], searchLength: n
       }
     }
     if (count > 1) {
-      result.push(`${searchTransition}^${count}`)
+      result.push(searchTransition.withCount(count))
       changed = true
     } else {
       result.push(transitions[i])
@@ -133,11 +184,40 @@ function analyzeTransitionRecursively(transitions: Transition[], searchLength: n
   }
 }
 
-export function concatTransitions(transitions: Transition[]): Transition {
+export function concatTransitions(transitions: TransitionInstance[]): TransitionStruct {
   if (transitions.length === 1) {
-    return transitions[0]
+    if (transitions[0] instanceof TransitionStruct) {
+      return transitions[0]
+    } else {
+      return new TransitionStruct(transitions[0])
+    }
   }
-  return `(${transitions.join(",")})`
+  return new TransitionStruct(transitions, 1)
+}
+
+export function aggregatePatterns(transitions: Transition[][], leastCount: number): TransitionStruct[] {
+  const patterns: TransitionStruct[] = []
+  const stringPatterns: string[] = []
+  transitions.forEach(t => {
+    extractPatterns(t, leastCount).forEach(pattern => {
+      const patternString = pattern.toString()
+      if (stringPatterns.includes(patternString)) {
+        return
+      }
+      patterns.push(pattern)
+      stringPatterns.push(patternString)
+    })
+  })
+  return patterns
+}
+
+export function extractPatterns(transitions: Transition[], leastCount: number): TransitionStruct[] {
+  const result: TransitionStruct[] = []
+  transitions.forEach(transition => {
+    const components = transition.split(",")
+  })
+
+  return [] // TODO:
 }
 
 class TransitionColoredDrawer extends LSystemDrawer {
