@@ -13,24 +13,6 @@ type Transition = string
 
 type TransitionInstance = Transition | TransitionStruct
 
-// interface TransitionStruct {
-//   readonly value: TransitionStruct[]
-//   readonly count: number
-// }
-
-// class SingleTransitionStruct implements TransitionStruct {
-//   public readonly value: TransitionStruct[]
-//   public readonly count = 1
-
-//   public constructor(transition: Transition) {
-//     this.value = 
-//   }
-// }
-
-// class MultipleTransitionStruct implements TransitionStruct {
-
-// }
-
 export class TransitionStruct {
   public readonly transitions: TransitionInstance[]
   public readonly count: number
@@ -53,15 +35,26 @@ export class TransitionStruct {
     return new TransitionStruct(this.transitions, count)
   }
 
+  public pattern(): string {
+    return this.transitions.map(t => t.toString()).join(",")
+  }
+
   public toString(): string {
     if (this.count <= 1) {
-      return this.transitions.map(t => t.toString()).join(",")
+      return this.pattern()
     }
     if (this.transitions.length <= 1) {
-      return `${this.transitions.map(t => t.toString()).join(",")}^${this.count}`
+      return `${this.pattern()}^${this.count}`
     }
-    return `(${this.transitions.map(t => t.toString()).join(",")})^${this.count}`
+    return `(${this.pattern()})^${this.count}`
   }
+}
+
+interface TransitionPattern {
+  pattern: string
+  minCount: number
+  maxCount: number
+  count: number
 }
 
 export class TransitionColoredModel extends Model {
@@ -118,13 +111,20 @@ export class TransitionColoredModel extends Model {
       }
       transitions.push(line.transitions)
     })
-    const sort = (l: Transition[], r: Transition[]): number => {
-      if (l.length === r.length) {
-        return 0
+    const sort = (l: TransitionPattern, r: TransitionPattern): number => {
+      if (l.count === r.count) {
+        if (l.maxCount === r.maxCount) {
+          return 0
+        }
+        return l.maxCount < r.maxCount ? 1 : -1
       }
-      return l.length < r.length ? 1 : -1
+      return l.count < r.count ? 1 : -1
     }
-    // transitions.sort(sort).slice(0, 100).forEach(t => console.log(analyzeTransition(t)))
+    
+    const transitionStructs: TransitionStruct[] = transitions.map(t => analyzeTransition(t))
+    aggregatePatterns(transitionStructs)
+      .sort(sort)
+      .forEach(pattern => console.log(`(${pattern.minCount}-${pattern.maxCount}, ${pattern.count}): ${pattern.pattern}`))
 
     console.log(`${transitions.length} transitions (${leaves.length} leaves)`)
   }
@@ -195,29 +195,46 @@ export function concatTransitions(transitions: TransitionInstance[]): Transition
   return new TransitionStruct(transitions, 1)
 }
 
-export function aggregatePatterns(transitions: Transition[][], leastCount: number): TransitionStruct[] {
-  const patterns: TransitionStruct[] = []
-  const stringPatterns: string[] = []
-  transitions.forEach(t => {
-    extractPatterns(t, leastCount).forEach(pattern => {
-      const patternString = pattern.toString()
-      if (stringPatterns.includes(patternString)) {
-        return
+export function aggregatePatterns(transitions: TransitionStruct[]): TransitionPattern[] {
+  const patterns: TransitionPattern[] = []
+  transitions.forEach(transition => {
+    extractPatterns(transition).forEach(pattern => {
+      const index = patterns.findIndex(p => p.pattern === pattern.pattern)
+      if (index < 0) {
+        patterns.push(pattern)
+      } else {
+        if (pattern.maxCount < patterns[index].maxCount) {
+          pattern.maxCount = patterns[index].maxCount
+        }
+        if (pattern.minCount > patterns[index].minCount) {
+          pattern.minCount = patterns[index].minCount
+        }
+        pattern.count = patterns[index].count + 1
+        patterns.splice(index, 1, pattern)
       }
-      patterns.push(pattern)
-      stringPatterns.push(patternString)
     })
   })
   return patterns
 }
 
-export function extractPatterns(transitions: Transition[], leastCount: number): TransitionStruct[] {
-  const result: TransitionStruct[] = []
-  transitions.forEach(transition => {
-    const components = transition.split(",")
+export function extractPatterns(transition: TransitionStruct): TransitionPattern[] {
+  const result: TransitionPattern[] = []
+  if (transition.count > 1) {
+    result.push({
+      pattern: transition.pattern(),
+      minCount: transition.count,
+      maxCount: transition.count,
+      count: 1,
+    })
+  }
+  transition.transitions.forEach(t => {
+    if (typeof t === "string") {
+      // Do nothing
+    } else {
+      result.push(...extractPatterns(t))
+    }
   })
-
-  return [] // TODO:
+  return result
 }
 
 class TransitionColoredDrawer extends LSystemDrawer {
