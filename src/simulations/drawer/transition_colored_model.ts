@@ -9,9 +9,9 @@ import { VanillaLSystemRule } from "./vanilla_lsystem_rule"
 
 // "<direction><condition>" ("-152A")
 // "(<conditions>)^<n>" ("(-152A,32B)^3", "((2A)^2,-54A)^3")
-type Transition = string
+export type Transition = string
 
-type TransitionInstance = Transition | TransitionStruct
+export type TransitionInstance = Transition | TransitionStruct
 
 export class TransitionStruct {
   public readonly transitions: TransitionInstance[]
@@ -39,6 +39,25 @@ export class TransitionStruct {
     return this.transitions.map(t => t.toString()).join(",")
   }
 
+  public fullyExpandedPattern(): string {
+    const fullPattern = this.expandedPattern()
+    const result: string[] = []
+    for (let i = 0; i < this.count; i += 1) {
+      result.push(fullPattern)
+    }
+    return result.join(",")
+  }
+
+  public expandedPattern(): string {
+    return this.transitions.map((transition: TransitionInstance): string => {
+      if (typeof transition === "string") {
+        return transition
+      } else {
+        return transition.fullyExpandedPattern()
+      }
+    }).join(",")
+  }
+
   public toString(): string {
     if (this.count <= 1) {
       return this.pattern()
@@ -50,8 +69,9 @@ export class TransitionStruct {
   }
 }
 
-interface TransitionPattern {
+export interface TransitionPattern {
   pattern: string
+  expandedPattern: string
   minCount: number
   maxCount: number
   count: number
@@ -124,7 +144,7 @@ export class TransitionColoredModel extends Model {
     const transitionStructs: TransitionStruct[] = transitions.map(t => analyzeTransition(t))
     aggregatePatterns(transitionStructs)
       .sort(sort)
-      .forEach(pattern => console.log(`(${pattern.minCount}-${pattern.maxCount}, ${pattern.count}): ${pattern.pattern}`))
+      .forEach(pattern => console.log(`(${pattern.minCount}-${pattern.maxCount}, ${pattern.count}): "${pattern.pattern}"`))
 
     console.log(`${transitions.length} transitions (${leaves.length} leaves)`)
   }
@@ -199,7 +219,7 @@ export function aggregatePatterns(transitions: TransitionStruct[]): TransitionPa
   const patterns: TransitionPattern[] = []
   transitions.forEach(transition => {
     extractPatterns(transition).forEach(pattern => {
-      const index = patterns.findIndex(p => p.pattern === pattern.pattern)
+      const index = patterns.findIndex(p => identifyPattern(p, pattern))
       if (index < 0) {
         patterns.push(pattern)
       } else {
@@ -217,11 +237,25 @@ export function aggregatePatterns(transitions: TransitionStruct[]): TransitionPa
   return patterns
 }
 
+export function identifyPattern(lhs: TransitionPattern, rhs: TransitionPattern): boolean {
+  if (lhs.pattern === rhs.pattern) {
+    return true
+  }
+  if (lhs.expandedPattern.length !== rhs.expandedPattern.length) {
+    return false
+  }
+  if (`${lhs.expandedPattern},${lhs.expandedPattern}`.includes(rhs.expandedPattern)) {
+    return true
+  }
+  return false
+}
+
 export function extractPatterns(transition: TransitionStruct): TransitionPattern[] {
   const result: TransitionPattern[] = []
   if (transition.count > 1) {
     result.push({
       pattern: transition.pattern(),
+      expandedPattern: transition.expandedPattern(),
       minCount: transition.count,
       maxCount: transition.count,
       count: 1,

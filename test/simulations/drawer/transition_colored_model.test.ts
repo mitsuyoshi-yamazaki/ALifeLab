@@ -1,9 +1,13 @@
 import {
+  Transition,
+  TransitionInstance,
   TransitionStruct,
+  TransitionPattern,
   analyzeTransition,
   concatTransitions,
   extractPatterns,
   aggregatePatterns,
+  identifyPattern,
 } from "../../../src/simulations/drawer/transition_colored_model"
 
 describe("TransitionStruct", () => {
@@ -110,3 +114,35 @@ describe("Patterns", () => {
     expect(patterns[3].count).toBe(1)
   })
 })
+
+describe("identifyPattern()", () => {
+  test("", () => {
+    const createPattern = (transitions: TransitionInstance[], count?: number): TransitionPattern => {
+      const transition = new TransitionStruct(transitions, count ?? 1)
+      return {
+        pattern: transition.pattern(),
+        expandedPattern: transition.expandedPattern(),
+        minCount: 1,
+        maxCount: 1,
+        count: 1,
+      }
+    }
+
+    const pattern1 = createPattern(["A", "B"])
+    const pattern2 = createPattern(["B", "A"])
+    const pattern3 = createPattern(["A", "C"])
+    const pattern4 = createPattern(["A", "B"], 3)
+    const pattern5 = createPattern(["B", "A"], 3)
+    const pattern6 = createPattern(["A", "B", "A", "B", "A", "B"])
+    const pattern7 = createPattern(["A", "B"], 2)
+    const pattern8 = createPattern(["B", "A"], 2)
+
+    expect(identifyPattern(pattern1, pattern2)).toBe(true)
+    expect(identifyPattern(pattern1, pattern3)).toBe(false)
+    expect(identifyPattern(pattern4, pattern5)).toBe(true)
+    expect(identifyPattern(pattern4, pattern6)).toBe(false) // pattern6のように折りたたまれていないパターンは不正なため
+    expect(identifyPattern(pattern4, pattern7)).toBe(true)
+    expect(identifyPattern(pattern4, pattern8)).toBe(true)
+  })
+})
+
