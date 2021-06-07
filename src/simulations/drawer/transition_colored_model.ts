@@ -143,7 +143,9 @@ export class TransitionColoredModel extends Model {
     
     const transitionStructs: TransitionStruct[] = transitions.map(t => analyzeTransition(t))
     aggregatePatterns(transitionStructs)
+      // .filter(pattern => pattern.count > 10)
       .sort(sort)
+      .splice(0, 200)
       .forEach(pattern => console.log(`(${pattern.minCount}-${pattern.maxCount}, ${pattern.count}): "${pattern.pattern}"`))
 
     console.log(`${transitions.length} transitions (${leaves.length} leaves)`)
@@ -252,7 +254,7 @@ export function identifyPattern(lhs: TransitionPattern, rhs: TransitionPattern):
 
 export function extractPatterns(transition: TransitionStruct): TransitionPattern[] {
   const result: TransitionPattern[] = []
-  if (transition.count > 1) {
+  if (transition.count > 1 || transition.transitions.length > 1) {
     result.push({
       pattern: transition.pattern(),
       expandedPattern: transition.expandedPattern(),
