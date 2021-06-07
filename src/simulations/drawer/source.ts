@@ -16,6 +16,7 @@ const firstRule: string | undefined = constants.system.run ? undefined :
   (constants.simulation.lSystemRule.length > 0 ? constants.simulation.lSystemRule : randomExampleRule())
 let currentModel = createModel(firstRule)
 const downloader = new Downloader()
+let analyzed = false
 
 export const canvasWidth = fieldSize
 
@@ -59,6 +60,11 @@ export const main = (p: p5): void => {
         downloader.save("", rules, t, result.t)
       }
       currentModel = createModel()
+    } else if (currentModel.result != null && analyzed === false) {
+      analyzed = true
+      if (currentModel instanceof TransitionColoredModel) {
+        currentModel.calculateTransition()
+      }
     }
 
     t += 1

@@ -7,6 +7,76 @@ import { Model } from "./model"
 import { LSystemDrawer } from "./lsystem_drawer"
 import { VanillaLSystemRule } from "./vanilla_lsystem_rule"
 
+// "<direction><condition>" ("-152A")
+// "(<conditions>)^<n>" ("(-152A,32B)^3", "((2A)^2,-54A)^3")
+export type Transition = string
+
+export type TransitionInstance = Transition | TransitionStruct
+
+export class TransitionStruct {
+  public readonly transitions: TransitionInstance[]
+  public readonly count: number
+
+  public constructor(transition: Transition);
+  public constructor(transitions: TransitionInstance[], count: number);
+  public constructor(first: string | TransitionInstance[], second?: number) {
+    if (typeof (first) === "string") {
+      this.transitions = [first]
+      this.count = 1
+    } else if (second != null) {
+      this.transitions = first
+      this.count = second
+    } else {
+      throw new Error("Invalid arguments")
+    }
+  }
+
+  public withCount(count: number): TransitionStruct {
+    return new TransitionStruct(this.transitions, count)
+  }
+
+  public pattern(): string {
+    return this.transitions.map(t => t.toString()).join(",")
+  }
+
+  public fullyExpandedPattern(): string {
+    const fullPattern = this.expandedPattern()
+    const result: string[] = []
+    for (let i = 0; i < this.count; i += 1) {
+      result.push(fullPattern)
+    }
+    return result.join(",")
+  }
+
+  public expandedPattern(): string {
+    return this.transitions.map((transition: TransitionInstance): string => {
+      if (typeof transition === "string") {
+        return transition
+      } else {
+        return transition.fullyExpandedPattern()
+      }
+    }).join(",")
+  }
+
+  public toString(): string {
+    if (this.count <= 1) {
+      return this.pattern()
+    }
+    if (this.transitions.length <= 1) {
+      return `${this.pattern()}^${this.count}`
+    }
+    return `(${this.pattern()})^${this.count}`
+  }
+}
+
+export interface TransitionPattern {
+  pattern: string
+  expandedPattern: string
+  minCount: number
+  maxCount: number
+  count: number
+}
+
 export class TransitionColoredModel extends Model {
   protected checkCompleted(): void {
     const completionReason = this.completedReason()
@@ -40,8 +110,167 @@ export class TransitionColoredModel extends Model {
       rule,
       lineLengthType,
       "",
+      null,
+      0,
     )
   }
+
+  public calculateTransition(): void {
+    console.log(`calculateTransition() ${this.lSystemRules[0].encoded}`)
+    const leaves: LinkedLine[] = this._lines.filter(line => {
+      if (line instanceof LinkedLine) {
+        return line.isLeaf
+      }
+      return false
+    }) as LinkedLine[]
+
+    const transitions: Transition[][] = []
+    leaves.forEach(line => {
+      if (transitions.includes(line.transitions)) {
+        return
+      }
+      transitions.push(line.transitions)
+    })
+    const sort = (l: TransitionPattern, r: TransitionPattern): number => {
+      if (l.count === r.count) {
+        if (l.maxCount === r.maxCount) {
+          return 0
+        }
+        return l.maxCount < r.maxCount ? 1 : -1
+      }
+      return l.count < r.count ? 1 : -1
+    }
+    
+    const transitionStructs: TransitionStruct[] = transitions.map(t => analyzeTransition(t))
+    aggregatePatterns(transitionStructs)
+      // .filter(pattern => pattern.count > 10)
+      .sort(sort)
+      .splice(0, 200)
+      .forEach(pattern => console.log(`(${pattern.minCount}-${pattern.maxCount}, ${pattern.count}): "${pattern.pattern}"`))
+
+    console.log(`${transitions.length} transitions (${leaves.length} leaves)`)
+  }
+}
+
+export function analyzeTransition(transitions: Transition[]): TransitionStruct {
+  return analyzeTransitionRecursively(transitions, 1)
+}
+
+function analyzeTransitionRecursively(transitions: TransitionInstance[], searchLength: number): TransitionStruct {
+  if (transitions.length === 0) {
+    throw new Error("Invalid arguments")
+  } else if (transitions.length <= 1) {
+    if (transitions[0] instanceof TransitionStruct) {
+      return transitions[0]
+    } else {
+      return new TransitionStruct(transitions[0])
+    }
+  } else if (transitions.length / 2 < searchLength) {
+    return concatTransitions(transitions)
+  }
+
+  let changed = false
+  const result: TransitionInstance[] = []
+  for (let i = 0; i < transitions.length; i += 1) {
+    if (i + searchLength > transitions.length) {
+      result.push(new TransitionStruct(transitions.slice(i), 1))
+      // console.log(`${concatTransitions(transitions.slice(i))}, ${i}, ${0}, ${searchLength}, ${transitions.join(";")},, ${result.join(";")}`)  // FixMe: 消す
+      break
+    }
+
+    const searchSlice = transitions.slice(i, i + searchLength)
+    const searchTransition = concatTransitions(searchSlice)
+    let count = 1
+    for (let j = i + searchLength; j <= (transitions.length - searchLength); j += searchLength) {
+      const compare = concatTransitions(transitions.slice(j, j + searchLength))
+      if (searchTransition.toString() === compare.toString()) {
+        count += 1
+        i = j + searchLength - 1
+      } else {
+        break
+      }
+    }
+    if (count > 1) {
+      result.push(searchTransition.withCount(count))
+      changed = true
+    } else {
+      result.push(transitions[i])
+    }
+    // console.log(`${searchTransition}, ${i}, ${count}, ${searchLength}, ${transitions.join(";")},, ${result.join(";")}`)  // FixMe: 消す
+  }
+
+  if (changed) {
+    return analyzeTransitionRecursively(result, 1)
+  } else {
+    return analyzeTransitionRecursively(transitions, searchLength + 1)
+  }
+}
+
+export function concatTransitions(transitions: TransitionInstance[]): TransitionStruct {
+  if (transitions.length === 1) {
+    if (transitions[0] instanceof TransitionStruct) {
+      return transitions[0]
+    } else {
+      return new TransitionStruct(transitions[0])
+    }
+  }
+  return new TransitionStruct(transitions, 1)
+}
+
+export function aggregatePatterns(transitions: TransitionStruct[]): TransitionPattern[] {
+  const patterns: TransitionPattern[] = []
+  transitions.forEach(transition => {
+    extractPatterns(transition).forEach(pattern => {
+      const index = patterns.findIndex(p => identifyPattern(p, pattern))
+      if (index < 0) {
+        patterns.push(pattern)
+      } else {
+        if (pattern.maxCount < patterns[index].maxCount) {
+          pattern.maxCount = patterns[index].maxCount
+        }
+        if (pattern.minCount > patterns[index].minCount) {
+          pattern.minCount = patterns[index].minCount
+        }
+        pattern.count = patterns[index].count + 1
+        patterns.splice(index, 1, pattern)
+      }
+    })
+  })
+  return patterns
+}
+
+export function identifyPattern(lhs: TransitionPattern, rhs: TransitionPattern): boolean {
+  if (lhs.pattern === rhs.pattern) {
+    return true
+  }
+  if (lhs.expandedPattern.length !== rhs.expandedPattern.length) {
+    return false
+  }
+  if (`${lhs.expandedPattern},${lhs.expandedPattern}`.includes(rhs.expandedPattern)) {
+    return true
+  }
+  return false
+}
+
+export function extractPatterns(transition: TransitionStruct): TransitionPattern[] {
+  const result: TransitionPattern[] = []
+  if (transition.count > 1 || transition.transitions.length > 1) {
+    result.push({
+      pattern: transition.pattern(),
+      expandedPattern: transition.expandedPattern(),
+      minCount: transition.count,
+      maxCount: transition.count,
+      count: 1,
+    })
+  }
+  transition.transitions.forEach(t => {
+    if (typeof t === "string") {
+      // Do nothing
+    } else {
+      result.push(...extractPatterns(t))
+    }
+  })
+  return result
 }
 
 class TransitionColoredDrawer extends LSystemDrawer {
@@ -55,6 +284,8 @@ class TransitionColoredDrawer extends LSystemDrawer {
     public readonly rule: VanillaLSystemRule,
     public readonly lineLengthType: number, // TODO: 変化しない引数は引き回さなくて済むような作りにする
     public readonly conditionHistory: string,
+    public readonly parentLine: LinkedLine | null,
+    public readonly absoluteDirection: number,
   ) {
     super(position, direction, condition, n, rule, lineLengthType, "transition")
   }
@@ -70,13 +301,18 @@ class TransitionColoredDrawer extends LSystemDrawer {
     }
     const radian = this._direction * (Math.PI / 180)
     const nextPosition = this._position.moved(radian, length)
-    const line = new Line(this._position, nextPosition)
+    const transition = `${this.absoluteDirection}${this._condition}`
+    const line = new LinkedLine(this.parentLine, transition, this._position, nextPosition)
     line.color = this.lineColor() ?? Color.white(0x0)
 
     const sliceIndex = Math.max((this.conditionHistory.length + 1) - this.rule.transition.maxLoopLength * this._loopCount, 0)
     const nextHistory = `${this.conditionHistory}${this._condition}`.slice(sliceIndex)
 
-    const drawerFromCoordinate = (coordinate: LSystemCoordinate): TransitionColoredDrawer => {
+    let isLeaf = true
+    const drawerFromCoordinate = (args: [LSystemCoordinate, number]): TransitionColoredDrawer => {
+      isLeaf = false
+      const coordinate = args[0]
+      const direction = args[1]
       return new TransitionColoredDrawer(
         nextPosition,
         coordinate.direction,
@@ -84,10 +320,13 @@ class TransitionColoredDrawer extends LSystemDrawer {
         this.n + 1,
         this.rule,
         this.lineLengthType,
-        nextHistory
+        nextHistory,
+        line,
+        direction,
       )
     }
-    const children: LSystemDrawer[] = this.rule.nextCoordinates(this._condition, this._direction).map(drawerFromCoordinate)
+    line.isLeaf = isLeaf
+    const children: LSystemDrawer[] = this.rule.nextCoordinatesAndDirections(this._condition, this._direction).map(drawerFromCoordinate)
     return new Action(line, children)
   }
 
@@ -97,5 +336,24 @@ class TransitionColoredDrawer extends LSystemDrawer {
       return null
     }
     return this.rule.transition.colorOf(loop)
+  }
+}
+
+class LinkedLine extends Line {
+  public get transitions(): Transition[] {
+    return this._transitions
+  }
+  public isLeaf = true
+
+  private _transitions: Transition[]
+
+  public constructor(
+    public readonly parent: LinkedLine | null,
+    public readonly transition: Transition,
+    start: Vector,
+    end: Vector,
+  ) {
+    super(start, end)
+    this._transitions = (parent?.transitions ?? []).concat([transition])
   }
 }
