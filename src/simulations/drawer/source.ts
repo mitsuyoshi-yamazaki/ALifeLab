@@ -12,6 +12,9 @@ import { TransitionColoredModel } from "./transition_colored_model"
 let t = 0
 const canvasId = "canvas"
 const fieldSize = constants.system.fieldSize
+let branch = false
+let firstAngle = -88
+let secondAngle = -152
 const firstRule: string | undefined = constants.system.run ? undefined :
   (constants.simulation.lSystemRule.length > 0 ? constants.simulation.lSystemRule : randomExampleRule())
 let currentModel = createModel(firstRule)
@@ -77,30 +80,31 @@ export const saveCurrentState = (): void => {
 }
 
 function createModel(ruleString?: string): Model {
-  const rules: VanillaLSystemRule[] = []
-  if (ruleString != null) {
-    try {
-      rules.push(new VanillaLSystemRule(ruleString))
-    } catch (error) {
-      alert(`Invalid rule ${ruleString}`)
-      throw error
-    }
-  } else {
-    const initialCondition = VanillaLSystemRule.initialCondition
-    for (let i = 0; i < constants.simulation.numberOfSeeds; i += 1) {
-      const tries = 20
-      for (let j = 0; j < tries; j += 1) {
-        const rule = VanillaLSystemRule.trimUnreachableConditions(VanillaLSystemRule.random(), initialCondition)
-        if (rule.isCirculated(initialCondition)) {
-          rules.push(rule)
-          break
-        }
-      }
-    }
-    if (rules.length === 0) {
-      rules.push(new VanillaLSystemRule(randomExampleRule()))
-    }
-  }
+  const rules: VanillaLSystemRule[] = [nextRule()]
+  // if (ruleString != null) {
+  //   try {
+  //     rules.push(new VanillaLSystemRule(ruleString))
+  //   } catch (error) {
+  //     alert(`Invalid rule ${ruleString}`)
+  //     throw error
+  //   }
+  // } else {
+  //   const initialCondition = VanillaLSystemRule.initialCondition
+  //   for (let i = 0; i < constants.simulation.numberOfSeeds; i += 1) {
+  //     const tries = 20
+  //     for (let j = 0; j < tries; j += 1) {
+  //       const rule = VanillaLSystemRule.trimUnreachableConditions(VanillaLSystemRule.random(), initialCondition)
+  //       if (rule.isCirculated(initialCondition)) {
+  //         rules.push(rule)
+  //         break
+  //       }
+  //     }
+  //   }
+  //   if (rules.length === 0) {
+  //     rules.push(new VanillaLSystemRule(randomExampleRule()))
+  //   }
+  // }
+
   const modelOf = (colorTheme: string): Model => {
     if (colorTheme === "transition") {
       return new TransitionColoredModel(
@@ -144,4 +148,17 @@ function shouldSave(result: Result): boolean {
 
 function randomExampleRule(): string {
   return exampleRules[Math.floor(random(exampleRules.length))]
+}
+
+function nextRule(): VanillaLSystemRule {
+  const rule = `A:${firstAngle},A,${secondAngle},A`
+  if (branch) {
+    firstAngle += 1
+  } else {
+    secondAngle += 1
+  }
+  branch = !branch
+  console.log(`rule: "${rule}"`)
+
+  return new VanillaLSystemRule(rule)
 }
