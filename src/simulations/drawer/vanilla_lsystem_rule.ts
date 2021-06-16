@@ -127,7 +127,7 @@ export class VanillaLSystemRule implements LSystemRule {
       }
       const condition = keyValue[0]
       const nextConditions = keyValue[1].split(",").map((stringValue: string): LSystemCondition => {
-        const numberValue = parseInt(stringValue, 10)
+        const numberValue = parseFloat(stringValue)
         if (isNaN(numberValue) === true) {
           if (stringValue.length <= 0) {
             throw new Error(`Invalid condition: empty string ${pair}`)
@@ -175,6 +175,24 @@ export class VanillaLSystemRule implements LSystemRule {
       conditionsToCheck = additionalConditions
     }
     return new VanillaLSystemRule(trimmedRule)
+  }
+
+  public encodedWith(encoder: ((condition: LSystemCondition) => string)): string {
+    const conditionMapper = (condition: LSystemCondition): string => {
+      if (typeof condition === "string") {
+        return condition
+      } else {
+        return encoder(condition)
+      }
+    }
+
+    const result: string[] = []
+    this._map.forEach((value, key) => {
+      const nextCondition = value.map(conditionMapper).join(",")
+      result.push(`${key}:${nextCondition}`)
+    })
+
+    return result.join(";")
   }
 
   public nextConditions(currentCondition: string): LSystemCondition[] {
