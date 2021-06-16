@@ -2,7 +2,7 @@ import p5 from "p5"
 import React, { CSSProperties, ReactNode } from "react"
 import ReactDOM from "react-dom"
 import { DetailPage } from "../../react-components/lab/detail_page"
-import { main } from "./source"
+import { main, canvasWidth } from "./source"
 
 const App = () => {
   const descriptionStyle: CSSProperties = {
@@ -24,7 +24,7 @@ const App = () => {
   }
 
   return (
-    <DetailPage screenshotButtonType={{ kind: "none" }}>
+    <DetailPage bodyWidth={canvasWidth} screenshotButtonType={{ kind: "none" }}>
       <div style={descriptionStyle}>
         <ul style={{ paddingLeft: "2rem" }}>
           {descriptionList}
