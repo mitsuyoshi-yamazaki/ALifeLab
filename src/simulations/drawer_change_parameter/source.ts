@@ -8,12 +8,13 @@ import { VanillaLSystemRule } from "../drawer/vanilla_lsystem_rule"
 import { exampleRules } from "../drawer/rule_examples"
 import { Downloader } from "../drawer/downloader"
 import { TransitionColoredModel } from "../drawer/transition_colored_model"
+import { FlexibleLsystemRule } from "./flexible_lsystem_rule"
 
 let t = 0
+let n = 0
 const canvasId = "canvas"
 const fieldSize = constants.system.fieldSize
-const firstRule: string | undefined = constants.system.run ? undefined :
-  (constants.simulation.lSystemRule.length > 0 ? constants.simulation.lSystemRule : randomExampleRule())
+const rule = createRule()
 let currentModel = createModel(firstRule)
 const downloader = new Downloader()
 
@@ -74,6 +75,18 @@ export const saveCurrentState = (): void => {
     return lhs.numberOfDrawers < rhs.numberOfDrawers ? 1 : -1
   })
   downloader.save("", rules, t, result.t)
+}
+
+function createRule(): FlexibleLsystemRule | null {
+  try {
+    const rule = new VanillaLSystemRule(constants.simulation.lSystemRule)
+    const changes = FlexibleLsystemRule.decodeChanges(constants.simulation.changeParameter.changes)
+    const period = constants.simulation.changeParameter.period
+    return new FlexibleLsystemRule(rule, changes, period)
+  } catch (error) {
+    alert(`パラメータが間違っています\n${error}`)
+    return null
+  }
 }
 
 function createModel(ruleString?: string): Model {
