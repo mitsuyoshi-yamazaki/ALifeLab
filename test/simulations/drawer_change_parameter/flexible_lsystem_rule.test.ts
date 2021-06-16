@@ -4,7 +4,7 @@ import { FlexibleLsystemRule } from "../../../src/simulations/drawer_change_para
 describe("FlexibleLsystemRule", () => {
   test("Instantiate", () => {
     const createRule = (rule: string, changes: number[]): FlexibleLsystemRule => {
-      return new FlexibleLsystemRule(new VanillaLSystemRule(rule), changes)
+      return new FlexibleLsystemRule(new VanillaLSystemRule(rule), changes, 1)
     }
 
     expect(() => createRule("A:0,A", [])).toThrow()
