@@ -1,6 +1,6 @@
 {
-  "page_title": "Title",
-  "og_description": "Description",
+  "page_title": "線と角度 - 連続的なパラメータ変更",
+  "og_description": "任意のルールのパラメータを連続的に変化させた際の模様を描画します",
   "og_image": "",
   "script_path": "../dist/drawer_change_parameter.js"
 }
