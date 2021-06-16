@@ -11,7 +11,7 @@ export class Downloader {
     return (Date.now() - this._saved) < this._saveInteral
   }
 
-  public save(filename: string, rules: RuleDescription[], globalTimestamp: number, modelTimeStamp: number) {
+  public save(filename: string, rules: RuleDescription[], globalTimestamp: number, modelTimeStamp: number): void {
     if (this.isSaving === true) {
       console.log(`Attempt saving ${filename} while previous save is in progress (t: ${globalTimestamp})`)
 

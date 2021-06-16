@@ -53,6 +53,17 @@ export const constants = {
     lineLifeSpan: parameters.int("simulation.line_life_span", 10, "s.ls"),
     lineLengthType: parameters.int("simulation.line_line_length_type", 0, "s.ll"),
     symmetric: parameters.boolean("simulation.force_simmetric", false, "s.sy"),
+
+    // drawer_change_parameter.html でのみ有効
+    changeParameter: {
+      // 変化するパラメータの差分
+      // 例: 1,0,2
+      // ルール中の数値の数と一致する必要がある
+      changes: parameters.string("simulation.parameter_changes", "", "s.pc"),
+
+      // パラメータ変更が一周するのにかかるstep数
+      period: parameters.int("simulation.parameter_period", 360, "s.pp"),
+    }
   },
   draw: {
     // 1でcanvas境界に配置した境界線を描画
