@@ -6,7 +6,7 @@ export class FlexibleLsystemRule {
     public readonly changes: number[],
   ) {
     if (this.canEncode() === false) {
-      throw new Error(`Number of numbers in rule ${rule.encoded} not match to changes ${changes}`)
+      throw new Error(`Number of numbers in rule ${rule.encoded} does not match to changes ${changes}`)
     }
   }
 
@@ -16,7 +16,7 @@ export class FlexibleLsystemRule {
       throw new Error(`Empty changes: ${changes}`)
     }
     if (result.some(n => isNaN(n))) {
-      throw new Error(`Can't parse changes: ${changes}`)
+      throw new Error(`Can't parse changes to number: ${changes}`)
     }
     return result
   }

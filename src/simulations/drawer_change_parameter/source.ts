@@ -2,11 +2,16 @@ import p5 from "p5"
 import { constants } from "../drawer/constants"
 import { Vector } from "../../classes/physics"
 import { ScreenshotDownloader, JSONDownloader } from "../../classes/downloader"
-import { ImmortalModel, Model, Result, RuleDescription } from "../drawer/model"
+import { ImmortalModel, Model } from "../drawer/model"
 import { defaultCanvasParentId } from "../../react-components/common/default_canvas_parent_id"
 import { VanillaLSystemRule } from "../drawer/vanilla_lsystem_rule"
 import { TransitionColoredModel } from "../drawer/transition_colored_model"
 import { FlexibleLsystemRule } from "./flexible_lsystem_rule"
+
+const parameterDownloader = new JSONDownloader()
+const screenshotDownloader = new ScreenshotDownloader()
+let saved = Date.now()
+const saveInterval = 300 // ms
 
 let t = 0
 let n = 0
@@ -14,7 +19,6 @@ const canvasId = "canvas"
 const fieldSize = constants.system.fieldSize
 const flexibleRule = createRule()
 let currentModel = createModel()
-const screenshotDownloader = new ScreenshotDownloader()
 
 export const canvasWidth = fieldSize
 
@@ -30,6 +34,9 @@ export const main = (p: p5): void => {
   p.draw = () => {
     if (currentModel == null) {
       return 
+    }
+    if (Date.now() - saved < saveInterval) {
+      return
     }
 
     if (["depth", "transition"].includes(constants.draw.colorTheme)) {
@@ -56,16 +63,19 @@ export const main = (p: p5): void => {
 }
 
 function saveParameters(rule: FlexibleLsystemRule): void {
-  const downloader = new JSONDownloader()
+  saved = Date.now()
+
   const json = {
     t: t,
     rule: rule.rule.encoded,
     url_parameters: document.location.search,
   }
-  downloader.saveJson(json, "", 0)
+  parameterDownloader.saveJson(json, "", 0)
 }
 
 function saveScreenshot(): void {
+  saved = Date.now()
+
   screenshotDownloader.saveScreenshot(n)
 }
 
