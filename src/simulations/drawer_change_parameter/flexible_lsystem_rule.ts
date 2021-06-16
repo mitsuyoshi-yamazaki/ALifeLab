@@ -4,7 +4,6 @@ export class FlexibleLsystemRule {
   public constructor(
     public readonly rule: VanillaLSystemRule,
     public readonly changes: number[],
-    public readonly period: number,
   ) {
     if (this.canEncode() === false) {
       throw new Error(`Number of numbers in rule ${rule.encoded} not match to changes ${changes}`)
