@@ -1,8 +1,9 @@
 import { Vector } from "../../classes/physics"
 import { Color } from "../../classes/color"
+import { random } from "../../classes/utilities"
 import { Action } from "./drawer"
 import { Line } from "./line"
-import { LSystemCoordinate } from "./lsystem_rule"
+import { LSystemRule, LSystemCoordinate } from "./lsystem_rule"
 import { Model } from "./model"
 import { LSystemDrawer } from "./lsystem_drawer"
 import { VanillaLSystemRule } from "./vanilla_lsystem_rule"
@@ -41,6 +42,42 @@ export class TransitionColoredModel extends Model {
       lineLengthType,
       "",
     )
+  }
+
+  protected setupFirstDrawers(rules: VanillaLSystemRule[], fixedStartPoint: boolean, lineLengthType: number, colorTheme: string): LSystemDrawer[] {
+    if (rules.length > 1) {
+      return super.setupFirstDrawers(rules, fixedStartPoint, lineLengthType, colorTheme)
+    }
+
+    const rule = rules[0]
+    const initialConditions = rule.possibleConditions
+    const center = this.fieldSize.div(2)
+    const radius = Math.min(this.fieldSize.x, this.fieldSize.y) / 4
+    const drawers: LSystemDrawer[] = []
+
+    const position = (index: number): Vector => {
+      if (initialConditions.length === 1) {
+        return center
+      }
+      const x = center.x + Math.cos((index * Math.PI * 2) / initialConditions.length) * radius
+      const y = center.y + Math.sin((index * Math.PI * 2) / initialConditions.length) * radius
+      return new Vector(x, y)
+    }
+
+    const randomDirection = (): number => {
+      if (fixedStartPoint) {
+        return 270
+      }
+      return random(360) - 180
+    }
+    const direction = randomDirection()
+
+    for (let i = 0; i < initialConditions.length; i += 1) {
+      const initialCondition = initialConditions[i]
+      drawers.push(this.newDrawer(position(i), direction, initialCondition, rule, lineLengthType, ""))
+    }
+
+    return drawers
   }
 }
 
