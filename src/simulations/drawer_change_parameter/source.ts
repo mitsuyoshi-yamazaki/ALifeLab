@@ -15,10 +15,11 @@ const saveInterval = 300 // ms
 
 let t = 0
 let n = 0
+let nn = 0
 const canvasId = "canvas"
 const fieldSize = constants.system.fieldSize
-const flexibleRule = createRule()
-let currentModel = createModel()
+// const flexibleRule = createRule()
+const currentModel = createModel()
 
 export const canvasWidth = fieldSize
 
@@ -45,17 +46,25 @@ export const main = (p: p5): void => {
       p.background(0x0, 0xFF)
     }
 
-    if (t % constants.simulation.executionInterval === 0) {
-      currentModel.execute()
-    }
     currentModel.draw(p, constants.draw.showsQuadtree)
 
+    if (t % constants.simulation.executionInterval === 0) {
+
+      // for (let i = 0; i < nn; i += 1) {
+      currentModel.execute()
+      saveScreenshot(t)
+
+      // }
+
+      nn += 1
+    }
+
     if (currentModel.result != null) {
-      console.log(`${n}: ${currentModel.lSystemRules[0].encoded}`)
-      if (constants.system.autoDownload) {
-        saveScreenshot()
-      }
-      currentModel = createModel()
+      // console.log(`${n}: ${currentModel.lSystemRules[0].encoded}`)
+      // if (constants.system.autoDownload) {
+      //   saveScreenshot()
+      // }
+      // currentModel = createModel()
     }
 
     t += 1
@@ -73,10 +82,10 @@ function saveParameters(rule: FlexibleLsystemRule): void {
   parameterDownloader.saveJson(json, "", 0)
 }
 
-function saveScreenshot(): void {
+function saveScreenshot(nnn: number): void {
   saved = Date.now()
 
-  screenshotDownloader.saveScreenshot(n)
+  screenshotDownloader.saveScreenshot(nnn)
 }
 
 function createRule(): FlexibleLsystemRule | null {
@@ -95,16 +104,21 @@ function createRule(): FlexibleLsystemRule | null {
 }
 
 function createModel(): Model | null {
-  if (flexibleRule == null) {
-    return null
-  }
+  // if (flexibleRule == null) {
+  //   return null
+  // }
   if (n >= constants.simulation.changeParameter.period) {
-    alert("FINISHED!")
+    let intervalId: number | undefined = undefined
+    intervalId = setInterval(() => {
+      alert("FINISHED!"), 300
+      clearInterval(intervalId)
+    })
     return null
   }
 
   const fixedStartPoint = true
-  const rules = [flexibleRule.ruleOf(n)]
+  const rule = new VanillaLSystemRule(constants.simulation.lSystemRule)
+  const rules = [rule]//[flexibleRule.ruleOf(n)]
   n += 1
 
   const modelOf = (colorTheme: string): Model => {
@@ -136,7 +150,7 @@ function createModel(): Model | null {
   model.showsBorderLine = constants.draw.showsBorderLine
   model.lineCollisionEnabled = constants.simulation.lineCollisionEnabled
   model.quadtreeEnabled = constants.system.quadtreeEnabled
-  model.concurrentExecutionNumber = constants.simulation.concurrentExecutionNumber
+  model.concurrentExecutionNumber = 1//constants.simulation.concurrentExecutionNumber
 
   return model
 }

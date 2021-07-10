@@ -135,7 +135,7 @@ export class Model {
     const padding = 100
     const position = (): Vector => {
       if (fixedStartPoint && rules.length === 1) {
-        return this.fieldSize.div(2)
+        return this.fieldSize.div(2).add(new Vector(0, 150))
       }
       return new Vector(random(this.fieldSize.x - padding, padding), random(this.fieldSize.y - padding, padding))
     }
@@ -173,6 +173,15 @@ export class Model {
 
       this.addLine(line, this.nodeContains(line))
     })
+
+    const y = 150
+    const lines: Line[] = [
+      new Line(new Vector(400, 100 + y), new Vector(500, 100 + y)),
+      new Line(new Vector(500, 100 + y), new Vector(500, 200 + y)),
+      new Line(new Vector(500, 200 + y), new Vector(400, 200 + y)),
+      new Line(new Vector(400, 200 + y), new Vector(400, 100 + y)),
+    ]
+    lines.forEach(l => this.addLine(l, this.nodeContains(l)))
   }
 
   private setupObstacle() {
