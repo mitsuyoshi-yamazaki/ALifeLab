@@ -17,7 +17,7 @@ let t = 0
 let n = 0
 const canvasId = "canvas"
 const fieldSize = constants.system.fieldSize
-const flexibleRule = createRule()
+const flexibleRules = createRules()
 let currentModel = createModel()
 
 export const canvasWidth = fieldSize
@@ -62,12 +62,12 @@ export const main = (p: p5): void => {
   }
 }
 
-function saveParameters(rule: FlexibleLsystemRule): void {
+function saveParameters(rules: FlexibleLsystemRule[]): void {
   saved = Date.now()
 
   const json = {
     t: t,
-    rule: rule.rule.encoded,
+    rules: rules.map(r => r.rule.encoded),
     url_parameters: document.location.search,
   }
   parameterDownloader.saveJson(json, "", 0)
@@ -79,23 +79,31 @@ function saveScreenshot(): void {
   screenshotDownloader.saveScreenshot(n)
 }
 
-function createRule(): FlexibleLsystemRule | null {
+function createRules(): FlexibleLsystemRule[] {
   try {
-    const rule = new VanillaLSystemRule(constants.simulation.lSystemRule)
-    const changes = FlexibleLsystemRule.decodeChanges(constants.simulation.changeParameter.changes)
-    const flexibleRule = new FlexibleLsystemRule(rule, changes)
-    if (constants.system.autoDownload) {
-      saveParameters(flexibleRule)
-    }
-    return flexibleRule
+    const ruleComponents = constants.simulation.changeParameter.changes.split(";;;")
+    const rules = ruleComponents.map(component => {
+      const [rawRule, rawChanges] = component.split(";;")
+      if (rawRule == null || rawChanges == null) {
+        throw new Error("simulation.parameter_changes の形式が間違っています。<rule1>;;<changes1>;;;<rule2>;;<changes2>#...")
+      }
+
+      const rule = new VanillaLSystemRule(rawRule)
+      const changes = FlexibleLsystemRule.decodeChanges(rawChanges)
+      return new FlexibleLsystemRule(rule, changes)
+    })
+
+    saveParameters(rules)
+    return rules
+    
   } catch (error) {
     alert(`パラメータが間違っています\n${error}`)
-    return null
+    return []
   }
 }
 
 function createModel(): Model | null {
-  if (flexibleRule == null) {
+  if (flexibleRules.length <= 0) {
     return null
   }
   if (n >= constants.simulation.changeParameter.period) {
@@ -104,14 +112,16 @@ function createModel(): Model | null {
   }
 
   const fixedStartPoint = true
-  const rules = [flexibleRule.ruleOf(n)]
+  const rules = flexibleRules.map(flexibleRule => flexibleRule.ruleOf(n))
   n += 1
+
+  const maxLineCount = constants.simulation.maxLineCount * rules.length
 
   const modelOf = (colorTheme: string): Model => {
     if (colorTheme === "transition") {
       return new TransitionColoredModel(
         new Vector(fieldSize, fieldSize),
-        constants.simulation.maxLineCount,
+        maxLineCount,
         rules,
         constants.simulation.mutationRate,
         constants.simulation.lineLengthType,
@@ -122,7 +132,7 @@ function createModel(): Model | null {
     } else {
       return new ImmortalModel(
         new Vector(fieldSize, fieldSize),
-        constants.simulation.maxLineCount,
+        maxLineCount,
         rules,
         constants.simulation.mutationRate,
         constants.simulation.lineLengthType,

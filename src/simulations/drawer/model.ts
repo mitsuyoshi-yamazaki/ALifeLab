@@ -133,27 +133,34 @@ export class Model {
 
   private setupFirstDrawers(rules: LSystemRule[], fixedStartPoint: boolean, lineLengthType: number, colorTheme: string): LSystemDrawer[] {
     const padding = 100
-    const position = (): Vector => {
-      if (fixedStartPoint && rules.length === 1) {
-        return this.fieldSize.div(2)
+    const position = (index: number): Vector => {
+      if (fixedStartPoint && rules.length > 0) {
+        const contentWitdh = this.fieldSize.x * 0.6
+        const x = (contentWitdh / rules.length) * (index + 0.5) + (this.fieldSize.x - contentWitdh) / 2
+        return new Vector(x, this.fieldSize.y / 2)
       }
       return new Vector(random(this.fieldSize.x - padding, padding), random(this.fieldSize.y - padding, padding))
     }
     const direction = (): number => {
-      if (fixedStartPoint && rules.length === 1) {
+      if (fixedStartPoint && rules.length > 0) {
         return 270
       }
       return random(360) - 180
     }
 
-    return rules.map(rule => this.newDrawer(
-      position(),
-      direction(),
-      defaultInitialCondition,
-      rule,
-      lineLengthType,
-      colorTheme,
-    ))
+    const drawers: LSystemDrawer[] = []
+    for (let i = 0; i < rules.length; i += 1) {
+      const rule = rules[i]
+      drawers.push(this.newDrawer(
+        position(i),
+        direction(),
+        defaultInitialCondition,
+        rule,
+        lineLengthType,
+        colorTheme,
+      ))
+    }
+    return drawers
   }
 
   private setupBorderLines() {  // TODO: Line.rect()に置き換え
