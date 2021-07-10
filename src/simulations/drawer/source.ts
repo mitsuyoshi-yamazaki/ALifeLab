@@ -33,11 +33,11 @@ export const main = (p: p5): void => {
       return
     }
 
-    if (["depth", "transition"].includes(constants.draw.colorTheme)) {
-      p.background(0xFF, 0xFF)
-    } else {
+    // if (["depth", "transition"].includes(constants.draw.colorTheme)) {
+    //   p.background(0xFF, 0xFF)
+    // } else {
       p.background(0x0, 0xFF)
-    }
+    // }
 
     if (t % constants.simulation.executionInterval === 0) {
       currentModel.execute()
@@ -80,7 +80,10 @@ function createModel(ruleString?: string): Model {
   const rules: VanillaLSystemRule[] = []
   if (ruleString != null) {
     try {
-      rules.push(new VanillaLSystemRule(ruleString))
+      const rule = new VanillaLSystemRule(ruleString)
+      rules.push(rule)
+
+      rule.transition.loops.forEach(loop => console.log(`${loop}, ${rule.transition.colorOf(loop)}`))
     } catch (error) {
       alert(`Invalid rule ${ruleString}`)
       throw error

@@ -5,14 +5,17 @@ import { LSystemRule, LSystemCondition, LSystemCoordinate } from "./lsystem_rule
 export type LSystemStateLoop = string
 
 const niceColors: Color[] = [
-  new Color(51, 127, 214),
-  new Color(182, 11, 145),
-  new Color(27, 45, 108),
-  new Color(128, 57, 241),
-  new Color(39, 86, 26),
-  new Color(217, 76, 62),
-  new Color(92, 115, 151),
-  new Color(172, 84, 60),
+  new Color(180, 213, 254),
+  new Color(252, 150, 200),
+
+  // new Color(51, 127, 214),
+  // new Color(182, 11, 145),
+  // new Color(27, 45, 108),
+  // new Color(128, 57, 241),
+  // new Color(39, 86, 26),
+  // new Color(217, 76, 62),
+  // new Color(92, 115, 151),
+  // new Color(172, 84, 60),
 ]
 
 export class LSystemStateTransition {

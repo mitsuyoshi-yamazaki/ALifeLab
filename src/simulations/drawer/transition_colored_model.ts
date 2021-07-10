@@ -71,7 +71,7 @@ class TransitionColoredDrawer extends LSystemDrawer {
     const radian = this._direction * (Math.PI / 180)
     const nextPosition = this._position.moved(radian, length)
     const line = new Line(this._position, nextPosition)
-    line.color = this.lineColor() ?? Color.white(0x0)
+    line.color = this.lineColor() ?? Color.white(0xFF)
 
     const sliceIndex = Math.max((this.conditionHistory.length + 1) - this.rule.transition.maxLoopLength * this._loopCount, 0)
     const nextHistory = `${this.conditionHistory}${this._condition}`.slice(sliceIndex)
