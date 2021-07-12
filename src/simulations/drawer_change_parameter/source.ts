@@ -16,15 +16,15 @@ const saveInterval = 300 // ms
 let t = 0
 let n = 0
 const canvasId = "canvas"
-const fieldSize = constants.system.fieldSize
+const fieldSize = new Vector(constants.system.fieldSize, constants.system.fieldSize * 9 / 16)
 const flexibleRule = createRule()
 let currentModel = createModel()
 
-export const canvasWidth = fieldSize
+export const canvasWidth = fieldSize.x
 
 export const main = (p: p5): void => {
   p.setup = () => {
-    const canvas = p.createCanvas(fieldSize, fieldSize)
+    const canvas = p.createCanvas(fieldSize.x, fieldSize.y)
     canvas.id(canvasId)
     canvas.parent(defaultCanvasParentId)
 
@@ -49,6 +49,35 @@ export const main = (p: p5): void => {
       currentModel.execute()
     }
     currentModel.draw(p, constants.draw.showsQuadtree)
+
+    const rule = currentModel.lSystemRules[0]
+    if (rule != null) {
+      const textSize = 16
+      const margin = 32
+
+      const floored = rule.encoded.split(";").map(transition => {
+        const transitionComponents = transition.split(":")
+        const components = transitionComponents[1].split(",").map(c => {
+          const i = parseFloat(c)
+          if (isNaN(i)) {
+            return c
+          }
+          return i > 0 ? `${Math.floor(i)}` : `${Math.ceil(i)}`
+        })
+        return `${transitionComponents[0]}:${components.join(",")}`
+      }).join(";")
+
+      const text = floored
+        .replace(/,/g, "")
+        .replace(/:/g, "→")
+        .replace(/;/g, ", ")
+
+      p.fill(0xFF, 0xC0)
+      p.textStyle(p.NORMAL)
+      p.textAlign(p.RIGHT)
+      p.textSize(textSize)
+      p.text(text, fieldSize.x - margin, margin)
+    }
 
     if (currentModel.result != null) {
       console.log(`${n}: ${currentModel.lSystemRules[0].encoded}`)
@@ -110,7 +139,7 @@ function createModel(): Model | null {
   const modelOf = (colorTheme: string): Model => {
     if (colorTheme === "transition") {
       return new TransitionColoredModel(
-        new Vector(fieldSize, fieldSize),
+        fieldSize,
         constants.simulation.maxLineCount,
         rules,
         constants.simulation.mutationRate,
@@ -121,7 +150,7 @@ function createModel(): Model | null {
       )
     } else {
       return new ImmortalModel(
-        new Vector(fieldSize, fieldSize),
+        fieldSize,
         constants.simulation.maxLineCount,
         rules,
         constants.simulation.mutationRate,
