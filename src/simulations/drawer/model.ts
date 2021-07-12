@@ -135,7 +135,7 @@ export class Model {
     const padding = 100
     const position = (): Vector => {
       if (fixedStartPoint && rules.length === 1) {
-        return this.fieldSize.div(2)
+        return new Vector(this.fieldSize.x / 2, (this.fieldSize.y / 2) + 40)
       }
       return new Vector(random(this.fieldSize.x - padding, padding), random(this.fieldSize.y - padding, padding))
     }
