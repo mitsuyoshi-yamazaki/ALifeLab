@@ -78,6 +78,7 @@ export class LSystemDrawer extends Drawer {
     
     switch (this.colorTheme) {
     case "grayscale":
+      line.color = Color.white(0x00, 0x80)
       break
 
     case "ascii":
