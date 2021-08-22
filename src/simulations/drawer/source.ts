@@ -36,7 +36,7 @@ export const main = (p: p5): void => {
     if (["depth", "transition"].includes(constants.draw.colorTheme)) {
       p.background(0xFF, 0xFF)
     } else {
-      p.background(0x0, 0xFF)
+      p.background(0xFF, 0xFF)
     }
 
     if (t % constants.simulation.executionInterval === 0) {
