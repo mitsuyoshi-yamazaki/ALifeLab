@@ -70,7 +70,7 @@ export class LSystemDrawer extends Drawer {
     } else if (this.lineLengthType === 2) {
       length = 10 * this.n / (this.n + Math.pow(this.n, 0.5))
     } else {
-      length = 40 / Math.pow(this.n, 0.5)
+      length = 400 / Math.pow(this.n, 0.5)
     }
     const radian = this._direction * (Math.PI / 180)
     const nextPosition = this._position.moved(radian, length)
