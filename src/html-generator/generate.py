@@ -28,7 +28,7 @@ def simulation_page_names():
   return list(filter(lambda x: x not in excluded_paths, [path.split('/')[-2] for path in glob(path)]))
 
 def read_arguments(filepath):
-  log('read: {}'.format(filepath))
+  #log('read: {}'.format(filepath))
   import json
   with open(filepath, 'r') as file:
     return json.load(file)
@@ -47,13 +47,22 @@ def write_to(filepath, content):
   with open(filepath, 'w', encoding='utf-8') as file:
     file.write(content)
 
+def generate_script_tags(arguments):
+  if "additional_script_paths" in arguments:
+    additional_script_paths = arguments["additional_script_paths"]
+    del arguments["additional_script_paths"]
+    if (additional_script_paths is not None) and (len(additional_script_paths)) > 0:
+      return "\n".join(['<script src="{0}"></script>'.format(path) for path in additional_script_paths])
+  return ""
+
 def generate_html(page_name, template, source_path, output_path, og_type, og_url):
   try:
     html_filepath = output_path + page_name + '.html'
-    log('\ngenerate: {}'.format(html_filepath))
+    log('generate: {}'.format(html_filepath))
     arguments = read_arguments(source_path + arguments_filename)
     arguments["og_type"] = og_type
     arguments["og_url"] = og_url
+    arguments["additional_scripts"] = generate_script_tags(arguments)
     og_image = arguments["og_image"]
     if len(og_image) > 0:
       arguments["og_image"] = og_url_root + og_image

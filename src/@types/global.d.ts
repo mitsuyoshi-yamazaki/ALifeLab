@@ -16,4 +16,4 @@ declare interface HTMLElement {
 
 declare const localConfigs: (() => {
   postSnsWebhookUrl: string
-}) | null
+})

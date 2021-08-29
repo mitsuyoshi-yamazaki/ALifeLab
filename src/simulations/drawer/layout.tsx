@@ -29,7 +29,7 @@ const App = () => {
     return <a href={url} target="_blank" rel="noopener noreferrer" style={{ color: "#0366d6" }}>{filename}</a>
   }
   const uploadSection = ((): ReactNode => {
-    if (localConfigs == null) {
+    if (typeof localConfigs === "undefined") {
       return (<div></div>)
     }
     const configs = localConfigs()
