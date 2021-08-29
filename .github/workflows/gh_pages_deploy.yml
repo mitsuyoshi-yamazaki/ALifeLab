@@ -12,9 +12,8 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       # shellで $cd $GITHUB_WORKSPACE を行いmerge→github.tokenを用いてpushすればdevmasx/merge-branch@v1.3.1を使用せずに書けると思われる
       - uses: actions/checkout@v2
-      - name: Build
-        run: yarn install
-        run: yarn build
+      - run: yarn install
+      - run: yarn build
       - name: Commit
         uses: stefanzweifel/git-auto-commit-action@v4.2.0
         with:
