@@ -2,7 +2,7 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [ main ]
+    branches: [ ci-build ] # FixMe: テスト用ブランチ: mainに修正する
   workflow_dispatch:
 
 jobs:
@@ -12,10 +12,17 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       # shellで $cd $GITHUB_WORKSPACE を行いmerge→github.tokenを用いてpushすればdevmasx/merge-branch@v1.3.1を使用せずに書けると思われる
       - uses: actions/checkout@v2
+      - name: Build
+        run: yarn install
+        run: yarn build
+      - name: Commit
+        uses: stefanzweifel/git-auto-commit-action@v4.2.0
+        with:
+          commit_message: yarn build
       - name: Deploy
         uses: devmasx/merge-branch@v1.3.1
         with:
           type: now
-          from_branch: main # ここでfrom_branchを指定するならactions/checkout@v2要らないのでは？？
-          target_branch: gh-pages
+          from_branch: ci-build # ここでfrom_branchを指定するならactions/checkout@v2要らないのでは？？ # FixMe: テスト用ブランチ: mainに修正する
+          target_branch: gh-pages-test # FixMe: テスト用ブランチ: gh-pagesに修正する
           github_token: ${{ github.token }}
