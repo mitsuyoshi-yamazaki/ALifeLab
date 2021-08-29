@@ -19,6 +19,9 @@ jobs:
           from_branch: ci-build # ここでfrom_branchを指定するならactions/checkout@v2要らないのでは？？ # FixMe: テスト用ブランチ: mainに修正する
           target_branch: gh-pages-test # FixMe: テスト用ブランチ: gh-pagesに修正する
           github_token: ${{ github.token }}
+      - uses: actions/checkout@v2
+        with:
+          ref: gh-pages-test
       - run: yarn install
       - run: yarn build
       - name: Commit
