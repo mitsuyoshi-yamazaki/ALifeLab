@@ -31,6 +31,7 @@ const App = () => {
 
   return (
     <DetailPage bodyWidth={canvasWidth} screenshotButtonType={screenshotButton}>
+      <div>CI Build</div>
       <div style={descriptionStyle}>
         <h2>{document.title}</h2>
         <hr style={borderStyle}></hr>
