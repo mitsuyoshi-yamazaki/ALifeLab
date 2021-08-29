@@ -21,7 +21,7 @@ export const canvasWidth = fieldSize
 
 export function upload(url: string): void {
   const body = {
-    text: "Zapier webhookのテスト"
+    text: `Zapier webhookのテスト ${Date.now()}`
   }
 
   const request = new Request(url, { method: "POST", body: JSON.stringify(body) })
