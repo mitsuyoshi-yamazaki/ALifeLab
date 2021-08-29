@@ -3,7 +3,7 @@ import { Button } from "@material-ui/core"
 import React, { CSSProperties, ReactNode } from "react"
 import ReactDOM from "react-dom"
 import { DetailPage, ScreenshotButtonCustom } from "../../react-components/lab/detail_page"
-import { main, saveCurrentState, canvasWidth } from "./source"
+import { main, saveCurrentState, canvasWidth, upload } from "./source"
 
 const App = () => {
   const descriptionStyle: CSSProperties = {
@@ -26,8 +26,19 @@ const App = () => {
   }
   const linkOf = (filename: string): ReactNode => {
     const url = `https://github.com/mitsuyoshi-yamazaki/ALifeLab/blob/main/src/simulations/drawer/${filename}`
-    return <a href={url} target="_blank" rel="noopener noreferrer" style={{color: "#0366d6"}}>{filename}</a>
+    return <a href={url} target="_blank" rel="noopener noreferrer" style={{ color: "#0366d6" }}>{filename}</a>
   }
+  const uploadSection = ((): ReactNode => {
+    if (typeof localConfigs === "undefined") {
+      return (<div></div>)
+    }
+    const configs = localConfigs()
+    return (
+      <div>
+        <Button variant="contained" color="primary" onClick={() => upload(configs.postSnsWebhookUrl)}>Upload</Button>
+      </div>
+    )
+  })()
 
   return (
     <DetailPage bodyWidth={canvasWidth} screenshotButtonType={screenshotButton}>
@@ -45,6 +56,7 @@ const App = () => {
           <li>設定可能なURLパラメータ一覧: {linkOf("constants.ts")}</li>
         </ul>
       </div>
+      {uploadSection}
     </DetailPage>
   )
 }

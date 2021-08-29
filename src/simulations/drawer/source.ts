@@ -19,6 +19,15 @@ const downloader = new Downloader()
 
 export const canvasWidth = fieldSize
 
+export function upload(url: string): void {
+  const body = {
+    text: "Zapier webhookのテスト"
+  }
+
+  const request = new Request(url, { method: "POST", body: JSON.stringify(body) })
+  fetch(request)
+}
+
 export const main = (p: p5): void => {
   p.setup = () => {
     const canvas = p.createCanvas(fieldSize, fieldSize)

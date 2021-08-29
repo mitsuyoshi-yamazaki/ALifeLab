@@ -2,5 +2,8 @@
   "page_title": "幾何学図形ジェネレータ",
   "og_description": "L-Systemで幾何学図形を生成します",
   "og_image": "/resources/lsystem_artboard.jpg",
-  "script_path": "../dist/drawer.js"
+  "script_path": "../dist/drawer.js",
+  "additional_script_paths": [
+    "../src/local_configs.js"
+  ]
 }
