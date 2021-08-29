@@ -13,3 +13,7 @@ declare interface HTMLElement {
   webkitRequestFullscreen(): void
   msRequestFullscreen(): void
 }
+
+declare const localConfigs: (() => {
+  postSnsWebhookUrl: string
+}) | null
