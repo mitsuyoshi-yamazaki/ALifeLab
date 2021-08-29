@@ -2,7 +2,7 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [ ci-build ] # FixMe: テスト用ブランチ: mainに修正する
+    branches: [ main ]
   workflow_dispatch:
 
 jobs:
@@ -16,16 +16,16 @@ jobs:
         uses: devmasx/merge-branch@v1.3.1
         with:
           type: now
-          from_branch: ci-build # ここでfrom_branchを指定するならactions/checkout@v2要らないのでは？？ # FixMe: テスト用ブランチ: mainに修正する
-          target_branch: gh-pages-test # FixMe: テスト用ブランチ: gh-pagesに修正する
+          from_branch: main
+          target_branch: gh-pages
           github_token: ${{ github.token }}
       - uses: actions/checkout@v2
         with:
-          ref: gh-pages-test
+          ref: gh-pages
       - run: yarn install
       - run: yarn build
       - name: Commit
         uses: stefanzweifel/git-auto-commit-action@v4.2.0
         with:
           commit_message: yarn build
-          branch: gh-pages-test
+          branch: gh-pages
