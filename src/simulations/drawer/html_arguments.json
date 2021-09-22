@@ -4,6 +4,6 @@
   "og_image": "/resources/lsystem_artboard.jpg",
   "script_path": "../dist/drawer.js",
   "additional_script_paths": [
-    "../src/local_configs.js"
+    "../local_configs.js"
   ]
 }

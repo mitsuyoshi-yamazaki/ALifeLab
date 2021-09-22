@@ -2,4 +2,4 @@ node_modules/
 tmp/
 dist/*
 
-src/local_configs.js
+local_configs.js

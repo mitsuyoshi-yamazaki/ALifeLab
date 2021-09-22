@@ -108,6 +108,47 @@ export class VanillaLSystemRule implements LSystemRule {
     return new VanillaLSystemRule(map)
   }
 
+  public triangle(condition: string): VanillaLSystemRule | null {
+    const ruleMap = new Map(this._map)
+    const transitions = ruleMap.get(condition)
+    if (transitions == null) {
+      return null
+    }
+
+    const angle = transitions.reduce((result: number, current: LSystemCondition): number => {
+      if (typeof current === "string") {
+        return result
+      }
+      return result + current
+    }, 0 as number) as number
+    transitions.push(120 - angle)
+    transitions.push(condition)
+
+    return new VanillaLSystemRule(ruleMap)
+  }
+
+  public static triangleRule(): VanillaLSystemRule {
+    const initialCondition = VanillaLSystemRule.initialCondition
+    const randomRule = VanillaLSystemRule.trimUnreachableConditions(VanillaLSystemRule.random(), initialCondition)
+    const ruleMap = new Map(randomRule._map)
+    const transitionA = ruleMap.get(initialCondition)
+    if (transitionA == null) {
+      console.log(`No initial condition ${initialCondition} in ${randomRule.encoded}`)
+      return randomRule
+    }
+
+    const angle = transitionA.reduce((result: number, current: LSystemCondition): number => {
+      if (typeof current === "string") {
+        return result
+      }
+      return result + current
+    }, 0 as number) as number
+    transitionA.push(120 - angle)
+    transitionA.push(initialCondition)
+
+    return new VanillaLSystemRule(ruleMap)
+  }
+
   public static encode(map: Map<string, LSystemCondition[]>): string {
     const result: string[] = []
     map.forEach((value, key) => {
