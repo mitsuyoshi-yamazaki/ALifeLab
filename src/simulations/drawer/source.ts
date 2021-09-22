@@ -12,10 +12,14 @@ import { TransitionColoredModel } from "./transition_colored_model"
 let t = 0
 const canvasId = "canvas"
 const fieldSize = constants.system.fieldSize
-const firstRule: string | undefined = constants.system.run ? undefined :
-  (constants.simulation.lSystemRule.length > 0 ? constants.simulation.lSystemRule : randomExampleRule())
-let currentModel = createModel(firstRule)
+const firstRule: string = (constants.simulation.lSystemRule.length > 0 ? constants.simulation.lSystemRule : randomExampleRule())
+
+const conditions = ((): string[] => {
+  return (new VanillaLSystemRule(firstRule)).possibleConditions
+})()
+let currentModel = createModel(firstRule, null)
 const downloader = new Downloader()
+let finished = false as boolean
 
 export const canvasWidth = fieldSize
 
@@ -48,12 +52,12 @@ export const main = (p: p5): void => {
       p.background(0x0, 0xFF)
     }
 
-    if (t % constants.simulation.executionInterval === 0) {
+    if ((t % constants.simulation.executionInterval === 0) && currentModel.result == null) {
       currentModel.execute()
     }
     currentModel.draw(p, constants.draw.showsQuadtree)
 
-    if (constants.system.run && currentModel.result != null) {
+    if (constants.system.run && currentModel.result != null && finished !== true) {
       const result = currentModel.result
       const status = `${result.status.numberOfLines} lines, ${result.status.numberOfNodes} nodes`
       const rules = result.rules.sort((lhs: RuleDescription, rhs: RuleDescription) => {
@@ -67,7 +71,14 @@ export const main = (p: p5): void => {
       if (constants.system.autoDownload && shouldSave(result)) {
         downloader.save("", rules, t, result.t)
       }
-      currentModel = createModel()
+      const nextCondition = conditions.shift()
+      if (nextCondition != null) {
+        console.log(`next condition: ${nextCondition}`)
+        currentModel = createModel(firstRule, nextCondition)
+      } else {
+        finished = true
+        alert("finished!")
+      }
     }
 
     t += 1
@@ -85,11 +96,18 @@ export const saveCurrentState = (): void => {
   downloader.save("", rules, t, result.t)
 }
 
-function createModel(ruleString?: string): Model {
+function createModel(ruleString: string, condition: string | null): Model {
   const rules: VanillaLSystemRule[] = []
   if (ruleString != null) {
     try {
-      rules.push(new VanillaLSystemRule(ruleString))
+      if (condition != null) {
+        const rule = (new VanillaLSystemRule(ruleString)).triangle(condition)
+        if (rule != null) {
+          rules.push(rule)
+        }
+      } else {
+        rules.push(new VanillaLSystemRule(ruleString))
+      }
     } catch (error) {
       alert(`Invalid rule ${ruleString}`)
       throw error
@@ -99,7 +117,9 @@ function createModel(ruleString?: string): Model {
     for (let i = 0; i < constants.simulation.numberOfSeeds; i += 1) {
       const tries = 20
       for (let j = 0; j < tries; j += 1) {
-        const rule = VanillaLSystemRule.trimUnreachableConditions(VanillaLSystemRule.random(), initialCondition)
+        // const rule = VanillaLSystemRule.trimUnreachableConditions(VanillaLSystemRule.random(), initialCondition)
+        const rule = VanillaLSystemRule.triangleRule()
+        console.log(`triangle rule: ${rule.encoded}`)
         if (rule.isCirculated(initialCondition)) {
           rules.push(rule)
           break
