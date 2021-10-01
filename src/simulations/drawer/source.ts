@@ -9,6 +9,8 @@ import { exampleRules } from "./rule_examples"
 import { Downloader } from "./downloader"
 import { TransitionColoredModel } from "./transition_colored_model"
 
+let no = 30
+
 let t = 0
 const canvasId = "canvas"
 const fieldSize = constants.system.fieldSize
@@ -34,17 +36,18 @@ export const main = (p: p5): void => {
     }
 
     if (["depth", "transition"].includes(constants.draw.colorTheme)) {
-      p.background(0xFF, 0xFF)
+      // p.background(0x0, 0xFF)
     } else {
-      p.background(0xFF, 0xFF)
+      // p.background(0x0, 0xFF)
     }
+    p.clear()
 
     if (t % constants.simulation.executionInterval === 0) {
       currentModel.execute()
     }
     currentModel.draw(p, constants.draw.showsQuadtree)
 
-    if (constants.system.run && currentModel.result != null) {
+    if (constants.system.run && currentModel.result != null && no >= 0) {
       const result = currentModel.result
       const status = `${result.status.numberOfLines} lines, ${result.status.numberOfNodes} nodes`
       const rules = result.rules.sort((lhs: RuleDescription, rhs: RuleDescription) => {
@@ -59,6 +62,7 @@ export const main = (p: p5): void => {
         downloader.save("", rules, t, result.t)
       }
       currentModel = createModel()
+      no -= 1
     }
 
     t += 1

@@ -5,6 +5,7 @@ import { LSystemRule, defaultInitialCondition } from "./lsystem_rule"
 import { LSystemDrawer } from "./lsystem_drawer"
 import { Line, isCollided } from "./line"
 import { QuadtreeNode } from "./quadtree"
+import { VanillaLSystemRule } from "./vanilla_lsystem_rule"
 // Do not import constants (pass constants via Model.constructor)
 
 export interface RuleDescription {
@@ -24,6 +25,8 @@ export class Result {
     public readonly description: string,
   ) { }
 }
+
+let hoge = 0
 
 export class Model {
   public showsBorderLine = false  // TODO: 消す
@@ -90,7 +93,7 @@ export class Model {
     if (showsQuadtree === true) {
       this._rootNode.draw(p)
     }
-    this._lines.forEach(line => this.drawLine(line, 0x80, 5, p))
+    this._lines.forEach(line => this.drawLine(line, 0x80, 0.5, p))
   }
 
   protected checkCompleted(): void {
@@ -115,7 +118,9 @@ export class Model {
 
     const color = line.color.p5(p, alpha)
     p.stroke(color)
+    // p.stroke(0xFF, 0xD0)
     p.strokeWeight(weight)
+    // p.strokeWeight(5)
     p.line(line.start.x, line.start.y, line.end.x, line.end.y)
   }
 
@@ -132,28 +137,52 @@ export class Model {
   }
 
   private setupFirstDrawers(rules: LSystemRule[], fixedStartPoint: boolean, lineLengthType: number, colorTheme: string): LSystemDrawer[] {
-    const padding = 100
-    const position = (): Vector => {
-      if (fixedStartPoint && rules.length === 1) {
-        return this.fieldSize.div(2)
-      }
-      return new Vector(random(this.fieldSize.x - padding, padding), random(this.fieldSize.y - padding, padding))
-    }
-    const direction = (): number => {
-      if (fixedStartPoint && rules.length === 1) {
-        return 270
-      }
-      return random(360) - 180
-    }
+    // const padding = 100
+    // const position = (): Vector => {
+    //   if (fixedStartPoint && rules.length === 1) {
+    //     return this.fieldSize.div(2)
+    //   }
+    //   return new Vector(random(this.fieldSize.x - padding, padding), random(this.fieldSize.y - padding, padding))
+    // }
+    // const direction = (): number => {
+    //   if (fixedStartPoint && rules.length === 1) {
+    //     return 270
+    //   }
+    //   return random(360) - 180
+    // }
 
-    return rules.map(rule => this.newDrawer(
-      position(),
-      direction(),
-      defaultInitialCondition,
-      rule,
-      lineLengthType,
-      colorTheme,
-    ))
+    // return rules.map(rule => this.newDrawer(
+    //   position(),
+    //   direction(),
+    //   defaultInitialCondition,
+    //   rule,
+    //   lineLengthType,
+    //   colorTheme,
+    // ))
+
+    const centerX = this.fieldSize.x / 2
+    const centerY = this.fieldSize.y / 2
+    const distance = hoge * (this.fieldSize.x / 600)
+    hoge += 1
+
+    return [
+      this.newDrawer(
+        new Vector(centerX + distance, centerY),
+        270,
+        defaultInitialCondition,
+        new VanillaLSystemRule("A:55,E,-97,D;B:-55,A,104,I;E:60,I,-133,E,-144,E,55,E,15,F,-40,E,-138,A;D:.;F:-39,B,-124,I,-143,H,96,B;I:.;H:."),
+        lineLengthType,
+        colorTheme,
+      ),
+      this.newDrawer(
+        new Vector(centerX - distance, centerY),
+        270,
+        defaultInitialCondition,
+        new VanillaLSystemRule("A:65,C,217,D,137,B;B:174,C;C:66,C,2,A,118,B;D:14,A"),
+        lineLengthType,
+        colorTheme,
+      ),
+    ]
   }
 
   private setupBorderLines() {  // TODO: Line.rect()に置き換え
