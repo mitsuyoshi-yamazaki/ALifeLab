@@ -70,7 +70,7 @@ export class LSystemDrawer extends Drawer {
     } else if (this.lineLengthType === 2) {
       length = 10 * this.n / (this.n + Math.pow(this.n, 0.5))
     } else {
-      length = 400 / Math.pow(this.n, 0.5)
+      length = 120 / Math.pow(this.n, 0.5)
     }
     const radian = this._direction * (Math.PI / 180)
     const nextPosition = this._position.moved(radian, length)
@@ -78,6 +78,10 @@ export class LSystemDrawer extends Drawer {
     
     switch (this.colorTheme) {
     case "grayscale":
+      line.color = Color.white(0xFF, 0x80)
+      break
+      
+    case "black":
       line.color = Color.white(0x00, 0x80)
       break
 

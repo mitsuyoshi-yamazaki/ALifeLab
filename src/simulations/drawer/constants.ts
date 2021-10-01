@@ -4,7 +4,7 @@ import { URLParameterParser } from "../../classes/url_parameter_parser"
  * ascii: 状態により色が決まる
  * depth: ノードの深さ（ルートまでの距離）により色が決まる // 未実装
  */
-type ColorTheme = "grayscale" | "ascii" | "depth" | "direction" | "transition"
+type ColorTheme = "grayscale" | "ascii" | "depth" | "direction" | "transition" | "black"
 
 const parameters = new URLParameterParser()
 

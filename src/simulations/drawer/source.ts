@@ -12,7 +12,7 @@ import { TransitionColoredModel } from "./transition_colored_model"
 let t = 0
 const canvasId = "canvas"
 const fieldSize = constants.system.fieldSize
-const firstRule: string | undefined = constants.system.run ? undefined :
+const firstRule: string | undefined = //constants.system.run ? undefined :
   (constants.simulation.lSystemRule.length > 0 ? constants.simulation.lSystemRule : randomExampleRule())
 let currentModel = createModel(firstRule)
 const downloader = new Downloader()
@@ -34,15 +34,25 @@ export const main = (p: p5): void => {
     }
 
     if (["depth", "transition"].includes(constants.draw.colorTheme)) {
-      p.background(0xFF, 0xFF)
+      // p.background(0xFF, 0xFF)
     } else {
-      p.background(0xFF, 0xFF)
+      // p.background(0xFF, 0xFF)
     }
+    p.clear()
 
     if (t % constants.simulation.executionInterval === 0) {
       currentModel.execute()
     }
     currentModel.draw(p, constants.draw.showsQuadtree)
+    currentModel.obstacleRects.forEach(rect => {
+      // p.fill(0x00, 0x60)
+      // p.noStroke()
+      p.noFill()
+      p.stroke(0x00, 0x60)
+      p.strokeWeight(10)
+      p.strokeJoin(p.ROUND)
+      p.rect(rect.origin.x, rect.origin.y, rect.size.x, rect.size.y, fieldSize / 800)
+    })
 
     if (constants.system.run && currentModel.result != null) {
       const result = currentModel.result
@@ -58,7 +68,7 @@ export const main = (p: p5): void => {
       if (constants.system.autoDownload && shouldSave(result)) {
         downloader.save("", rules, t, result.t)
       }
-      currentModel = createModel()
+      currentModel = createModel(firstRule)
     }
 
     t += 1
