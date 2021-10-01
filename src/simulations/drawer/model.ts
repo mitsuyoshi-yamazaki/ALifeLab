@@ -43,6 +43,8 @@ export class Model {
     return this._result != null
   }
 
+  public readonly obstacleRects: { origin: Vector, size: Vector }[] = []
+
   protected _t = 0
   protected _drawers: LSystemDrawer[] = []
   protected _lines: Line[] = []
@@ -90,7 +92,7 @@ export class Model {
     if (showsQuadtree === true) {
       this._rootNode.draw(p)
     }
-    this._lines.forEach(line => this.drawLine(line, 0x80, 5, p))
+    this._lines.forEach(line => this.drawLine(line, 0x80, 1.5, p))
   }
 
   protected checkCompleted(): void {
@@ -132,6 +134,10 @@ export class Model {
   }
 
   private setupFirstDrawers(rules: LSystemRule[], fixedStartPoint: boolean, lineLengthType: number, colorTheme: string): LSystemDrawer[] {
+    rules.push(...rules)
+    rules.push(...rules)
+    rules.push(...rules)
+
     const padding = 100
     const position = (): Vector => {
       if (fixedStartPoint && rules.length === 1) {
@@ -169,22 +175,38 @@ export class Model {
 
     points.forEach(p => {
       const line = new Line(p[0], p[1])
-      line.isHidden = !this.showsBorderLine
+      line.isHidden = this.showsBorderLine === false
 
       this.addLine(line, this.nodeContains(line))
     })
   }
 
   private setupObstacle() {
-    const center = this.fieldSize.div(2)
-    const size = this.fieldSize.div(3)
-    const origin = center.sub(size.div(2))
-    const rect = Line.rect(origin, size)
+    const rectCountMin = 10
+    const rectCount = rectCountMin * 2
+    const addObstacle = (origin: Vector, rectSize: number): void => {
+      const size = new Vector(rectSize, rectSize)
+      const rect = Line.rect(origin, size)
 
-    rect.forEach(line => {
-      line.isHidden = !this.showsBorderLine
-      this.addLine(line, this.nodeContains(line))
-    })
+      rect.forEach(line => {
+        line.isHidden = this.showsBorderLine === false
+        this.addLine(line, this.nodeContains(line))
+      })
+
+      this.obstacleRects.push({
+        origin,
+        size,
+      })
+    }
+
+    for (let j = 1; j < rectCount; j += 2) {
+      for (let i = 2; i < rectCount; i += 2) {
+        const gridSize = (this.fieldSize.x / rectCount)
+        const rectSize = gridSize * (2 * ((i * 0.6) / rectCount))
+        const origin = new Vector(i * gridSize - rectSize / 2, j * gridSize - rectSize / 2)
+        addObstacle(origin, rectSize)
+      }
+    }
   }
 
   private executeSteps(drawerCount: number): void {
