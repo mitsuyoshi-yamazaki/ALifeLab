@@ -10,5 +10,8 @@
   "Orchid",
   "LightSkyBlue"
 ],
-"python.formatting.provider": "black"
+"python.formatting.provider": "black",
+"editor.codeActionsOnSave": {
+  "source.fixAll.eslint": true
+}
 }
