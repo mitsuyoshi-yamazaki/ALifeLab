@@ -27,7 +27,7 @@ export class Drawer {
   private _stateTimestamp = 0
 
   public constructor(
-    public readonly fieldSize: number,
+    public readonly fieldSize: Vector,
     public readonly exampleRules: string[]
   ) {
     this._rules = [...exampleRules]
@@ -74,7 +74,7 @@ export class Drawer {
     case "fade": {
       const maxTimestamp = 80
       p.fill(0x0, 0xFF * (1 / maxTimestamp))
-      p.rect(0, 0, this.fieldSize, this.fieldSize)
+      p.rect(0, 0, this.fieldSize.x, this.fieldSize.y)
       if (this._stateTimestamp >= maxTimestamp) {
         this._currentModel = this.createModel()
         this._drawState = "draw"
@@ -105,7 +105,7 @@ export class Drawer {
     const addObstacle = false
 
     const model = new ImmortalModel(  // TODO: 生成箇所を中心に寄せる
-      new Vector(this.fieldSize, this.fieldSize),
+      new Vector(this.fieldSize.x, this.fieldSize.y),
       maxLineCount,
       rules,
       mutationRate,
@@ -140,6 +140,6 @@ export class Drawer {
     p.fill(0xFF, 0xC0)
     p.textStyle(p.NORMAL)
     p.textSize(textSize)
-    p.text(displayRule, margin, this.fieldSize - margin)
+    p.text(displayRule, margin, this.fieldSize.y - margin)
   }
 }

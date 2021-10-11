@@ -1,6 +1,6 @@
 // export function random(max: number): number	// not working: raises "Expected 1 arguments, but got 2."
 export function random(max: number, min?: number): number {
-  if (min == undefined) {
+  if (min == null) {
     return Math.random() * max
   }
   const range = max - min
@@ -9,32 +9,32 @@ export function random(max: number, min?: number): number {
 }
 
 export function isFullScreen(): boolean {
-  return document.fullscreenElement != undefined
-    || document.webkitFullscreenElement != undefined
-    || document.mozFullScreenElement != undefined
-    || document.msFullscreenElement != undefined
+  return document.fullscreenElement != null
+    || document.webkitFullscreenElement != null
+    || document.mozFullScreenElement != null
+    || document.msFullscreenElement != null
 }
 
 export function toggleFullscreen(elementId: string): void {
   if (isFullScreen()) {
-    if (document.exitFullscreen != undefined) {
+    if (document.exitFullscreen != null) {
       document.exitFullscreen()
-    } else if (document.mozCancelFullScreen != undefined) {
+    } else if (document.mozCancelFullScreen != null) {
       document.mozCancelFullScreen()
-    } else if (document.webkitExitFullscreen != undefined) {
+    } else if (document.webkitExitFullscreen != null) {
       document.webkitExitFullscreen()
-    } else if (document.msExitFullscreen != undefined) {
+    } else if (document.msExitFullscreen != null) {
       document.msExitFullscreen()
     }
   } else {
     const canvas = document.getElementById(elementId)
-    if (canvas?.requestFullscreen !== undefined) {
+    if (canvas?.requestFullscreen != null) {
       canvas.requestFullscreen()
-    } else if (canvas?.mozRequestFullScreen !== undefined) {
+    } else if (canvas?.mozRequestFullScreen != null) {
       canvas.mozRequestFullScreen()
-    } else if (canvas?.webkitRequestFullscreen !== undefined) {
+    } else if (canvas?.webkitRequestFullscreen != null) {
       canvas.webkitRequestFullscreen() // (Element.ALLOW_KEYBOARD_INPUT)
-    } else if (canvas?.msRequestFullscreen !== undefined) {
+    } else if (canvas?.msRequestFullscreen != null) {
       canvas.msRequestFullscreen()
     }
   }
