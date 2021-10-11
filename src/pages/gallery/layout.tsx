@@ -42,7 +42,7 @@ const App = () => {
         subtitle="2021, L-System, Processing"
         description="自動生成される幾何学図形"
         backgroundColor={backgroundListColor2}
-        link={path("/pages/drawer_gallery.html")}
+        link={path("/pages/lines_and_angles.html")}
       />
       <Footer homePath={path("/")} />
     </ThemeProvider>
