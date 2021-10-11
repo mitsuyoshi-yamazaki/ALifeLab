@@ -3,17 +3,21 @@ import { Vector } from "../../classes/physics"
 import { LSystemRule } from "../drawer/lsystem_rule"
 import { MultiPatternModel } from "./multi_pattern_model"
 
+const ruleFadeDuration = 50
+
 export class Drawer {
   public get t(): number {
     return this._t
   }
 
   private get _executionInterval(): number {
-    return 20
+    return 10
   }
 
   private _t = 0
   private _model: MultiPatternModel
+  private _currentRule: string | null = null
+  private _ruleChangedAt = 0
 
   public constructor(
     public readonly fieldSize: Vector,
@@ -25,9 +29,18 @@ export class Drawer {
   public next(p: p5): void {
     if (this.t % this._executionInterval === 0) {
       this._model.execute()
+      if (this._currentRule !== this._model.currentRule) {
+        this._currentRule = this._model.currentRule
+        this._ruleChangedAt = this.t
+      }
     }
     p.background(0x0, 0xFF)
     this._model.draw(p, false)
+
+    if (this._currentRule != null) {
+      const progress = Math.min(this._t - this._ruleChangedAt, ruleFadeDuration) / ruleFadeDuration
+      this.drawRule(p, this._currentRule, progress)
+    }
 
     this._t += 1
   }
@@ -61,7 +74,7 @@ export class Drawer {
   // progress: 0~1
   private drawRule(p: p5, rule: string, progress: number): void {
     const textSize = 12
-    const margin = 10
+    const margin = 40
 
     const endIndex = Math.min(Math.floor(progress * rule.length), rule.length - 1)
     const displayRule = rule.slice(0, endIndex)

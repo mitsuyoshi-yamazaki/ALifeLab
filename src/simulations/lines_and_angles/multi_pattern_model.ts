@@ -19,12 +19,17 @@ type RuleInfo = {
 }
 
 export class MultiPatternModel extends Model {
+  public get currentRule(): string | null {
+    return this._currentRule
+  }
+
   private _runningRuleInfo: Map<string, RuleInfo>
   private _worldLines: Line[]
   protected get _lines(): Line[] {
     return Array.from(this._runningRuleInfo.values()).flatMap(ruleInfo => ruleInfo.lines).concat(this._worldLines)
   }
   private _drawTimestamp = 0
+  private _currentRule: string | null = null
 
   public constructor(
     fieldSize: Vector,
@@ -175,6 +180,7 @@ export class MultiPatternModel extends Model {
       if (drawer != null) {
         console.log(`[NEW] ${drawer.rule.encoded}`)
         this._drawers.push(drawer)
+        this._currentRule = drawer.rule.encoded
       }
     }
 
