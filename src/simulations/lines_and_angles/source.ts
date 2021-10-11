@@ -6,7 +6,7 @@ import { Vector } from "../../classes/physics"
 import { VanillaLSystemRule } from "../drawer/vanilla_lsystem_rule"
 
 const canvasId = "canvas"
-const fieldSize = new Vector(600, 600) // TODO: 決める
+const fieldSize = new Vector(1000, 1000) // TODO: 決める
 const rules = exampleRules.flatMap(rule => {
   try {
     return new VanillaLSystemRule(rule)
