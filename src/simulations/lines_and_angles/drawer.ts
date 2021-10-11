@@ -105,7 +105,7 @@ export class Drawer {
     model.showsBorderLine = false
     model.lineCollisionEnabled = true
     model.quadtreeEnabled = true
-    model.concurrentExecutionNumber = 50 // TODO: 調整する
+    model.concurrentExecutionNumber = 5 // TODO: 調整する
 
     return model
   }

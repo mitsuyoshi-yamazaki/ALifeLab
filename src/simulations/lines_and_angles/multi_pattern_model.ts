@@ -6,15 +6,22 @@ import { LSystemDrawer } from "../drawer/lsystem_drawer"
 import { random } from "../../classes/utilities"
 import { QuadtreeNode } from "../drawer/quadtree"
 
-const systemLineKey = ""
+type RuleState = "growing" | "paused" | "fade"
+type RuleInfo = {
+  readonly encodedRule: string
+  readonly lines: Line[]
+  state: RuleState
+  stateTimestamp: number
+}
 
 /**
  * - [ ] 成長の止まったruleを削除
  */
 export class MultiPatternModel extends Model {
-  private _linesForRule: Map<string, Line[]>
+  private _runningRuleInfo: Map<string, RuleInfo>
+  private _worldLines: Line[]
   protected get _lines(): Line[] {
-    return Array.from(this._linesForRule.values()).flatMap(lines => lines)
+    return Array.from(this._runningRuleInfo.values()).flatMap(ruleInfo => ruleInfo.lines).concat(this._worldLines)
   }
 
   public constructor(
@@ -39,8 +46,9 @@ export class MultiPatternModel extends Model {
     )
   }
 
-  protected initializeMembers(): void {
-    this._linesForRule = new Map<string, Line[]>()  // fuck
+  protected initializeMembers(): void {  // fuck
+    this._runningRuleInfo = new Map<string, RuleInfo>()
+    this._worldLines = []
   }
 
   protected setupFirstDrawers(): LSystemDrawer[] {
@@ -99,7 +107,7 @@ export class MultiPatternModel extends Model {
 
     this.preExecution()
 
-    const growingRules: string[] = [systemLineKey]
+    const growingRules: string[] = []
 
     const newDrawers: LSystemDrawer[] = []
     this._drawers.forEach(drawer => {
@@ -116,13 +124,19 @@ export class MultiPatternModel extends Model {
           newDrawers.push(...action.drawers)
           node.objects.push(action.line)
           const lines = ((): Line[] => {
-            const stored = this._linesForRule.get(drawer.rule.encoded)
+            const encodedRule = drawer.rule.encoded
+            const stored = this._runningRuleInfo.get(encodedRule)
             if (stored != null) {
-              return stored
+              return stored.lines
             }
-            const newList: Line[] = []
-            this._linesForRule.set(drawer.rule.encoded, newList)
-            return newList
+            const newInfo: RuleInfo = {
+              encodedRule,
+              lines: [],
+              state: "growing",
+              stateTimestamp: this.t,
+            }
+            this._runningRuleInfo.set(encodedRule, newInfo)
+            return newInfo.lines
           })()
           lines.push(action.line)
         }
@@ -131,8 +145,8 @@ export class MultiPatternModel extends Model {
       }
     })
 
-    const deadRules = Array.from(this._linesForRule.keys()).filter(rule => growingRules.includes(rule) !== true)
-    deadRules.forEach(rule => this._linesForRule.delete(rule))
+    const deadRules = Array.from(this._runningRuleInfo.keys()).filter(rule => growingRules.includes(rule) !== true)
+    deadRules.forEach(rule => this._runningRuleInfo.delete(rule))
     
     this._drawers = newDrawers.map(drawer => {
       // if (random(1) < this.mutationRate) {
@@ -156,29 +170,26 @@ export class MultiPatternModel extends Model {
   }
 
   private removeDeadRules(): void {
-    const rulesToRemove: { rule: string, lines: Line[] }[] = this.lSystemRules
+    const rulesToRemove: RuleInfo[] = this.lSystemRules
       .flatMap(rule => {
         const encodedRule = rule.encoded
-        const lines = this._linesForRule.get(encodedRule)
-        if (lines == null) {
+        const ruleInfo = this._runningRuleInfo.get(encodedRule)
+        if (ruleInfo == null) {
           return []
         }
-        if (lines.length < this.maxLineCount) {
+        if (ruleInfo.lines.length < this.maxLineCount) {
           return []
         }
-        return {
-          rule: encodedRule,
-          lines,
-        }
+        return ruleInfo
       })
 
-    rulesToRemove.forEach(({ rule, lines }) => {
-      console.log(`[FINISHED] ${rule}`)
-      lines.forEach(line => this.removeLine(line))
-      this._linesForRule.delete(rule)
+    rulesToRemove.forEach(ruleInfo => {
+      console.log(`[FINISHED] ${ruleInfo.encodedRule}`)
+      ruleInfo.lines.forEach(line => this.removeLine(line))
+      this._runningRuleInfo.delete(ruleInfo.encodedRule)
     })
 
-    const encodedRulesToRemove = rulesToRemove.map(({ rule }) => rule)
+    const encodedRulesToRemove = rulesToRemove.map(ruleInfo => ruleInfo.encodedRule)
     this._drawers = this._drawers.filter(drawer => encodedRulesToRemove.includes(drawer.rule.encoded) !== true)
   }
 
@@ -187,15 +198,6 @@ export class MultiPatternModel extends Model {
     if (this.quadtreeEnabled === true && node != null) {
       node.objects.push(line)
     }
-    const lines = ((): Line[] => {
-      const stored = this._linesForRule.get(systemLineKey)
-      if (stored != null) {
-        return stored
-      }
-      const newList: Line[] = []
-      this._linesForRule.set(systemLineKey, newList)
-      return newList
-    })()
-    lines.push(line)
+    this._worldLines.push(line)
   }
 }
