@@ -7,8 +7,8 @@ import { LSystemDrawer } from "../drawer/lsystem_drawer"
 import { random } from "../../classes/utilities"
 import { QuadtreeNode } from "../drawer/quadtree"
 
-const pauseDuration = 10
-const fadeDuration = 10
+const pauseDuration = 400
+const fadeDuration = 400
 
 type RuleState = "growing" | "paused" | "fade"
 type RuleInfo = {
@@ -27,6 +27,7 @@ export class MultiPatternModel extends Model {
   protected get _lines(): Line[] {
     return Array.from(this._runningRuleInfo.values()).flatMap(ruleInfo => ruleInfo.lines).concat(this._worldLines)
   }
+  private _drawTimestamp = 0
 
   public constructor(
     fieldSize: Vector,
@@ -137,7 +138,7 @@ export class MultiPatternModel extends Model {
               encodedRule,
               lines: [],
               state: "growing",
-              stateTimestamp: this.t,
+              stateTimestamp: this._drawTimestamp,
             }
             this._runningRuleInfo.set(encodedRule, newInfo)
             return newInfo.lines
@@ -196,19 +197,19 @@ export class MultiPatternModel extends Model {
             return
           }
           ruleInfo.state = "paused"
-          ruleInfo.stateTimestamp = this.t
+          ruleInfo.stateTimestamp = this._drawTimestamp
           drawersToRemove.push(ruleInfo.encodedRule)
           return
 
         case "paused":
-          if ((this.t - ruleInfo.stateTimestamp) >= pauseDuration) {
-            ruleInfo.stateTimestamp = this.t
+          if ((this._drawTimestamp - ruleInfo.stateTimestamp) >= pauseDuration) {
+            ruleInfo.stateTimestamp = this._drawTimestamp
             ruleInfo.state = "fade"
           }
           return
             
         case "fade":
-          if ((this.t - ruleInfo.stateTimestamp) >= fadeDuration) {
+          if ((this._drawTimestamp - ruleInfo.stateTimestamp) >= fadeDuration) {
             rulesToRemove.push(ruleInfo)
           }
           return
@@ -233,6 +234,7 @@ export class MultiPatternModel extends Model {
   }
 
   public draw(p: p5, showsQuadtree: boolean): void {
+    this._drawTimestamp += 1
     if (showsQuadtree === true) {
       this._rootNode.draw(p)
     }
@@ -244,7 +246,7 @@ export class MultiPatternModel extends Model {
         return
               
       case "fade": {
-        const duration = this.t - ruleInfo.stateTimestamp
+        const duration = this._drawTimestamp - ruleInfo.stateTimestamp
         const alpha = 0x80 * (1 - (duration / fadeDuration))
         ruleInfo.lines.forEach(line => this.drawLine(line, alpha, 0.5, p))
         return

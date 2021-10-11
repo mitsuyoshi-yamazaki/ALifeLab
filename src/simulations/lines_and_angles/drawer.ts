@@ -1,12 +1,7 @@
 import p5 from "p5"
 import { Vector } from "../../classes/physics"
-import { random } from "../../classes/utilities"
 import { LSystemRule } from "../drawer/lsystem_rule"
-import { VanillaLSystemRule } from "../drawer/vanilla_lsystem_rule"
-import { ImmortalModel } from "../drawer/model"
 import { MultiPatternModel } from "./multi_pattern_model"
-
-type DrawState = "draw" | "fade_rule" | "pause" | "fade"
 
 export class Drawer {
   public get t(): number {
@@ -14,14 +9,11 @@ export class Drawer {
   }
 
   private get _executionInterval(): number {
-    return 2
+    return 20
   }
 
   private _t = 0
   private _model: MultiPatternModel
-
-  private _drawState: DrawState = "draw"
-  private _stateTimestamp = 0
 
   public constructor(
     public readonly fieldSize: Vector,
@@ -31,56 +23,12 @@ export class Drawer {
   }
 
   public next(p: p5): void {
-    // switch (this._drawState) {
-    // case "draw":
     if (this.t % this._executionInterval === 0) {
       this._model.execute()
     }
     p.background(0x0, 0xFF)
     this._model.draw(p, false)
-    if (this._model.result != null) {
-      this._drawState = "fade_rule"
-      this._stateTimestamp = 0
-    }
-    //   break
-      
-    // case "fade_rule": {
-    //   p.background(0x0, 0xFF)
-    //     this._model.draw(p, false)
-    //     const rule = this._model.encoded
-    //   const maxTimestamp = rule.length
-    //   this.drawRule(p, rule, this._stateTimestamp / maxTimestamp) // progressを文字あたり一定の速度にする
-    //   if (this._stateTimestamp >= maxTimestamp) {
-    //     this._drawState = "pause"
-    //     this._stateTimestamp = 0
-    //   }
-    //   break
-    // }
-      
-    // case "pause":
-    //   p.background(0x0, 0xFF)
-    //     this._model.draw(p, false)
-    //     this.drawRule(p, this._model.encoded, 1)
-    //   if (this._stateTimestamp > 150) {
-    //     this._drawState = "fade"
-    //     this._stateTimestamp = 0
-    //   }
-    //   break
-      
-    // case "fade": {
-    //   const maxTimestamp = 80
-    //   p.fill(0x0, 0xFF * (1 / maxTimestamp))
-    //   p.rect(0, 0, this.fieldSize.x, this.fieldSize.y)
-    //   if (this._stateTimestamp >= maxTimestamp) {
-    //     this._currentModel = this.createModel()
-    //     this._drawState = "draw"
-    //     this._stateTimestamp = 0
-    //   }
-    //   break
-    // }
-    // }
 
-    this._stateTimestamp += 1
     this._t += 1
   }
 
@@ -105,7 +53,7 @@ export class Drawer {
     model.showsBorderLine = false
     model.lineCollisionEnabled = true
     model.quadtreeEnabled = true
-    model.concurrentExecutionNumber = 5 // TODO: 調整する
+    model.concurrentExecutionNumber = 1 // TODO: 調整する
 
     return model
   }
