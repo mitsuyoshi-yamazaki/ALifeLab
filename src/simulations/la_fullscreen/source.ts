@@ -4,14 +4,23 @@ import { Drawer } from "../lines_and_angles/drawer"
 import { exampleRules } from "../drawer/rule_examples"
 import { toggleFullscreen } from "../../classes/utilities"
 import { Vector } from "../../classes/physics"
+import { VanillaLSystemRule } from "../drawer/vanilla_lsystem_rule"
 
 const canvasId = "canvas"
 const screenSize = new Vector(window.screen.width, window.screen.height)
 const isPortrait = ((): boolean => {
-  return false
+  return false  // FixMe: 動的に取得する
 })()
 const fieldSize = isPortrait ? screenSize : screenSize.transposed // windowサイズなのでfullscreeen時の画面サイズに合わせる場合はbrowserをフルスクリーンにしておく必要がある
-const drawer = new Drawer(fieldSize, exampleRules) // FixMe:
+const rules = exampleRules.flatMap(rule => {
+  try {
+    return new VanillaLSystemRule(rule)
+  } catch (e) {
+    console.log(`${e} (${rule})`)
+    return []
+  }  
+})
+const drawer = new Drawer(fieldSize, rules)
 
 export const canvasWidth = fieldSize
 
