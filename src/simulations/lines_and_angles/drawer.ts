@@ -73,6 +73,8 @@ export class Drawer {
 
   // progress: 0~1
   private drawRule(p: p5, rule: string, progress: number): void {
+    rule = rule.replace(/,/g, "").replace(/:./g, "").replace(/;/g, ",")
+
     const textSize = 12
     const margin = 40
 
