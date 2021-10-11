@@ -1,3 +1,4 @@
+import p5 from "p5"
 import { Model } from "../drawer/model"
 import { Line } from "../drawer/line"
 import { Vector } from "../../classes/physics"
@@ -5,6 +6,9 @@ import { defaultInitialCondition, LSystemRule } from "../drawer/lsystem_rule"
 import { LSystemDrawer } from "../drawer/lsystem_drawer"
 import { random } from "../../classes/utilities"
 import { QuadtreeNode } from "../drawer/quadtree"
+
+const pauseDuration = 10
+const fadeDuration = 10
 
 type RuleState = "growing" | "paused" | "fade"
 type RuleInfo = {
@@ -145,8 +149,19 @@ export class MultiPatternModel extends Model {
       }
     })
 
-    const deadRules = Array.from(this._runningRuleInfo.keys()).filter(rule => growingRules.includes(rule) !== true)
-    deadRules.forEach(rule => this._runningRuleInfo.delete(rule))
+    const deadRules = Array.from(this._runningRuleInfo.values()).filter(ruleInfo => {
+      if (growingRules.includes(ruleInfo.encodedRule) === true) {
+        return false
+      }
+      switch (ruleInfo.state) {
+      case "growing":
+        return true
+      case "paused":
+      case "fade":
+        return false
+      }
+    })
+    deadRules.forEach(rule => this._runningRuleInfo.delete(rule.encodedRule))
     
     this._drawers = newDrawers.map(drawer => {
       // if (random(1) < this.mutationRate) {
@@ -156,7 +171,7 @@ export class MultiPatternModel extends Model {
       return drawer
     })
 
-    this.removeDeadRules()
+    this.checkPatternState()
     if (growingRules.length <= 2) {
       const drawer = this.setupNewDrawer()
       if (drawer != null) {
@@ -169,18 +184,35 @@ export class MultiPatternModel extends Model {
     this.executeSteps(drawerCount)
   }
 
-  private removeDeadRules(): void {
-    const rulesToRemove: RuleInfo[] = this.lSystemRules
-      .flatMap(rule => {
-        const encodedRule = rule.encoded
-        const ruleInfo = this._runningRuleInfo.get(encodedRule)
-        if (ruleInfo == null) {
-          return []
+  private checkPatternState(): void {
+    const rulesToRemove: RuleInfo[] = []
+    const drawersToRemove: string[] = []
+
+    Array.from(this._runningRuleInfo.values())
+      .flatMap(ruleInfo => {
+        switch (ruleInfo.state) {
+        case "growing":
+          if (ruleInfo.lines.length < this.maxLineCount) {
+            return
+          }
+          ruleInfo.state = "paused"
+          ruleInfo.stateTimestamp = this.t
+          drawersToRemove.push(ruleInfo.encodedRule)
+          return
+
+        case "paused":
+          if ((this.t - ruleInfo.stateTimestamp) >= pauseDuration) {
+            ruleInfo.stateTimestamp = this.t
+            ruleInfo.state = "fade"
+          }
+          return
+            
+        case "fade":
+          if ((this.t - ruleInfo.stateTimestamp) >= fadeDuration) {
+            rulesToRemove.push(ruleInfo)
+          }
+          return
         }
-        if (ruleInfo.lines.length < this.maxLineCount) {
-          return []
-        }
-        return ruleInfo
       })
 
     rulesToRemove.forEach(ruleInfo => {
@@ -189,8 +221,7 @@ export class MultiPatternModel extends Model {
       this._runningRuleInfo.delete(ruleInfo.encodedRule)
     })
 
-    const encodedRulesToRemove = rulesToRemove.map(ruleInfo => ruleInfo.encodedRule)
-    this._drawers = this._drawers.filter(drawer => encodedRulesToRemove.includes(drawer.rule.encoded) !== true)
+    this._drawers = this._drawers.filter(drawer => drawersToRemove.includes(drawer.rule.encoded) !== true)
   }
 
   // 親クラスからの呼び出しの対応
@@ -199,5 +230,26 @@ export class MultiPatternModel extends Model {
       node.objects.push(line)
     }
     this._worldLines.push(line)
+  }
+
+  public draw(p: p5, showsQuadtree: boolean): void {
+    if (showsQuadtree === true) {
+      this._rootNode.draw(p)
+    }
+    Array.from(this._runningRuleInfo.values()).forEach(ruleInfo => {
+      switch (ruleInfo.state) {
+      case "growing":
+      case "paused":
+        ruleInfo.lines.forEach(line => this.drawLine(line, 0x80, 0.5, p))
+        return
+              
+      case "fade": {
+        const duration = this.t - ruleInfo.stateTimestamp
+        const alpha = 0x80 * (1 - (duration / fadeDuration))
+        ruleInfo.lines.forEach(line => this.drawLine(line, alpha, 0.5, p))
+        return
+      }
+      }
+    })
   }
 }
