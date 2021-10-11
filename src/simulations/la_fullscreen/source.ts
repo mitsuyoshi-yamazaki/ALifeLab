@@ -6,7 +6,11 @@ import { toggleFullscreen } from "../../classes/utilities"
 import { Vector } from "../../classes/physics"
 
 const canvasId = "canvas"
-const fieldSize = new Vector(window.screen.width, window.screen.height) // windowサイズなのでfullscreeen時の画面サイズに合わせる場合はbrowserをフルスクリーンにしておく必要がある
+const screenSize = new Vector(window.screen.width, window.screen.height)
+const isPortrait = ((): boolean => {
+  return false
+})()
+const fieldSize = isPortrait ? screenSize : screenSize.transposed // windowサイズなのでfullscreeen時の画面サイズに合わせる場合はbrowserをフルスクリーンにしておく必要がある
 const drawer = new Drawer(fieldSize, exampleRules) // FixMe:
 
 export const canvasWidth = fieldSize
