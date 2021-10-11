@@ -6,6 +6,8 @@ import { LSystemDrawer } from "../drawer/lsystem_drawer"
 import { random } from "../../classes/utilities"
 import { QuadtreeNode } from "../drawer/quadtree"
 
+const systemLineKey = ""
+
 /**
  * - [ ] 成長の止まったruleを削除
  */
@@ -20,8 +22,8 @@ export class MultiPatternModel extends Model {
     maxLineCount: number,
     lSystemRules: LSystemRule[],
     mutationRate: number,
-    lineLengthType: number,
-    colorTheme: string,
+    private readonly lineLengthType: number,
+    private readonly colorTheme: string,
     fixedStartPoint: boolean,
     addObstacle: boolean,
   ) {
@@ -41,7 +43,12 @@ export class MultiPatternModel extends Model {
     this._linesForRule = new Map<string, Line[]>()  // fuck
   }
 
-  protected setupFirstDrawers(rules: LSystemRule[], fixedStartPoint: boolean, lineLengthType: number, colorTheme: string): LSystemDrawer[] {
+  protected setupFirstDrawers(): LSystemDrawer[] {
+    const drawer = this.setupNewDrawer()
+    return drawer == null ? [] : [drawer]
+  }
+
+  private setupNewDrawer(): LSystemDrawer | null {
     const padding = 100
     const position = (): Vector => {
       return new Vector(random(this.fieldSize.x - padding, padding), random(this.fieldSize.y - padding, padding))
@@ -52,19 +59,17 @@ export class MultiPatternModel extends Model {
 
     const rule = this.nextRule()
     if (rule == null) {
-      return []
+      return null
     }
 
-    return [
-      this.newDrawer(
-        position(),
-        direction(),
-        defaultInitialCondition,
-        rule,
-        lineLengthType,
-        colorTheme,
-      )
-    ]
+    return this.newDrawer(
+      position(),
+      direction(),
+      defaultInitialCondition,
+      rule,
+      this.lineLengthType,
+      this.colorTheme,
+    )
   }
 
   protected checkCompleted(): void {
@@ -72,30 +77,7 @@ export class MultiPatternModel extends Model {
   }
 
   protected preExecution(): void {
-    const rulesToRemove: { rule: string, lines: Line[] }[] = this.lSystemRules
-      .flatMap(rule => {
-        const encodedRule = rule.encoded
-        const lines = this._linesForRule.get(encodedRule)
-        if (lines == null) {
-          return []
-        }
-        if (lines.length < this.maxLineCount) {
-          return []
-        }
-        return {
-          rule: encodedRule,
-          lines,
-        }
-      })
-    
-    rulesToRemove.forEach(({ rule, lines }) => {
-      console.log(`[FINISHED] ${rule}`)
-      lines.forEach(line => this.removeLine(line))
-      this._linesForRule.delete(rule)
-    })
-
-    const encodedRulesToRemove = rulesToRemove.map(({rule}) => rule)
-    this._drawers = this._drawers.filter(drawer => encodedRulesToRemove.includes(drawer.rule.encoded) !== true)
+    // do nothing
   }
 
   private nextRule(): LSystemRule | null {
@@ -117,6 +99,8 @@ export class MultiPatternModel extends Model {
 
     this.preExecution()
 
+    const growingRules: string[] = [systemLineKey]
+
     const newDrawers: LSystemDrawer[] = []
     this._drawers.forEach(drawer => {
       const action = drawer.next()
@@ -125,6 +109,10 @@ export class MultiPatternModel extends Model {
 
         // Since this._rootNode.nodeContains() returns null, the line is crossing this model's border
         if (node != null && this.isCollidedQuadtree(action.line, node) === false) {
+          const encodedRule = drawer.rule.encoded
+          if (growingRules.includes(encodedRule) !== true) {
+            growingRules.push(encodedRule)
+          }
           newDrawers.push(...action.drawers)
           node.objects.push(action.line)
           const lines = ((): Line[] => {
@@ -143,16 +131,55 @@ export class MultiPatternModel extends Model {
       }
     })
 
+    const deadRules = Array.from(this._linesForRule.keys()).filter(rule => growingRules.includes(rule) !== true)
+    deadRules.forEach(rule => this._linesForRule.delete(rule))
+    
     this._drawers = newDrawers.map(drawer => {
-      if (random(1) < this.mutationRate) {
-        return drawer.mutated()
-      }
+      // if (random(1) < this.mutationRate) {
+      //   return drawer.mutated()
+      // }
 
       return drawer
     })
 
+    this.removeDeadRules()
+    if (growingRules.length <= 2) {
+      const drawer = this.setupNewDrawer()
+      if (drawer != null) {
+        console.log(`[NEW] ${drawer.rule.encoded}`)
+        this._drawers.push(drawer)
+      }
+    }
+
     this._t += 1
     this.executeSteps(drawerCount)
+  }
+
+  private removeDeadRules(): void {
+    const rulesToRemove: { rule: string, lines: Line[] }[] = this.lSystemRules
+      .flatMap(rule => {
+        const encodedRule = rule.encoded
+        const lines = this._linesForRule.get(encodedRule)
+        if (lines == null) {
+          return []
+        }
+        if (lines.length < this.maxLineCount) {
+          return []
+        }
+        return {
+          rule: encodedRule,
+          lines,
+        }
+      })
+
+    rulesToRemove.forEach(({ rule, lines }) => {
+      console.log(`[FINISHED] ${rule}`)
+      lines.forEach(line => this.removeLine(line))
+      this._linesForRule.delete(rule)
+    })
+
+    const encodedRulesToRemove = rulesToRemove.map(({ rule }) => rule)
+    this._drawers = this._drawers.filter(drawer => encodedRulesToRemove.includes(drawer.rule.encoded) !== true)
   }
 
   // 親クラスからの呼び出しの対応
@@ -161,7 +188,6 @@ export class MultiPatternModel extends Model {
       node.objects.push(line)
     }
     const lines = ((): Line[] => {
-      const systemLineKey = ""
       const stored = this._linesForRule.get(systemLineKey)
       if (stored != null) {
         return stored

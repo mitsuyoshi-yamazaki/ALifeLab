@@ -33,15 +33,15 @@ export class Drawer {
   public next(p: p5): void {
     // switch (this._drawState) {
     // case "draw":
-      if (this.t % this._executionInterval === 0) {
-        this._model.execute()
-      }
-      p.background(0x0, 0xFF)
-        this._model.draw(p, false)
-        if (this._model.result != null) {
-        this._drawState = "fade_rule"
-        this._stateTimestamp = 0
-      }
+    if (this.t % this._executionInterval === 0) {
+      this._model.execute()
+    }
+    p.background(0x0, 0xFF)
+    this._model.draw(p, false)
+    if (this._model.result != null) {
+      this._drawState = "fade_rule"
+      this._stateTimestamp = 0
+    }
     //   break
       
     // case "fade_rule": {
