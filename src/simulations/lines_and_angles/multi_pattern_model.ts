@@ -8,7 +8,7 @@ import { random } from "../../classes/utilities"
 import { QuadtreeNode } from "../drawer/quadtree"
 
 const pauseDuration = 400
-const fadeDuration = 400
+const fadeDuration = 200
 
 type RuleState = "growing" | "paused" | "fade"
 type RuleInfo = {
@@ -18,9 +18,6 @@ type RuleInfo = {
   stateTimestamp: number
 }
 
-/**
- * - [ ] 成長の止まったruleを削除
- */
 export class MultiPatternModel extends Model {
   private _runningRuleInfo: Map<string, RuleInfo>
   private _worldLines: Line[]
@@ -129,7 +126,6 @@ export class MultiPatternModel extends Model {
           newDrawers.push(...action.drawers)
           node.objects.push(action.line)
           const lines = ((): Line[] => {
-            const encodedRule = drawer.rule.encoded
             const stored = this._runningRuleInfo.get(encodedRule)
             if (stored != null) {
               return stored.lines
@@ -150,19 +146,20 @@ export class MultiPatternModel extends Model {
       }
     })
 
-    const deadRules = Array.from(this._runningRuleInfo.values()).filter(ruleInfo => {
+    Array.from(this._runningRuleInfo.values()).forEach(ruleInfo => {
       if (growingRules.includes(ruleInfo.encodedRule) === true) {
-        return false
+        return
       }
       switch (ruleInfo.state) {
       case "growing":
-        return true
+        ruleInfo.state = "paused"
+        ruleInfo.stateTimestamp = this._drawTimestamp
+        return
       case "paused":
       case "fade":
-        return false
+        return
       }
     })
-    deadRules.forEach(rule => this._runningRuleInfo.delete(rule.encodedRule))
     
     this._drawers = newDrawers.map(drawer => {
       // if (random(1) < this.mutationRate) {
@@ -173,7 +170,7 @@ export class MultiPatternModel extends Model {
     })
 
     this.checkPatternState()
-    if (growingRules.length <= 2) {
+    if (growingRules.length < 2) {
       const drawer = this.setupNewDrawer()
       if (drawer != null) {
         console.log(`[NEW] ${drawer.rule.encoded}`)
@@ -221,6 +218,7 @@ export class MultiPatternModel extends Model {
       ruleInfo.lines.forEach(line => this.removeLine(line))
       this._runningRuleInfo.delete(ruleInfo.encodedRule)
     })
+    this._rootNode.trim()
 
     this._drawers = this._drawers.filter(drawer => drawersToRemove.includes(drawer.rule.encoded) !== true)
   }
