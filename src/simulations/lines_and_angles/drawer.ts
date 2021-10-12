@@ -4,6 +4,7 @@ import { LSystemRule } from "../drawer/lsystem_rule"
 import { MultiPatternModel } from "./multi_pattern_model"
 
 const ruleFadeDuration = 50
+const resetInterval = 1000 * 60 * 30 // ms // FixMe: 長時間稼働し続けると停止する問題があるため
 
 export class Drawer {
   public get t(): number {
@@ -18,15 +19,21 @@ export class Drawer {
   private _model: MultiPatternModel
   private _currentRule: string | null = null
   private _ruleChangedAt = 0
+  private _modelCreatedAt = Date.now()
 
   public constructor(
     public readonly fieldSize: Vector,
-    rules: LSystemRule[],
+    public readonly rules: LSystemRule[],
   ) {
     this._model = this.createModel(rules)
   }
 
   public next(p: p5): void {
+    if ((Date.now() - this._modelCreatedAt) > resetInterval) {
+      console.log(`[RESET] at ${Date.now()}`)
+      this._model = this.createModel(this.rules)
+    }
+
     if (this.t % this._executionInterval === 0) {
       this._model.execute()
       if (this._currentRule !== this._model.currentRule) {
@@ -46,6 +53,8 @@ export class Drawer {
   }
 
   private createModel(rules: LSystemRule[]): MultiPatternModel {
+    this._modelCreatedAt = Date.now()
+
     const maxLineCount = 5000
     const mutationRate = 0
     const lineLengthType = 0
