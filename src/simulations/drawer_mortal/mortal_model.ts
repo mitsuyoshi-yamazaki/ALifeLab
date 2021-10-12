@@ -80,7 +80,7 @@ export class MortalModel extends Model {
           }
         })
       } else {
-        this._lines = borderLines.concat(this._lines.slice(removingLineCount + borderLineCount, this._lines.length - borderLineCount))
+        this.__lines = borderLines.concat(this._lines.slice(removingLineCount + borderLineCount, this._lines.length - borderLineCount))
       }
     }
   }

@@ -78,6 +78,14 @@ export class QuadtreeNode {
     return 1 + childNodes.reduce((result, node) => result + node.numberOfNodes(), 0)
   }
 
+  public trim(): void {
+    if (this.childObjects().length > 0) {
+      this._children?.nodes.forEach(node => node.trim())
+      return
+    }
+    this._children = null
+  }
+
   public draw(p: p5): void {
     const weight = 0.5
     const halfWeight = weight / 2

@@ -45,7 +45,10 @@ export class Model {
 
   protected _t = 0
   protected _drawers: LSystemDrawer[] = []
-  protected _lines: Line[] = []
+  protected get _lines(): Line[] {
+    return this.__lines
+  }
+  protected __lines: Line[] = []
   protected _result: Result | null
   protected _rootNode: QuadtreeNode
 
@@ -59,12 +62,16 @@ export class Model {
     fixedStartPoint: boolean,
     addObstacle: boolean,
   ) {
+    this.initializeMembers()
     this._rootNode = new QuadtreeNode(new Vector(0, 0), fieldSize, null)
     this.setupBorderLines()
     if (addObstacle) {
       this.setupObstacle()
     }
     this._drawers.push(...this.setupFirstDrawers(lSystemRules, fixedStartPoint, lineLengthType, colorTheme))
+  }
+
+  protected initializeMembers(): void {
   }
 
   public execute(): void {
@@ -131,7 +138,7 @@ export class Model {
     )
   }
 
-  private setupFirstDrawers(rules: LSystemRule[], fixedStartPoint: boolean, lineLengthType: number, colorTheme: string): LSystemDrawer[] {
+  protected setupFirstDrawers(rules: LSystemRule[], fixedStartPoint: boolean, lineLengthType: number, colorTheme: string): LSystemDrawer[] {
     const padding = 100
     const position = (): Vector => {
       if (fixedStartPoint && rules.length === 1) {
@@ -187,7 +194,7 @@ export class Model {
     })
   }
 
-  private executeSteps(drawerCount: number): void {
+  protected executeSteps(drawerCount: number): void {
     if (this.isCompleted === true || drawerCount <= 0) {
       return
     }
@@ -230,11 +237,11 @@ export class Model {
     this.executeSteps(drawerCount)
   }
 
-  private isCollided(line: Line): boolean {
+  protected isCollided(line: Line): boolean {
     return this._lines.some(other => isCollided(line, other))
   }
 
-  private isCollidedQuadtree(line: Line, node: QuadtreeNode): boolean {
+  protected isCollidedQuadtree(line: Line, node: QuadtreeNode): boolean {
     if (this.lineCollisionEnabled === false) {
       return false
     }
@@ -242,11 +249,20 @@ export class Model {
     return lines.some(other => isCollided(line, other))
   }
 
-  private addLine(line: Line, node: QuadtreeNode | null): void {
+  protected addLine(line: Line, node: QuadtreeNode | null): void {
     if (this.quadtreeEnabled === true && node != null) {
       node.objects.push(line)
     }
     this._lines.push(line)
+  }
+
+  protected removeLine(line: Line): void {
+    const node = this.nodeContains(line)
+    if (node != null) {
+      node.objects = node.objects.filter(obj => obj !== line)
+    } else {
+      console.log(`Enabled quadtree but no node contains line (${line.start}, ${line.end})`)
+    }
   }
 }
 
