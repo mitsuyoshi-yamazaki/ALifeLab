@@ -2,7 +2,7 @@ import p5 from "p5"
 import { defaultCanvasParentId } from "../../react-components/common/default_canvas_parent_id"
 import { Drawer } from "../lines_and_angles/drawer"
 import { exampleRules } from "../drawer/rule_examples"
-import { toggleFullscreen } from "../../classes/utilities"
+import { isFullScreen, toggleFullscreen } from "../../classes/utilities"
 import { Vector } from "../../classes/physics"
 import { VanillaLSystemRule } from "../drawer/vanilla_lsystem_rule"
 
@@ -38,6 +38,13 @@ export const main = (p: p5): void => {
   }
 
   p.mousePressed = () => {
-    toggleFullscreen(canvasId)
+    if (isFullScreen() !== true) {
+      toggleFullscreen(canvasId)
+      return
+    }
+
+    const position = new Vector(p.mouseX, p.mouseY)
+    const rule = new VanillaLSystemRule("A:-88,A,-152,A")
+    drawer.addRule(rule, position)
   }
 }

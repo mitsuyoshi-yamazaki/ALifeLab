@@ -1,6 +1,7 @@
 import p5 from "p5"
 import { Vector } from "../../classes/physics"
 import { LSystemRule } from "../drawer/lsystem_rule"
+import { VanillaLSystemRule } from "../drawer/vanilla_lsystem_rule"
 import { MultiPatternModel } from "./multi_pattern_model"
 
 const ruleFadeDuration = 50
@@ -94,5 +95,9 @@ export class Drawer {
     p.textStyle(p.NORMAL)
     p.textSize(textSize)
     p.text(displayRule, margin, this.fieldSize.y - margin)
+  }
+
+  public addRule(rule: VanillaLSystemRule, position: Vector): void {
+    this._model.addRule(rule, position)
   }
 }

@@ -6,6 +6,7 @@ import { defaultInitialCondition, LSystemRule } from "../drawer/lsystem_rule"
 import { LSystemDrawer } from "../drawer/lsystem_drawer"
 import { random } from "../../classes/utilities"
 import { QuadtreeNode } from "../drawer/quadtree"
+import { VanillaLSystemRule } from "../drawer/vanilla_lsystem_rule"
 
 const pauseDuration = 400
 const fadeDuration = 200
@@ -257,5 +258,25 @@ export class MultiPatternModel extends Model {
       }
       }
     })
+  }
+
+  // Public API
+  public addRule(rule: VanillaLSystemRule, position: Vector): void {
+    const direction = (): number => {
+      return random(360) - 180
+    }
+
+    const drawer = this.newDrawer(
+      position,
+      direction(),
+      defaultInitialCondition,
+      rule,
+      this.lineLengthType,
+      this.colorTheme,
+    )
+
+    console.log(`[NEW] ${rule.encoded}`)
+    this._drawers.push(drawer)
+    this._currentRule = drawer.rule.encoded
   }
 }
