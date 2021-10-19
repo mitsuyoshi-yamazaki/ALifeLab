@@ -1,18 +1,12 @@
 import p5 from "p5"
 import React from "react"
 import ReactDOM from "react-dom"
-import { DetailPage, ScreenshotButtonDefault } from "../../react-components/lab/detail_page"
-import { main, getTimestamp } from "./source"
+import { defaultCanvasParentId } from "../../react-components/common/default_canvas_parent_id"
+import { main } from "./source"
 
 const App = () => {
-  const screenshotButton: ScreenshotButtonDefault = {
-    kind: "default",
-    getTimestamp,
-    getDescription: () => document.location.search
-  }
   return (
-    <DetailPage screenshotButtonType={screenshotButton}>
-    </DetailPage>
+    <div id={defaultCanvasParentId}></div>
   )
 }
 
