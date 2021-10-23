@@ -1,10 +1,11 @@
 import p5 from "p5"
 import { defaultCanvasParentId } from "../../react-components/common/default_canvas_parent_id"
-import { Drawer } from "../lines_and_angles/drawer"
+import { Drawer } from "./drawer"
 import { exampleRules } from "../drawer/rule_examples"
 import { isFullScreen, toggleFullscreen } from "../../classes/utilities"
 import { Vector } from "../../classes/physics"
 import { VanillaLSystemRule } from "../drawer/vanilla_lsystem_rule"
+import { constants } from "../drawer/constants"
 
 const canvasId = "canvas"
 const screenSize = new Vector(window.screen.width, window.screen.height)
@@ -20,7 +21,12 @@ const rules = exampleRules.flatMap(rule => {
     return []
   }
 })
-const drawer = new Drawer(fieldSize, rules)
+const drawer = new Drawer(
+  fieldSize,
+  constants.simulation.maxLineCount,
+  constants.draw.colorTheme,
+  rules,
+)
 
 export const canvasWidth = fieldSize
 
@@ -44,7 +50,6 @@ export const main = (p: p5): void => {
     }
 
     const position = new Vector(p.mouseX, p.mouseY)
-    const rule = new VanillaLSystemRule("A:-88,A,-152,A")
-    drawer.addRule(rule, position)
+    drawer.didReceiveTouch(position)
   }
 }
