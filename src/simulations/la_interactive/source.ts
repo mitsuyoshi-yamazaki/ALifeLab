@@ -7,6 +7,8 @@ import { Vector } from "../../classes/physics"
 import { VanillaLSystemRule } from "../drawer/vanilla_lsystem_rule"
 import { constants } from "../drawer/constants"
 
+const fullscreenEnabled = false as boolean
+
 const canvasId = "canvas"
 const screenSize = new Vector(window.screen.width, window.screen.height)
 const isPortrait = ((): boolean => {
@@ -44,7 +46,7 @@ export const main = (p: p5): void => {
   }
 
   p.mousePressed = () => {
-    if (isFullScreen() !== true) {
+    if (fullscreenEnabled === true && isFullScreen() !== true) {
       toggleFullscreen(canvasId)
       return
     }

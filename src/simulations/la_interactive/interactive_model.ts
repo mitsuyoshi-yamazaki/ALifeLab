@@ -132,6 +132,7 @@ export class InteractiveModel extends Model {
             if (stored != null) {
               return stored.lines
             }
+            console.log(`addRule時に追加されているはず ${encodedRule}`)
             const newInfo: RuleInfo = {
               encodedRule,
               lines: [],
@@ -253,8 +254,17 @@ export class InteractiveModel extends Model {
       this.colorTheme,
     )
 
-    console.log(`[NEW] ${rule.encoded}`)
+    const encodedRule = rule.encoded
+    console.log(`[NEW] ${encodedRule}`)
     this._drawers.push(drawer)
-    this._currentRule = drawer.rule.encoded
+    this._currentRule = encodedRule
+
+    const newInfo: RuleInfo = {
+      encodedRule,
+      lines: [],
+      state: "growing",
+      stateTimestamp: this._drawTimestamp,
+    }
+    this._runningRuleInfo.set(encodedRule, newInfo)
   }
 }

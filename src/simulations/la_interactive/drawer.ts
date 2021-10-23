@@ -15,8 +15,11 @@ export class Drawer {
   }
 
   private _t = 0
-  private _model: InteractiveModel
-  private _state: DrawerState = "add rules"
+  private _currentModel: {
+    state: DrawerState,
+    readonly model: InteractiveModel
+    readonly rules: VanillaLSystemRule[]
+  }
 
   public constructor(
     private readonly fieldSize: Vector,
@@ -29,34 +32,40 @@ export class Drawer {
 
   public next(p: p5): void {
     if (this.t % executionInterval === 0) {
-      this._model.execute()
+      this._currentModel.model.execute()
     }
     p.background(0x0, 0xFF)
-    this._model.draw(p, false)
+    this._currentModel.model.draw(p, false)
 
     this._t += 1
   }
 
   public didReceiveTouch(position: Vector): void {
-    switch (this._state) {
+    console.log(`didReceiveTouch ${this._currentModel.state}`)
+    switch (this._currentModel.state) {
     case "add rules":
-      this._model.addRule(this.randomRule(), position)
-      if (this._model.numberOfRules >= maxNumberOfRules) {
-        this._state = "draw"
+      this._currentModel.model.addRule(this.randomRule(), position)
+      if (this._currentModel.model.numberOfRules >= maxNumberOfRules) {
+        this._currentModel.state = "draw"
+        console.log("draw state")
       }
       break
         
     case "draw":
     case "fade":
       this.reset()
+      console.log("reset")
       break
     }
   }
 
   // ---- Private API ---- //
   private reset(): void {
-    this._state = "add rules"
-    this._model = this.createModel()
+    this._currentModel = {
+      state: "add rules",
+      model: this.createModel(),
+      rules: [...this.rules]
+    }
   }
 
   private createModel(): InteractiveModel {
@@ -71,7 +80,9 @@ export class Drawer {
   }
 
   private randomRule(): VanillaLSystemRule {
-    const randomIndex = Math.floor(random(this.rules.length)) // TODO: 同じものを選ばないような調整等
-    return this.rules[randomIndex]
+    const randomIndex = Math.floor(random(this.rules.length))
+    const rule = this._currentModel.rules[randomIndex]
+    this._currentModel.rules.splice(randomIndex, 1)
+    return rule
   }
 }
