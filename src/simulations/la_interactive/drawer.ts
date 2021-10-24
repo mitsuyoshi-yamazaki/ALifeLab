@@ -6,7 +6,6 @@ import { InteractiveModel } from "./interactive_model"
 
 type DrawerState = "add rules" | "draw" | "fade"
 
-const executionInterval = 1
 const maxNumberOfRules = 3
 
 export class Drawer {
@@ -20,6 +19,16 @@ export class Drawer {
     readonly model: InteractiveModel
     readonly rules: VanillaLSystemRule[]
   }
+  private get _executionInterval(): number {
+    switch (this._currentModel.state) {
+    case "add rules":
+      return 10
+    case "draw":
+    case "fade":
+      return 1
+    }
+  }
+  private _interfaceDrawer: InterfaceDrawer
 
   public constructor(
     private readonly fieldSize: Vector,
@@ -27,15 +36,17 @@ export class Drawer {
     private readonly colorTheme: string,
     private readonly rules: VanillaLSystemRule[],
   ) {
+    this._interfaceDrawer = new InterfaceDrawer("画面をタップ", fieldSize, maxNumberOfRules)
     this.reset()
   }
 
   public next(p: p5): void {
-    if (this.t % executionInterval === 0) {
+    if (this.t % this._executionInterval === 0) {
       this._currentModel.model.execute()
     }
     p.background(0x0, 0xFF)
     this._currentModel.model.draw(p, false)
+    this._interfaceDrawer.draw(p)
 
     this._t += 1
   }
@@ -84,5 +95,49 @@ export class Drawer {
     const rule = this._currentModel.rules[randomIndex]
     this._currentModel.rules.splice(randomIndex, 1)
     return rule
+  }
+}
+
+class InterfaceDrawer {
+  private currentIndicators: number
+
+  public constructor(
+    public readonly title: string,
+    public readonly fieldSize: Vector,
+    public readonly numberOfIndicators: number,
+  ) {
+    this.currentIndicators = numberOfIndicators
+  }
+
+  public decreaseIndicator(): void {
+    if (this.currentIndicators <= 0) {
+      return
+    }
+    this.currentIndicators -= 1
+  }
+
+  public resetIndicator(): void {
+    this.currentIndicators = this.numberOfIndicators
+  }
+
+  public draw(p: p5): void {
+    this.drawTitle(p)
+    this.drawIndicators(p)
+  }
+
+  // ---- Private ---- //
+  private drawTitle(p: p5): void {
+    const textSize = 100
+    const x = 0
+    const y = 0 + textSize
+
+    p.fill(0xFF, 0xE0)
+    p.textStyle(p.NORMAL)
+    p.textSize(textSize)
+    p.text(this.title, x, y)
+  }
+
+  private drawIndicators(p: p5): void {
+
   }
 }
