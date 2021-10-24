@@ -3,6 +3,7 @@ import { random } from "../../classes/utilities"
 import { Vector } from "../../classes/physics"
 import { VanillaLSystemRule } from "../drawer/vanilla_lsystem_rule"
 import { InteractiveModel } from "./interactive_model"
+import { qrcodegen } from "../../../libraries/qrcodegen"
 
 type DrawerState = "add rules" | "draw" | "fade"
 
@@ -99,30 +100,34 @@ export class Drawer {
 }
 
 class InterfaceDrawer {
-  private currentIndicators: number
+  private _currentIndicators: number
+  private _url: string | null
 
   public constructor(
     public readonly title: string,
     public readonly fieldSize: Vector,
     public readonly numberOfIndicators: number,
   ) {
-    this.currentIndicators = numberOfIndicators
+    this._currentIndicators = numberOfIndicators
   }
 
   public decreaseIndicator(): void {
-    if (this.currentIndicators <= 0) {
+    if (this._currentIndicators <= 0) {
       return
     }
-    this.currentIndicators -= 1
+    this._currentIndicators -= 1
   }
 
   public resetIndicator(): void {
-    this.currentIndicators = this.numberOfIndicators
+    this._currentIndicators = this.numberOfIndicators
   }
 
   public draw(p: p5): void {
     this.drawTitle(p)
-    this.drawIndicators(p)
+    // if (this._url != null) {
+    //   this.drawQrCode(p, this._url)
+    // }
+    this.drawQrCode(p, "Hello, world!", new Vector(100, 400), 200)
   }
 
   // ---- Private ---- //
@@ -137,7 +142,31 @@ class InterfaceDrawer {
     p.text(this.title, x, y)
   }
 
-  private drawIndicators(p: p5): void {
+  // private drawIndicators(p: p5): void {
 
+  // }
+
+  private drawQrCode(p: p5, text: string, position: Vector, size: number): void {
+    // https://github.com/nayuki/QR-Code-generator/blob/master/typescript-javascript/qrcodegen.ts
+    const QRC = qrcodegen.QrCode
+    const qr = QRC.encodeText(text, QRC.Ecc.MEDIUM)
+
+    const cellSize = size / qr.size
+
+    p.fill(0x0)
+    p.noStroke()
+    p.rect(position.x, position.y, size, size)
+    p.fill(0xFF)
+
+    for (let y = 0; y < qr.size; y++) {
+      for (let x = 0; x < qr.size; x++) {
+        // console.log(`qr ${x},${y}: ${qr.getModule(x, y)}`)
+        const cell = qr.getModule(x, y)
+        if (cell !== true) {
+          continue
+        }
+        p.rect(position.x + x * cellSize, position.y + y * cellSize, cellSize, cellSize)
+      }
+    }
   }
 }
