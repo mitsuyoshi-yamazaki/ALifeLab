@@ -5,9 +5,15 @@ import { VanillaLSystemRule } from "../drawer/vanilla_lsystem_rule"
 import { InteractiveModel } from "./interactive_model"
 import { qrcodegen } from "../../../libraries/qrcodegen"
 
+type RuleDefinition = {
+  readonly name: string,
+  readonly rule: VanillaLSystemRule,
+  readonly preferredLineCountMultiplier: number
+}
 type DrawerState = "add rules" | "draw" | "fade"
 
 const maxNumberOfRules = 3
+const colorTheme = "grayscale"
 
 export class Drawer {
   public get t(): number {
@@ -18,7 +24,7 @@ export class Drawer {
   private _currentModel: {
     state: DrawerState,
     readonly model: InteractiveModel
-    readonly rules: VanillaLSystemRule[]
+    readonly ruleDefinitions: RuleDefinition[]
   }
   private get _executionInterval(): number {
     switch (this._currentModel.state) {
@@ -34,8 +40,7 @@ export class Drawer {
   public constructor(
     private readonly fieldSize: Vector,
     private readonly maxLineCount: number,
-    private readonly colorTheme: string,
-    private readonly rules: VanillaLSystemRule[],
+    private readonly ruleDefinitions: RuleDefinition[],
   ) {
     this._interfaceDrawer = new InterfaceDrawer("画面をタップ", fieldSize, maxNumberOfRules)
     this.reset()
@@ -54,29 +59,52 @@ export class Drawer {
 
   public didReceiveTouch(position: Vector): void {
     console.log(`didReceiveTouch ${this._currentModel.state}`)
+
+    const reset = () => {
+      this.reset()
+      console.log("reset")
+    }
+
     switch (this._currentModel.state) {
-    case "add rules":
-      this._currentModel.model.addRule(this.randomRule(), position)
+    case "add rules": {
+      const nextRuleDefinition = this._currentModel.ruleDefinitions.shift()
+      if (nextRuleDefinition == null) {
+        reset()
+        break
+      }
+      this._currentModel.model.addRule(nextRuleDefinition.rule, position) // TODO: preferredLineCountMultiplierを入れる
       if (this._currentModel.model.numberOfRules >= maxNumberOfRules) {
         this._currentModel.state = "draw"
         console.log("draw state")
       }
       break
+    }
         
     case "draw":
     case "fade":
-      this.reset()
-      console.log("reset")
+      reset()
       break
     }
   }
 
   // ---- Private API ---- //
   private reset(): void {
+    const definitions = [...this.ruleDefinitions]
+    const selectedDefinitions: RuleDefinition[] = []
+    for (let i = 0; i < maxNumberOfRules; i += 1) {
+      if (definitions.length <= 0) {
+        break
+      }
+      const randomIndex = Math.floor(random(definitions.length))
+      const definition = definitions[randomIndex]
+      definitions.splice(randomIndex, 1)
+      selectedDefinitions.push(definition)
+    }
+    
     this._currentModel = {
       state: "add rules",
       model: this.createModel(),
-      rules: [...this.rules]
+      ruleDefinitions: selectedDefinitions,
     }
   }
 
@@ -87,15 +115,8 @@ export class Drawer {
       this.fieldSize,
       this.maxLineCount,
       lineLengthType,
-      this.colorTheme,
+      colorTheme,
     )
-  }
-
-  private randomRule(): VanillaLSystemRule {
-    const randomIndex = Math.floor(random(this.rules.length))
-    const rule = this._currentModel.rules[randomIndex]
-    this._currentModel.rules.splice(randomIndex, 1)
-    return rule
   }
 }
 

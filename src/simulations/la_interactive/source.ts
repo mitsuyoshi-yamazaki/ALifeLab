@@ -1,10 +1,10 @@
 import p5 from "p5"
 import { defaultCanvasParentId } from "../../react-components/common/default_canvas_parent_id"
 import { Drawer } from "./drawer"
-import { exampleRules } from "../drawer/rule_examples"
+import { exampleRuleDefinitions } from "../drawer/rule_examples"
 import { Vector } from "../../classes/physics"
 import { VanillaLSystemRule } from "../drawer/vanilla_lsystem_rule"
-import { constants } from "../drawer/constants"
+import { constants } from "./constants"
 
 let t = 0
 const canvasId = "canvas"
@@ -13,18 +13,23 @@ const isPortrait = ((): boolean => {
   return false  // FixMe: 動的に取得する
 })()
 const fieldSize = isPortrait ? screenSize : screenSize.transposed // windowサイズなのでfullscreeen時の画面サイズに合わせる場合はbrowserをフルスクリーンにしておく必要がある
-const rules = exampleRules.flatMap(rule => {
+const rules = exampleRuleDefinitions.flatMap(ruleDefinition => {
   try {
-    return new VanillaLSystemRule(rule)
+    const rule = new VanillaLSystemRule(ruleDefinition.rule)
+    return {
+      name: ruleDefinition.name,
+      rule,
+      preferredLineCountMultiplier: ruleDefinition.preferredLineCountMultiplier,
+    }
   } catch (e) {
-    console.log(`${e} (${rule})`)
+    console.log(`${e} (${ruleDefinition.name}: ${ruleDefinition.rule})`)
     return []
   }
 })
+const maxLineCount = 5000
 const drawer = new Drawer(
   fieldSize,
-  constants.simulation.maxLineCount,
-  constants.draw.colorTheme,
+  maxLineCount,
   rules,
 )
 
