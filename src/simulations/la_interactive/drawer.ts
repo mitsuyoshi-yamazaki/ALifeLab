@@ -4,7 +4,7 @@ import { Vector } from "../../classes/physics"
 import { VanillaLSystemRule } from "../drawer/vanilla_lsystem_rule"
 import { InteractiveModel } from "./interactive_model"
 import { qrcodegen } from "../../../libraries/qrcodegen"
-import { encodeRules } from "./rule_url_parameter_encoder"
+import { CodableRuleInfo, encodeRules } from "./rule_url_parameter_encoder"
 
 type RuleDefinition = {
   readonly name: string,
@@ -55,9 +55,9 @@ export class Drawer {
     p.background(0x0, 0xFF)
     this._currentModel.model.draw(p, false)
 
-    if (this._currentModel.model.lineLimitReached === true && this._currentModel.ruleDefinitions.length <= 0) {
+    if (this._currentModel.model.calculationStopped === true && this._currentModel.ruleDefinitions.length <= 0) {
       if (this._interfaceDrawer.qrCodeUrl == null) {
-        this._interfaceDrawer.qrCodeUrl = encodeRules(this._currentModel.model.codableRuleInfo)
+        this._interfaceDrawer.qrCodeUrl = this.getUrl(this._currentModel.model.codableRuleInfo)
       }
     }
     this._interfaceDrawer.draw(p)
@@ -66,6 +66,9 @@ export class Drawer {
   }
 
   public didReceiveTouch(position: Vector): void {
+    if (position.x < 0 || position.x > this.fieldSize.x || position.y < 0 || position.y > this.fieldSize.y) {
+      return
+    }
     console.log(`didReceiveTouch ${this._currentModel.state}`)
 
     const reset = () => {
@@ -99,6 +102,26 @@ export class Drawer {
   }
 
   // ---- Private API ---- //
+  // localhost:8080/pages/la_interactive.html?0=%5Bobject%20Map%20Iterator%5D
+  private getUrl(codableRuleInfo: CodableRuleInfo[]): string {
+    const encodedRules = encodeRules(codableRuleInfo)
+    const host = location.href.split("/pages/")[0]
+    if (host == null) {
+      console.log(`ホスト判定不能 (${location.href})`)
+      return "https://mitsuyoshi-yamazaki.github.io/ALifeLab/pages/gallery.html"
+    }
+    const parameters = new Map<string, string>([
+      ["rules", encodedRules],
+    ])
+    const encodedParameters = Array.from(parameters.entries())
+      .map(([key, value]) => {
+        return `${key}=${value}`
+      })
+      .join("&")
+    
+    return `${host}/pages/la_interactive.html?${encodedParameters}`
+  }
+
   private reset(): void {
     const definitions = [...this.ruleDefinitions]
     const selectedDefinitions: RuleDefinition[] = []
@@ -134,9 +157,18 @@ export class Drawer {
 }
 
 class InterfaceDrawer {
-  public qrCodeUrl: string | null = null
+  public get qrCodeUrl(): string | null {
+    return this._qrCodeUrl
+  }
+  public set qrCodeUrl(url: string | null) {
+    if (url != null) {
+      console.log(`Share URL: ${url}`)
+    }
+    this._qrCodeUrl = url
+  }
 
   private _currentIndicators: number
+  private _qrCodeUrl: string | null = null
 
   public constructor(
     public readonly title: string,
