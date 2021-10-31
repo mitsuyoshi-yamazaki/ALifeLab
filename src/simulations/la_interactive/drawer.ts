@@ -303,12 +303,13 @@ class InterfaceDrawer {
 
   // ---- Private ---- //
   private drawSystemMessage(p: p5): void {
-    const textSize = 60
-    const x = this.fieldSize.x / 2
-    const y = this.fieldSize.y - textSize - 10
+    const textSize = 30
+    const margin = 10
+    const x = margin
+    const y = margin + textSize
 
     p.fill(0xFF, 0xC0)
-    p.textAlign(p.CENTER)
+    p.textAlign(p.LEFT)
     p.textStyle(p.NORMAL)
     p.textSize(textSize)
     p.text(this.systemMessage, x, y)
