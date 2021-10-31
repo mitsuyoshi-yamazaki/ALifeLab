@@ -340,7 +340,7 @@ class InterfaceDrawer {
     const textSize = 50
     const margin = 10
     const x = margin
-    const y = margin + textSize
+    const y = margin + textSize * 3
 
     p.fill(0xFF, 0xE0)
     p.textAlign(p.LEFT)
