@@ -139,7 +139,7 @@ export class Drawer {
         return
       }
       this.addRule(nextRuleDefinition.rule, position) // TODO: preferredLineCountMultiplierを入れる
-      this._interfaceDrawer.systemMessage = createAddRuleSystemMessage(currentModel.ruleDefinitions.length)
+      this._interfaceDrawer.setSystemMessage(createAddRuleSystemMessage(currentModel.ruleDefinitions.length), false)
       if (currentModel.model.numberOfRules >= maxNumberOfRules) {
         this.changeState(currentModel, "draw")
       }
@@ -178,15 +178,15 @@ export class Drawer {
 
     switch (state) {
     case "initialized":
-      this._interfaceDrawer.systemMessage = createAddRuleSystemMessage(currentModel.ruleDefinitions.length)
+      this._interfaceDrawer.setSystemMessage(createAddRuleSystemMessage(currentModel.ruleDefinitions.length), true)
       break
     case "add rules":
       break
     case "draw":
-      this._interfaceDrawer.systemMessage = "描画中..."
+      this._interfaceDrawer.setSystemMessage("描画中...", true)
       break
     case "share":
-      this._interfaceDrawer.systemMessage = "タップしてリセット"
+      this._interfaceDrawer.setSystemMessage("タップしてリセット", true)
 
       // TODO: シェア機能を実装
       // if (this._interfaceDrawer.qrCodeUrl == null) {
@@ -270,14 +270,27 @@ type QRCodeInfo = {
   readonly url: string
   readonly position: Vector
 }
+const systemMessageFadeDuration = 20
 
 class InterfaceDrawer {
   public get qrCodeUrl(): string | null {
     return this._qrCodeInfo?.url ?? null
   }
-  public systemMessage = ""
+  public get systemMessage(): string {
+    return this._systemMessage.message
+  }
   
+  private _t = 0
   private _qrCodeInfo: QRCodeInfo | null = null
+  private _systemMessage: {
+    message: string
+    incremental: boolean
+    changedAt: number
+  } = {
+    message: "",
+    incremental: false,
+    changedAt: 0,
+  }
 
   public constructor(
     public readonly fieldSize: Vector,
@@ -291,6 +304,16 @@ class InterfaceDrawer {
     this._qrCodeInfo = info
   }
 
+  public setSystemMessage(message: string, incremental: boolean): void {
+    if (message !== this._systemMessage.message || incremental !== this._systemMessage.incremental) {
+      this._systemMessage = {
+        message,
+        incremental,
+        changedAt: this._t,
+      }
+    }
+  }
+
   // ---- Drawing ---- //
   public draw(p: p5): void {
     if (this.systemMessage.length > 0) {
@@ -299,10 +322,21 @@ class InterfaceDrawer {
     if (this._qrCodeInfo != null) {
       this.drawQrCode(p, this._qrCodeInfo.url, this._qrCodeInfo.position, 200)
     }
+
+    this._t += 1
   }
 
   // ---- Private ---- //
   private drawSystemMessage(p: p5): void {
+    const displayMessage = ((): string => {
+      if (this._systemMessage.incremental === false) {
+        return this.systemMessage
+      }
+      const progress = Math.min(this._t - this._systemMessage.changedAt, systemMessageFadeDuration) / systemMessageFadeDuration
+      const endIndex = Math.min(Math.floor(progress * this.systemMessage.length), this.systemMessage.length)
+      return this.systemMessage.slice(0, endIndex)
+    })()
+
     const textSize = 30
     const margin = 10
     const x = margin
@@ -312,7 +346,7 @@ class InterfaceDrawer {
     p.textAlign(p.LEFT)
     p.textStyle(p.NORMAL)
     p.textSize(textSize)
-    p.text(this.systemMessage, x, y)
+    p.text(displayMessage, x, y)
   }
 
   // private drawIndicators(p: p5): void {
