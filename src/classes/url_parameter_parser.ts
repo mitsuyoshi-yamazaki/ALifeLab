@@ -21,24 +21,24 @@ export class URLParameterParser {
   }
 
   public hasKey(key: string, shortKey?: string): boolean {
-    if ((shortKey != undefined) && (this.rawParameters.get(shortKey) != undefined)) {
+    if ((shortKey != null) && (this.rawParameters.get(shortKey) != null)) {
       return true
     }
 
-    return this.rawParameters.get(key) != undefined
+    return this.rawParameters.get(key) != null
   }
 
   public int(key: string, defaultValue: number, shortKey?: string): number {
     let rawValue: string | undefined
-    if (shortKey != undefined) {
+    if (shortKey != null) {
       this.usedKeys.push(shortKey)
       rawValue = this.rawParameters.get(shortKey)
     }
     this.usedKeys.push(key)
-    if (rawValue == undefined) {
+    if (rawValue == null) {
       rawValue = this.rawParameters.get(key)
     }
-    if (rawValue == undefined) {
+    if (rawValue == null) {
       this.parameters.set(key, defaultValue)
 
       return defaultValue
@@ -56,15 +56,15 @@ export class URLParameterParser {
 
   public float(key: string, defaultValue: number, shortKey?: string): number {
     let rawValue: string | undefined
-    if (shortKey != undefined) {
+    if (shortKey != null) {
       this.usedKeys.push(shortKey)
       rawValue = this.rawParameters.get(shortKey)
     }
     this.usedKeys.push(key)
-    if (rawValue == undefined) {
+    if (rawValue == null) {
       rawValue = this.rawParameters.get(key)
     }
-    if (rawValue == undefined) {
+    if (rawValue == null) {
       this.parameters.set(key, defaultValue)
 
       return defaultValue
@@ -82,15 +82,15 @@ export class URLParameterParser {
 
   public boolean(key: string, defaultValue: boolean, shortKey?: string): boolean {
     let rawValue: string | undefined
-    if (shortKey != undefined) {
+    if (shortKey != null) {
       this.usedKeys.push(shortKey)
       rawValue = this.rawParameters.get(shortKey)
     }
     this.usedKeys.push(key)
-    if (rawValue == undefined) {
+    if (rawValue == null) {
       rawValue = this.rawParameters.get(key)
     }
-    if (rawValue == undefined) {
+    if (rawValue == null) {
       this.parameters.set(key, defaultValue)
 
       return defaultValue
@@ -109,15 +109,15 @@ export class URLParameterParser {
 
   public string(key: string, defaultValue: string, shortKey?: string): string {
     let rawValue: string | undefined
-    if (shortKey != undefined) {
+    if (shortKey != null) {
       this.usedKeys.push(shortKey)
       rawValue = this.rawParameters.get(shortKey)
     }
     this.usedKeys.push(key)
-    if (rawValue == undefined) {
+    if (rawValue == null) {
       rawValue = this.rawParameters.get(key)
     }
-    if (rawValue == undefined) {
+    if (rawValue == null) {
       this.parameters.set(key, defaultValue)
 
       return defaultValue

@@ -35,11 +35,6 @@ export const main = (p: p5): void => {
 
   p.draw = () => {
     drawer.next(p)
-
-    // p.noFill()
-    // p.strokeWeight(10)
-    // p.stroke(0xff, 0,0)
-    // p.rect(10, 10, fieldSize.x - 20, fieldSize.y - 20)
   }
 
   p.mousePressed = () => {

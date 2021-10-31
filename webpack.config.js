@@ -17,6 +17,8 @@ module.exports = {
     drawer_symmetry: "./src/simulations/drawer_symmetry/layout.tsx",
     lines_and_angles: "./src/simulations/lines_and_angles/layout.tsx",
     la_fullscreen: "./src/simulations/la_fullscreen/layout.tsx",
+    la_interactive_fullscreen: "./src/simulations/la_interactive_fullscreen/layout.tsx",
+    la_interactive: "./src/simulations/la_interactive/layout.tsx",
     drawer_change_parameter: "./src/simulations/drawer_change_parameter/layout.tsx",
     cellular_automata: "./src/simulations/cellular_automata/layout.tsx",
     hex_cellular_automata: "./src/simulations/hex_cellular_automata/layout.tsx",

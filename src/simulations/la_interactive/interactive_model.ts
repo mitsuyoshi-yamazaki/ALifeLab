@@ -2,16 +2,14 @@ import p5 from "p5"
 import { Model } from "../drawer/model"
 import { Line } from "../drawer/line"
 import { Vector } from "../../classes/physics"
-import { defaultInitialCondition, LSystemRule } from "../drawer/lsystem_rule"
+import { defaultInitialCondition } from "../drawer/lsystem_rule"
 import { LSystemDrawer } from "../drawer/lsystem_drawer"
 import { random } from "../../classes/utilities"
 import { QuadtreeNode } from "../drawer/quadtree"
 import { VanillaLSystemRule } from "../drawer/vanilla_lsystem_rule"
+import { CodableRuleInfo } from "./rule_url_parameter_encoder"
 
-const pauseDuration = 400
-const fadeDuration = 200
-
-type RuleState = "growing" | "paused" | "fade"
+type RuleState = "growing" | "paused"
 type RuleInfo = {
   readonly encodedRule: string
   readonly lines: Line[]
@@ -19,9 +17,17 @@ type RuleInfo = {
   stateTimestamp: number
 }
 
-export class MultiPatternModel extends Model {
-  public get currentRule(): string | null {
-    return this._currentRule
+export class InteractiveModel extends Model {
+  public get numberOfRules(): number {
+    return this._runningRuleInfo.size
+  }
+  public get codableRuleInfo(): CodableRuleInfo[] {
+    return [...this._codableRuleInfo]
+  }
+  public get calculationStopped(): boolean {
+    const lineLimitReached = Array.from(this._runningRuleInfo.values()).every(info => info.lines.length >= this.maxLineCount)
+    const drawersDied = this._drawers.length <= 0
+    return lineLimitReached || drawersDied
   }
 
   private _runningRuleInfo: Map<string, RuleInfo>
@@ -30,27 +36,23 @@ export class MultiPatternModel extends Model {
     return Array.from(this._runningRuleInfo.values()).flatMap(ruleInfo => ruleInfo.lines).concat(this._worldLines)
   }
   private _drawTimestamp = 0
-  private _currentRule: string | null = null
+  private _codableRuleInfo: CodableRuleInfo[] = []
 
   public constructor(
     fieldSize: Vector,
     maxLineCount: number,
-    lSystemRules: LSystemRule[],
-    mutationRate: number,
     private readonly lineLengthType: number,
     private readonly colorTheme: string,
-    fixedStartPoint: boolean,
-    addObstacle: boolean,
   ) {
     super(
       fieldSize,
       maxLineCount,
-      lSystemRules,
-      mutationRate,
+      [], // lSystemRules
+      0,  // mutationRate
       lineLengthType,
       colorTheme,
-      fixedStartPoint,
-      addObstacle,
+      false,  // fixedStartPoint
+      false,  // addObstacle
     )
   }
 
@@ -60,32 +62,7 @@ export class MultiPatternModel extends Model {
   }
 
   protected setupFirstDrawers(): LSystemDrawer[] {
-    const drawer = this.setupNewDrawer()
-    return drawer == null ? [] : [drawer]
-  }
-
-  private setupNewDrawer(): LSystemDrawer | null {
-    const padding = 100
-    const position = (): Vector => {
-      return new Vector(random(this.fieldSize.x - padding, padding), random(this.fieldSize.y - padding, padding))
-    }
-    const direction = (): number => {
-      return random(360) - 180
-    }
-
-    const rule = this.nextRule()
-    if (rule == null) {
-      return null
-    }
-
-    return this.newDrawer(
-      position(),
-      direction(),
-      defaultInitialCondition,
-      rule,
-      this.lineLengthType,
-      this.colorTheme,
-    )
+    return []
   }
 
   protected checkCompleted(): void {
@@ -94,13 +71,6 @@ export class MultiPatternModel extends Model {
 
   protected preExecution(): void {
     // do nothing
-  }
-
-  private nextRule(): LSystemRule | null {
-    if (this.lSystemRules.length <= 0) {
-      return null
-    }
-    return this.lSystemRules[Math.floor(random(this.lSystemRules.length))]
   }
 
   protected executeSteps(drawerCount: number): void {
@@ -136,6 +106,7 @@ export class MultiPatternModel extends Model {
             if (stored != null) {
               return stored.lines
             }
+            console.log(`addRule時に追加されているはず ${encodedRule}`)
             const newInfo: RuleInfo = {
               encodedRule,
               lines: [],
@@ -162,11 +133,10 @@ export class MultiPatternModel extends Model {
         ruleInfo.stateTimestamp = this._drawTimestamp
         return
       case "paused":
-      case "fade":
         return
       }
     })
-    
+
     this._drawers = newDrawers.map(drawer => {
       // if (random(1) < this.mutationRate) {
       //   return drawer.mutated()
@@ -176,14 +146,6 @@ export class MultiPatternModel extends Model {
     })
 
     this.checkPatternState()
-    if (growingRules.length < 2) {
-      const drawer = this.setupNewDrawer()
-      if (drawer != null) {
-        console.log(`[NEW] ${drawer.rule.encoded}`)
-        this._drawers.push(drawer)
-        this._currentRule = drawer.rule.encoded
-      }
-    }
 
     this._t += 1
     this.executeSteps(drawerCount)
@@ -206,16 +168,6 @@ export class MultiPatternModel extends Model {
           return
 
         case "paused":
-          if ((this._drawTimestamp - ruleInfo.stateTimestamp) >= pauseDuration) {
-            ruleInfo.stateTimestamp = this._drawTimestamp
-            ruleInfo.state = "fade"
-          }
-          return
-            
-        case "fade":
-          if ((this._drawTimestamp - ruleInfo.stateTimestamp) >= fadeDuration) {
-            rulesToRemove.push(ruleInfo)
-          }
           return
         }
       })
@@ -249,34 +201,39 @@ export class MultiPatternModel extends Model {
       case "paused":
         ruleInfo.lines.forEach(line => this.drawLine(line, 0x80, 0.5, p))
         return
-              
-      case "fade": {
-        const duration = this._drawTimestamp - ruleInfo.stateTimestamp
-        const alpha = 0x80 * (1 - (duration / fadeDuration))
-        ruleInfo.lines.forEach(line => this.drawLine(line, alpha, 0.5, p))
-        return
-      }
       }
     })
   }
 
   // Public API
   public addRule(rule: VanillaLSystemRule, position: Vector): void {
-    const direction = (): number => {
-      return random(360) - 180
-    }
+    const direction = random(360) - 180
 
     const drawer = this.newDrawer(
       position,
-      direction(),
+      direction,
       defaultInitialCondition,
       rule,
       this.lineLengthType,
       this.colorTheme,
     )
 
-    console.log(`[NEW] ${rule.encoded}`)
+    const encodedRule = rule.encoded
+    console.log(`[NEW] ${encodedRule}`)
     this._drawers.push(drawer)
-    this._currentRule = drawer.rule.encoded
+
+    const newInfo: RuleInfo = {
+      encodedRule,
+      lines: [],
+      state: "growing",
+      stateTimestamp: this._drawTimestamp,
+    }
+    this._runningRuleInfo.set(encodedRule, newInfo)
+    this._codableRuleInfo.push({
+      position: position,
+      angle: direction,
+      lineCount: this.maxLineCount,
+      rule,
+    })
   }
 }
