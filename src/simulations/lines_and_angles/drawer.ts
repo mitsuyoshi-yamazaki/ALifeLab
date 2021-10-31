@@ -88,7 +88,7 @@ export class Drawer {
     const textSize = 12
     const margin = 40
 
-    const endIndex = Math.min(Math.floor(progress * rule.length), rule.length - 1)
+    const endIndex = Math.min(Math.floor(progress * rule.length), rule.length)
     const displayRule = rule.slice(0, endIndex)
 
     p.fill(0xFF, 0xC0)

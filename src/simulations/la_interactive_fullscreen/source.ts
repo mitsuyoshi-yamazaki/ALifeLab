@@ -22,7 +22,20 @@ const fieldSize = ((): Vector => {
     return screenSize.transposed
   }
 })()
+const excludedRuleNames: string[] = [
+  // 描画時間が長い
+  "落書き",
+
+  // 模様が小さく干渉しにくい
+  "Caduceus1",
+  "Caduceus2",
+  "Caduceus3",
+  "Caduceus4",
+]
 const rules = exampleRuleDefinitions.flatMap(ruleDefinition => {
+  if (excludedRuleNames.includes(ruleDefinition.name) === true) {
+    return []
+  }
   try {
     const rule = new VanillaLSystemRule(ruleDefinition.rule)
     return {
@@ -70,7 +83,7 @@ export const main = (p: p5): void => {
     }
 
     const now = Date.now()
-    if (now - tappedTimestamp < 800) {
+    if (now - tappedTimestamp < 500) {
       return  // iPadでのチャタリング対策
     }
     tappedTimestamp = now

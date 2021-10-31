@@ -12,7 +12,7 @@ type RuleDefinition = {
   readonly rule: VanillaLSystemRule,
   readonly preferredLineCountMultiplier: number
 }
-type DrawerState = "add rules" | "draw" | "share"
+type DrawerState = "initialized" | "add rules" | "draw" | "share"
 
 type AutomaticDrawModel = {
   readonly modelType: "automatic"
@@ -39,6 +39,10 @@ type RuleArgument = ExampleRuleArgument | FixedRuleArgument
 const maxNumberOfRules = 3
 const colorTheme = "grayscale"
 
+function createAddRuleSystemMessage(remainingRuleCount: number): string {
+  return `画面をタップして模様を追加(あと${remainingRuleCount}回)`
+}
+
 export class Drawer {
   public get t(): number {
     return this._t
@@ -54,10 +58,10 @@ export class Drawer {
       break
     }
     switch (this._currentModel.state) {
+    case "initialized":
     case "add rules":
       return 10
     case "draw":
-      return 1
     case "share":
       return 1
     }
@@ -70,8 +74,7 @@ export class Drawer {
     private readonly ruleArgument: RuleArgument,
     private readonly showIndicators: boolean,
   ) {
-    this._interfaceDrawer = new InterfaceDrawer("画面をタップ", fieldSize)
-    this._interfaceDrawer.showTitle()
+    this._interfaceDrawer = new InterfaceDrawer(fieldSize)
 
     switch (ruleArgument.ruleType) {
     case "examples":
@@ -102,22 +105,8 @@ export class Drawer {
     case "interactive":
       if (this._currentModel.model.calculationStopped === true && this._currentModel.ruleDefinitions.length <= 0) {
         if (this._currentModel.state !== "share") {
-          this._currentModel.state = "share"
-          this._interfaceDrawer.showTitle()
-          console.log("Drawing finished")
+          this.changeState(this._currentModel, "share")
         }
-
-        // TODO: シェア機能を実装
-        // if (this._interfaceDrawer.qrCodeUrl == null) {
-        //   const codableRuleInfo = this._currentModel.model.codableRuleInfo
-        //   const qrCodePosition = ((): Vector => {
-        //     return new Vector(100, 100)  // TODO:
-        //   })()
-        //   this._interfaceDrawer.setQrCodeInfo({
-        //     url: this.getUrl(codableRuleInfo),
-        //     position: qrCodePosition,
-        //   })
-        // }
       }
       break
     }
@@ -140,30 +129,34 @@ export class Drawer {
     case "interactive":
       break
     }
-    console.log(`didReceiveTouch ${this._currentModel.state}`)
+    const currentModel = this._currentModel
+    console.log(`didReceiveTouch ${currentModel.state}`)
 
+    const addRule = () => {
+      const nextRuleDefinition = currentModel.ruleDefinitions.shift()
+      if (nextRuleDefinition == null) {
+        this.changeState(currentModel, "draw")
+        return
+      }
+      this.addRule(nextRuleDefinition.rule, position) // TODO: preferredLineCountMultiplierを入れる
+      this._interfaceDrawer.setSystemMessage(createAddRuleSystemMessage(currentModel.ruleDefinitions.length), false)
+      if (currentModel.model.numberOfRules >= maxNumberOfRules) {
+        this.changeState(currentModel, "draw")
+      }
+    }
     const reset = () => {
       this.reset()
       console.log("reset")
     }
 
     switch (this._currentModel.state) {
-    case "add rules": {
-      const nextRuleDefinition = this._currentModel.ruleDefinitions.shift()
-      if (nextRuleDefinition == null) {
-        this._currentModel.state = "draw"
-        this._interfaceDrawer.hideTitle()
-        console.log("draw state (no rule)")
-        break
-      }
-      this.addRule(nextRuleDefinition.rule, position) // TODO: preferredLineCountMultiplierを入れる
-      if (this._currentModel.model.numberOfRules >= maxNumberOfRules) {
-        this._currentModel.state = "draw"
-        this._interfaceDrawer.hideTitle()
-        console.log("draw state")
-      }
+    case "initialized":
+      this.changeState(currentModel, "add rules")
+      addRule()
       break
-    }
+    case "add rules":
+      addRule()
+      break
         
     case "draw":
       break // 無視
@@ -174,12 +167,42 @@ export class Drawer {
     }
   }
 
+  // ---- Private API ---- //
   private addRule(rule: VanillaLSystemRule, position: Vector): void {
     this._currentModel.model.addRule(rule, position) // TODO: preferredLineCountMultiplierを入れる
   }
 
-  // ---- Private API ---- //
-  // localhost:8080/pages/la_interactive.html?0=%5Bobject%20Map%20Iterator%5D
+  private changeState(currentModel: InteractiveDrawModel, state: DrawerState): void {
+    console.log(`${currentModel.state} -> ${state}`)
+    currentModel.state = state
+
+    switch (state) {
+    case "initialized":
+      this._interfaceDrawer.setSystemMessage(createAddRuleSystemMessage(currentModel.ruleDefinitions.length), true)
+      break
+    case "add rules":
+      break
+    case "draw":
+      this._interfaceDrawer.setSystemMessage("描画中...", true)
+      break
+    case "share":
+      this._interfaceDrawer.setSystemMessage("タップしてリセット", true)
+
+      // TODO: シェア機能を実装
+      // if (this._interfaceDrawer.qrCodeUrl == null) {
+      //   const codableRuleInfo = this._currentModel.model.codableRuleInfo
+      //   const qrCodePosition = ((): Vector => {
+      //     return new Vector(100, 100)  // TODO:
+      //   })()
+      //   this._interfaceDrawer.setQrCodeInfo({
+      //     url: this.getUrl(codableRuleInfo),
+      //     position: qrCodePosition,
+      //   })
+      // }
+      break
+    }
+  }
+
   private getUrl(codableRuleInfo: CodableRuleInfo[]): string {
     const encodedRules = encodeRules(codableRuleInfo)
     const host = location.href.split("/pages/")[0]
@@ -222,11 +245,12 @@ export class Drawer {
     
     this._currentModel = {
       modelType: "interactive",
-      state: "add rules",
+      state: "initialized",
       model: this.createModel(),
       ruleDefinitions: selectedDefinitions,
     }
 
+    this.changeState(this._currentModel, "initialized") // changeState()状態変化のリセット
     this._interfaceDrawer.setQrCodeInfo(null)
   }
 
@@ -246,17 +270,29 @@ type QRCodeInfo = {
   readonly url: string
   readonly position: Vector
 }
+const systemMessageFadeDuration = 20
 
 class InterfaceDrawer {
   public get qrCodeUrl(): string | null {
     return this._qrCodeInfo?.url ?? null
   }
-
+  public get systemMessage(): string {
+    return this._systemMessage.message
+  }
+  
+  private _t = 0
   private _qrCodeInfo: QRCodeInfo | null = null
-  private _shouldDrawTitle = false
+  private _systemMessage: {
+    message: string
+    incremental: boolean
+    changedAt: number
+  } = {
+    message: "",
+    incremental: false,
+    changedAt: 0,
+  }
 
   public constructor(
-    public readonly title: string,
     public readonly fieldSize: Vector,
   ) {
   }
@@ -268,35 +304,49 @@ class InterfaceDrawer {
     this._qrCodeInfo = info
   }
 
-  public showTitle(): void {
-    this._shouldDrawTitle = true
-  }
-
-  public hideTitle(): void {
-    this._shouldDrawTitle = false
+  public setSystemMessage(message: string, incremental: boolean): void {
+    if (message !== this._systemMessage.message || incremental !== this._systemMessage.incremental) {
+      this._systemMessage = {
+        message,
+        incremental,
+        changedAt: this._t,
+      }
+    }
   }
 
   // ---- Drawing ---- //
   public draw(p: p5): void {
-    if (this._shouldDrawTitle === true) {
-      this.drawTitle(p)
+    if (this.systemMessage.length > 0) {
+      this.drawSystemMessage(p)
     }
     if (this._qrCodeInfo != null) {
       this.drawQrCode(p, this._qrCodeInfo.url, this._qrCodeInfo.position, 200)
     }
+
+    this._t += 1
   }
 
   // ---- Private ---- //
-  private drawTitle(p: p5): void {
-    const textSize = 60
-    const x = this.fieldSize.x / 2
-    const y = this.fieldSize.y - textSize - 10
+  private drawSystemMessage(p: p5): void {
+    const displayMessage = ((): string => {
+      if (this._systemMessage.incremental === false) {
+        return this.systemMessage
+      }
+      const progress = Math.min(this._t - this._systemMessage.changedAt, systemMessageFadeDuration) / systemMessageFadeDuration
+      const endIndex = Math.min(Math.floor(progress * this.systemMessage.length), this.systemMessage.length)
+      return this.systemMessage.slice(0, endIndex)
+    })()
+
+    const textSize = 30
+    const margin = 10
+    const x = margin
+    const y = margin + textSize
 
     p.fill(0xFF, 0xC0)
-    p.textAlign(p.CENTER)
+    p.textAlign(p.LEFT)
     p.textStyle(p.NORMAL)
     p.textSize(textSize)
-    p.text(this.title, x, y)
+    p.text(displayMessage, x, y)
   }
 
   // private drawIndicators(p: p5): void {
