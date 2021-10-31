@@ -42,6 +42,13 @@ const colorTheme = "grayscale"
 function createAddRuleSystemMessage(remainingRuleCount: number): string {
   return `画面をタップして模様を追加(あと${remainingRuleCount}回)`
 }
+const tipPrefix = "ヒント："
+const tips: string[] = [
+  "模様を近所に配置して、模様同士がどのように干渉するか観察してみましょう",
+  "成長する枝が、別の模様や画面の縁に当たって跳ね返るような模様を探してみましょう",
+  "模様が成長する様子を観察してみましょう。どのような模様になるか予測できるでしょうか",
+  "模様同士を離して配置して、干渉のないときにどのような模様になるか確認してみましょう",
+]
 
 export class Drawer {
   public get t(): number {
@@ -67,6 +74,7 @@ export class Drawer {
     }
   }
   private _interfaceDrawer: InterfaceDrawer
+  private _tips: string[] = [...tips]
 
   public constructor(
     private readonly fieldSize: Vector,
@@ -179,14 +187,28 @@ export class Drawer {
     switch (state) {
     case "initialized":
       this._interfaceDrawer.setSystemMessage(createAddRuleSystemMessage(currentModel.ruleDefinitions.length), true)
+      this._interfaceDrawer.tip = null
       break
     case "add rules":
+      this._interfaceDrawer.tip = null
       break
     case "draw":
       this._interfaceDrawer.setSystemMessage("描画中...", true)
+      this._interfaceDrawer.tip = null
       break
-    case "share":
+    case "share": {
       this._interfaceDrawer.setSystemMessage("タップしてリセット", true)
+        
+      const tip = ((): string => {
+        if (this._tips.length <= 0) {
+          this._tips.push(...tips)
+        }
+        const randomIndex = Math.floor(random(this._tips.length))
+        const randomTip = this._tips[randomIndex]
+        this._tips.splice(randomIndex, 1)
+        return `${tipPrefix}${randomTip}`
+      })()
+      this._interfaceDrawer.tip = tip
 
       // TODO: シェア機能を実装
       // if (this._interfaceDrawer.qrCodeUrl == null) {
@@ -200,6 +222,7 @@ export class Drawer {
       //   })
       // }
       break
+    }
     }
   }
 
@@ -270,7 +293,8 @@ type QRCodeInfo = {
   readonly url: string
   readonly position: Vector
 }
-const systemMessageFadeDuration = 20
+const systemMessageFadeDuration = 14
+const systemMessageTextSize = 50
 
 class InterfaceDrawer {
   public get qrCodeUrl(): string | null {
@@ -279,6 +303,7 @@ class InterfaceDrawer {
   public get systemMessage(): string {
     return this._systemMessage.message
   }
+  public tip: string | null = null
   
   private _t = 0
   private _qrCodeInfo: QRCodeInfo | null = null
@@ -319,6 +344,9 @@ class InterfaceDrawer {
     if (this.systemMessage.length > 0) {
       this.drawSystemMessage(p)
     }
+    if (this.tip != null) {
+      this.drawTip(p, this.tip)
+    }
     if (this._qrCodeInfo != null) {
       this.drawQrCode(p, this._qrCodeInfo.url, this._qrCodeInfo.position, 200)
     }
@@ -337,21 +365,37 @@ class InterfaceDrawer {
       return this.systemMessage.slice(0, endIndex)
     })()
 
-    const textSize = 30
     const margin = 10
     const x = margin
-    const y = margin + textSize
+    const y = margin + systemMessageTextSize * 3
 
-    p.fill(0xFF, 0xC0)
+    p.fill(0xFF, 0xE0)
     p.textAlign(p.LEFT)
     p.textStyle(p.NORMAL)
-    p.textSize(textSize)
+    p.textSize(systemMessageTextSize)
     p.text(displayMessage, x, y)
   }
 
-  // private drawIndicators(p: p5): void {
+  private drawTip(p: p5, tip: string): void {
+    const textSize = 30
+    const margin = 10
+    const x = margin
+    const y = margin + systemMessageTextSize * 3 + 30
+    const width = this.fieldSize.x - margin * 2
 
-  // }
+    // const temp = (p as { textWrap?: (wrapStyle: string) => void })
+    // if (temp.textWrap != null) { // ない
+    //   temp.textWrap("char")
+    // } else {
+    //   console.log("no textWrap()")
+    // }
+
+    p.fill(0xFF, 0xE0)
+    p.textAlign(p.LEFT)
+    p.textStyle(p.NORMAL)
+    p.textSize(textSize)
+    p.text(tip, x, y, width)
+  }
 
   private drawQrCode(p: p5, text: string, position: Vector, size: number): void {
     // https://github.com/nayuki/QR-Code-generator/blob/master/typescript-javascript/qrcodegen.ts
