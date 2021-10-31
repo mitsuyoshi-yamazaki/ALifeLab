@@ -46,6 +46,8 @@ const drawer = new Drawer(
   true,
 )
 
+let tappedTimestamp = Date.now()
+
 export const canvasWidth = fieldSize
 
 export const main = (p: p5): void => {
@@ -66,6 +68,12 @@ export const main = (p: p5): void => {
       toggleFullscreen(canvasId)
       return
     }
+
+    const now = Date.now()
+    if (tappedTimestamp - now < 800) {
+      return  // iPadでのチャタリング対策
+    }
+    tappedTimestamp = now
 
     const position = new Vector(p.mouseX, p.mouseY)
     drawer.didReceiveTouch(position)
