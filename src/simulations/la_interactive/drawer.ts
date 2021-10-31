@@ -26,6 +26,16 @@ type InteractiveDrawModel = {
 }
 type DrawModel = AutomaticDrawModel | InteractiveDrawModel
 
+type ExampleRuleArgument = {
+  readonly ruleType: "examples"
+  readonly ruleDefinitions: RuleDefinition[]
+}
+type FixedRuleArgument = {
+  readonly ruleType: "fixed"
+  readonly codableRules: CodableRuleInfo[]
+}
+type RuleArgument = ExampleRuleArgument | FixedRuleArgument
+
 const maxNumberOfRules = 3
 const colorTheme = "grayscale"
 
@@ -57,10 +67,25 @@ export class Drawer {
   public constructor(
     private readonly fieldSize: Vector,
     private readonly maxLineCount: number,
-    private readonly ruleDefinitions: RuleDefinition[],
+    private readonly ruleArgument: RuleArgument,
+    private readonly showIndicators: boolean,
   ) {
     this._interfaceDrawer = new InterfaceDrawer("画面をタップ", fieldSize, maxNumberOfRules)
-    this.reset()
+
+    switch (ruleArgument.ruleType) {
+    case "examples":
+      this.reset()
+      break
+    case "fixed":
+      this._currentModel = {  // TODO: おかしな状態を排除する
+        modelType: "interactive",
+        state: "draw",
+        model: this.createModel(),
+        ruleDefinitions: [],
+      }
+      ruleArgument.codableRules.forEach(codableRule => this.addRule(codableRule.rule, codableRule.position))
+      break
+    }
   }
 
   public next(p: p5): void {
@@ -78,7 +103,7 @@ export class Drawer {
         if (this._interfaceDrawer.qrCodeUrl == null) {
           const codableRuleInfo = this._currentModel.model.codableRuleInfo
           const qrCodePosition = ((): Vector => {
-            return this.fieldSize.div(2)  // TODO:
+            return new Vector(100, 100)  // TODO:
           })()
           this._interfaceDrawer.setQrCodeInfo({
             url: this.getUrl(codableRuleInfo),
@@ -88,7 +113,10 @@ export class Drawer {
       }
       break
     }
-    this._interfaceDrawer.draw(p)
+
+    if (this.showIndicators === true) {
+      this._interfaceDrawer.draw(p)
+    }
 
     this._t += 1
   }
@@ -119,7 +147,7 @@ export class Drawer {
         console.log("draw state (no rule)")
         break
       }
-      this._currentModel.model.addRule(nextRuleDefinition.rule, position) // TODO: preferredLineCountMultiplierを入れる
+      this.addRule(nextRuleDefinition.rule, position) // TODO: preferredLineCountMultiplierを入れる
       if (this._currentModel.model.numberOfRules >= maxNumberOfRules) {
         this._currentModel.state = "draw"
         console.log("draw state")
@@ -134,6 +162,10 @@ export class Drawer {
       reset()
       break
     }
+  }
+
+  private addRule(rule: VanillaLSystemRule, position: Vector): void {
+    this._currentModel.model.addRule(rule, position) // TODO: preferredLineCountMultiplierを入れる
   }
 
   // ---- Private API ---- //
@@ -158,7 +190,15 @@ export class Drawer {
   }
 
   private reset(): void {
-    const definitions = [...this.ruleDefinitions]
+    switch (this.ruleArgument.ruleType) {
+    case "examples":
+      break
+    case "fixed":
+      console.log("不正な状態")
+      return
+    }
+
+    const definitions = [...this.ruleArgument.ruleDefinitions]
     const selectedDefinitions: RuleDefinition[] = []
     for (let i = 0; i < maxNumberOfRules; i += 1) {
       if (definitions.length <= 0) {

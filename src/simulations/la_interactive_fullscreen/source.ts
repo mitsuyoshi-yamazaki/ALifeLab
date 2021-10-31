@@ -39,7 +39,11 @@ const maxLineCount = 5000
 const drawer = new Drawer(
   fieldSize,
   maxLineCount,
-  rules,
+  {
+    ruleType: "examples",
+    ruleDefinitions: rules,
+  },
+  true,
 )
 
 export const canvasWidth = fieldSize
