@@ -8,11 +8,20 @@ import { VanillaLSystemRule } from "../drawer/vanilla_lsystem_rule"
 import { constants } from "../la_interactive/constants"
 
 const canvasId = "canvas"
-const screenSize = new Vector(window.screen.width, window.screen.height)
-const isPortrait = ((): boolean => {
-  return false  // FixMe: 動的に取得する
+const fieldSize = ((): Vector => {
+  if (constants.fullscreen !== true) {
+    return new Vector(1000, 1000)
+  }
+  const screenSize = new Vector(window.screen.width, window.screen.height)
+  const isPortrait = ((): boolean => {
+    return false  // FixMe: 動的に取得する
+  })()
+  if (isPortrait === true) {
+    return screenSize
+  } else {
+    return screenSize.transposed
+  }
 })()
-const fieldSize = isPortrait ? screenSize : screenSize.transposed // windowサイズなのでfullscreeen時の画面サイズに合わせる場合はbrowserをフルスクリーンにしておく必要がある
 const rules = exampleRuleDefinitions.flatMap(ruleDefinition => {
   try {
     const rule = new VanillaLSystemRule(ruleDefinition.rule)
@@ -49,7 +58,7 @@ export const main = (p: p5): void => {
   }
 
   p.mousePressed = () => {
-    if (isFullScreen() !== true) {
+    if (constants.fullscreen === true && isFullScreen() !== true) {
       toggleFullscreen(canvasId)
       return
     }

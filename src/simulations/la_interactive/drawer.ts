@@ -230,7 +230,7 @@ class InterfaceDrawer {
   private drawTitle(p: p5): void {
     const textSize = 60
     const x = this.fieldSize.x / 2
-    const y = this.fieldSize.y - textSize - 20
+    const y = this.fieldSize.y - textSize - 10
 
     p.fill(0xFF, 0xC0)
     p.textAlign(p.CENTER)
