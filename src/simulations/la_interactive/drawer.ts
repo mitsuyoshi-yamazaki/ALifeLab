@@ -4,13 +4,14 @@ import { Vector } from "../../classes/physics"
 import { VanillaLSystemRule } from "../drawer/vanilla_lsystem_rule"
 import { InteractiveModel } from "./interactive_model"
 import { qrcodegen } from "../../../libraries/qrcodegen"
+import { encodeRules } from "./rule_url_parameter_encoder"
 
 type RuleDefinition = {
   readonly name: string,
   readonly rule: VanillaLSystemRule,
   readonly preferredLineCountMultiplier: number
 }
-type DrawerState = "add rules" | "draw" | "fade"
+type DrawerState = "add rules" | "draw" | "share"
 
 const maxNumberOfRules = 3
 const colorTheme = "grayscale"
@@ -31,7 +32,8 @@ export class Drawer {
     case "add rules":
       return 10
     case "draw":
-    case "fade":
+      return 1
+    case "share":
       return 1
     }
   }
@@ -52,6 +54,12 @@ export class Drawer {
     }
     p.background(0x0, 0xFF)
     this._currentModel.model.draw(p, false)
+
+    if (this._currentModel.model.lineLimitReached === true && this._currentModel.ruleDefinitions.length <= 0) {
+      if (this._interfaceDrawer.qrCodeUrl == null) {
+        this._interfaceDrawer.qrCodeUrl = encodeRules(this._currentModel.model.codableRuleInfo)
+      }
+    }
     this._interfaceDrawer.draw(p)
 
     this._t += 1
@@ -69,7 +77,8 @@ export class Drawer {
     case "add rules": {
       const nextRuleDefinition = this._currentModel.ruleDefinitions.shift()
       if (nextRuleDefinition == null) {
-        reset()
+        this._currentModel.state = "draw"
+        console.log("draw state (no rule)")
         break
       }
       this._currentModel.model.addRule(nextRuleDefinition.rule, position) // TODO: preferredLineCountMultiplierを入れる
@@ -81,7 +90,9 @@ export class Drawer {
     }
         
     case "draw":
-    case "fade":
+      break // 無視
+        
+    case "share":
       reset()
       break
     }
@@ -106,6 +117,8 @@ export class Drawer {
       model: this.createModel(),
       ruleDefinitions: selectedDefinitions,
     }
+
+    this._interfaceDrawer.qrCodeUrl = null
   }
 
   private createModel(): InteractiveModel {
@@ -121,8 +134,9 @@ export class Drawer {
 }
 
 class InterfaceDrawer {
+  public qrCodeUrl: string | null = null
+
   private _currentIndicators: number
-  private _url: string | null
 
   public constructor(
     public readonly title: string,
@@ -143,12 +157,12 @@ class InterfaceDrawer {
     this._currentIndicators = this.numberOfIndicators
   }
 
+  // ---- Drawing ---- //
   public draw(p: p5): void {
     this.drawTitle(p)
-    // if (this._url != null) {
-    //   this.drawQrCode(p, this._url)
-    // }
-    this.drawQrCode(p, "Hello, world!", new Vector(100, 400), 200)
+    if (this.qrCodeUrl != null) {
+      this.drawQrCode(p, this.qrCodeUrl, new Vector(100, 400), 200)
+    }
   }
 
   // ---- Private ---- //

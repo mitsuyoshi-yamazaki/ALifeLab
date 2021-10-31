@@ -16,7 +16,7 @@ const defaultDecodeFailureReason = "ルールを読み込めません"
 /**
  * <x>;;<y>;;<angle>;;<line count>;;<rule>;;<x>;;<y>;;...
  */
-export function encodeRule(ruleInfo: CodableRuleInfo[]): string {
+export function encodeRules(ruleInfo: CodableRuleInfo[]): string {
   return ruleInfo
     .map(info => {
       const components: string[] = []
@@ -30,7 +30,7 @@ export function encodeRule(ruleInfo: CodableRuleInfo[]): string {
     .join(separator)
 }
 
-export function decodeRule(text: string): Result<CodableRuleInfo[], string> {
+export function decodeRules(text: string): Result<CodableRuleInfo[], string> {
   const decodedRules: CodableRuleInfo[] = []
 
   const components = text.split(separator)

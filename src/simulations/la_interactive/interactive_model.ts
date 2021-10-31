@@ -7,6 +7,7 @@ import { LSystemDrawer } from "../drawer/lsystem_drawer"
 import { random } from "../../classes/utilities"
 import { QuadtreeNode } from "../drawer/quadtree"
 import { VanillaLSystemRule } from "../drawer/vanilla_lsystem_rule"
+import { CodableRuleInfo } from "./rule_url_parameter_encoder"
 
 type RuleState = "growing" | "paused"
 type RuleInfo = {
@@ -17,11 +18,14 @@ type RuleInfo = {
 }
 
 export class InteractiveModel extends Model {
-  public get currentRule(): string | null {
-    return this._currentRule
-  }
   public get numberOfRules(): number {
     return this._runningRuleInfo.size
+  }
+  public get codableRuleInfo(): CodableRuleInfo[] {
+    return [...this._codableRuleInfo]
+  }
+  public get lineLimitReached(): boolean {
+    return Array.from(this._runningRuleInfo.values()).every(info => info.lines.length >= this.maxLineCount)
   }
 
   private _runningRuleInfo: Map<string, RuleInfo>
@@ -30,7 +34,7 @@ export class InteractiveModel extends Model {
     return Array.from(this._runningRuleInfo.values()).flatMap(ruleInfo => ruleInfo.lines).concat(this._worldLines)
   }
   private _drawTimestamp = 0
-  private _currentRule: string | null = null
+  private _codableRuleInfo: CodableRuleInfo[] = []
 
   public constructor(
     fieldSize: Vector,
@@ -56,32 +60,7 @@ export class InteractiveModel extends Model {
   }
 
   protected setupFirstDrawers(): LSystemDrawer[] {
-    const drawer = this.setupNewDrawer()
-    return drawer == null ? [] : [drawer]
-  }
-
-  private setupNewDrawer(): LSystemDrawer | null {
-    const padding = 100
-    const position = (): Vector => {
-      return new Vector(random(this.fieldSize.x - padding, padding), random(this.fieldSize.y - padding, padding))
-    }
-    const direction = (): number => {
-      return random(360) - 180
-    }
-
-    const rule = this.nextRule()
-    if (rule == null) {
-      return null
-    }
-
-    return this.newDrawer(
-      position(),
-      direction(),
-      defaultInitialCondition,
-      rule,
-      this.lineLengthType,
-      this.colorTheme,
-    )
+    return []
   }
 
   protected checkCompleted(): void {
@@ -90,13 +69,6 @@ export class InteractiveModel extends Model {
 
   protected preExecution(): void {
     // do nothing
-  }
-
-  private nextRule(): LSystemRule | null {
-    if (this.lSystemRules.length <= 0) {
-      return null
-    }
-    return this.lSystemRules[Math.floor(random(this.lSystemRules.length))]
   }
 
   protected executeSteps(drawerCount: number): void {
@@ -172,14 +144,6 @@ export class InteractiveModel extends Model {
     })
 
     this.checkPatternState()
-    if (growingRules.length < 2) {
-      const drawer = this.setupNewDrawer()
-      if (drawer != null) {
-        console.log(`[NEW] ${drawer.rule.encoded}`)
-        this._drawers.push(drawer)
-        this._currentRule = drawer.rule.encoded
-      }
-    }
 
     this._t += 1
     this.executeSteps(drawerCount)
@@ -241,13 +205,11 @@ export class InteractiveModel extends Model {
 
   // Public API
   public addRule(rule: VanillaLSystemRule, position: Vector): void {
-    const direction = (): number => {
-      return random(360) - 180
-    }
+    const direction = random(360) - 180
 
     const drawer = this.newDrawer(
       position,
-      direction(),
+      direction,
       defaultInitialCondition,
       rule,
       this.lineLengthType,
@@ -257,7 +219,6 @@ export class InteractiveModel extends Model {
     const encodedRule = rule.encoded
     console.log(`[NEW] ${encodedRule}`)
     this._drawers.push(drawer)
-    this._currentRule = encodedRule
 
     const newInfo: RuleInfo = {
       encodedRule,
@@ -266,5 +227,11 @@ export class InteractiveModel extends Model {
       stateTimestamp: this._drawTimestamp,
     }
     this._runningRuleInfo.set(encodedRule, newInfo)
+    this._codableRuleInfo.push({
+      position: position,
+      angle: direction,
+      lineCount: this.maxLineCount,
+      rule,
+    })
   }
 }
