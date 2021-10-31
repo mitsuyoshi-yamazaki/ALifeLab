@@ -20,11 +20,11 @@ export const exampleRuleDefinitions: RuleDefinition[] = [
     rule: "A:-142,D;C:.;D:-31,S,-117,I;I:-99,J,-95,C;H:20,L,-30,A,90,H,-50,M,-27,H;J:.;M:.;L:.;S:135,H",
     preferredLineCountMultiplier: 1,
   },
-  {
-    name: "落書き",
-    rule: "A:116,E,-120,A,101,F,7,G,-99,D,-8,C;C:35,C;E:-32,F;D:.;G:-121,F,107,A;F:-122,C",
-    preferredLineCountMultiplier: 1,
-  },
+  // {  // 描画時間が長いので一時的に除外
+  //   name: "落書き",
+  //   rule: "A:116,E,-120,A,101,F,7,G,-99,D,-8,C;C:35,C;E:-32,F;D:.;G:-121,F,107,A;F:-122,C",
+  //   preferredLineCountMultiplier: 1,
+  // },
   {
     name: "羽毛1",
     rule: "A:-101,A,101,A,5,A",
@@ -65,54 +65,61 @@ export const exampleRuleDefinitions: RuleDefinition[] = [
     rule: "A:93,E;B:-113,H,-173,H,-76,E,152,C,62,C;C:-106,B;D:.;E:-34,F,-18,C,-41,B;F:-112,E,37,E,104,B;G:.;H:-155,F,130,D",
     preferredLineCountMultiplier: 1,
   },
-  // {
-  //   name: "",
-  //   rule: ,
-  //   preferredLineCountMultiplier: 1,
-  // },
+  {
+    name: "ヒトデ3",
+    rule: "A:-64,C,120,A;C:125,B;B:-122,C,155,A",
+    preferredLineCountMultiplier: 1,
+  },
+  {
+    name: "珊瑚",
+    rule: "A:131,B;B:51,A,141,A",
+    preferredLineCountMultiplier: 1,
+  },
+  {
+    name: "オウムガイ1",
+    rule: "A:58,A,2,A,-65,A",
+    preferredLineCountMultiplier: 1,
+  },
+  {
+    name: "オウムガイ2",
+    rule: "A:24,A,-21,A",
+    preferredLineCountMultiplier: 1,
+  },
+  {
+    name: "銀杏",
+    rule: "A:-12,A,25,A",
+    preferredLineCountMultiplier: 1,
+  },
+  {
+    name: "化石",
+    rule: "A:16,E,-41,B,-34,C;E:-172,H,167,E,141,B;B:.;C:-57,F;H:175,H,139,H,-121,D,140,H,-78,D,-65,A;F:.;D:.",
+    preferredLineCountMultiplier: 1,
+  },
+  {
+    name: "生痕化石",
+    rule: "A:30,C,87,C;C:-179,C,-52,B;B:-136,B,-5,A",
+    preferredLineCountMultiplier: 1,
+  },
+  {
+    name: "ウミユリ",
+    rule: "A:25,F,122,H,81,M;B:-155,G;D:-20,B,58,K,167,G;G:.;F:-39,N,145,F,161,J;H:.;K:.;J:.;M:104,D;N:-74,P;P:116,F,-8,P",
+    preferredLineCountMultiplier: 1,
+  },
+  {
+    name: "ハンドスピナー",
+    rule: "A:17,C,121,B,-142,A,120,A,-162,D,103,B,164,C,-106,C;C:.;B:140,B,2,B,49,B;D:-169,A,-108,D,30,D,3,D,-174,B",
+    preferredLineCountMultiplier: 1,
+  },
+  {
+    name: "角",
+    rule: "A:4,A,154,B,-60,A;B:33,B",
+    preferredLineCountMultiplier: 1,
+  },
+  {
+    name: "ウミウシ",
+    rule: "A:175,B,-114,A,41,B,132,D,-54,F;B:12,D,-63,C,62,F,-32,D,-144,C,101,C;C:51,A;D:133,A;E:143,A,-44,E;F:-112,B,5,A,82,B",
+    preferredLineCountMultiplier: 1,
+  },
 ]
 
 export const exampleRules: string[] = exampleRuleDefinitions.map(definition => definition.rule)
-
-//   [
-
-
-//   // 
-//   ,
-
-//   // 
-//   ,
-
-//   // ヒトデ3
-//   "A:-64,C,120,A;C:125,B;B:-122,C,155,A",
-
-//   // 珊瑚
-//   "A:131,B;B:51,A,141,A",
-
-//   // オウムガイ1
-//   // "A:58,A,2,A,-65,A",
-
-//   // オウムガイ2
-//   "A:24,A,-21,A",
-
-//   // 銀杏
-//   "A:-12,A,25,A",
-
-//   // 化石
-//   "A:16,E,-41,B,-34,C;E:-172,H,167,E,141,B;B:.;C:-57,F;H:175,H,139,H,-121,D,140,H,-78,D,-65,A;F:.;D:.",
-
-//   // 生痕化石
-//   // "A:30,C,87,C;C:-179,C,-52,B;B:-136,B,-5,A",
-
-//   // ウミユリ
-//   "A:25,F,122,H,81,M;B:-155,G;D:-20,B,58,K,167,G;G:.;F:-39,N,145,F,161,J;H:.;K:.;J:.;M:104,D;N:-74,P;P:116,F,-8,P",
-
-//   // ハンドスピナー
-//   "A:17,C,121,B,-142,A,120,A,-162,D,103,B,164,C,-106,C;C:.;B:140,B,2,B,49,B;D:-169,A,-108,D,30,D,3,D,-174,B",
-
-//   // 角
-//   "A:4,A,154,B,-60,A;B:33,B",
-
-//   // ウミウシ
-//   "A:175,B,-114,A,41,B,132,D,-54,F;B:12,D,-63,C,62,F,-32,D,-144,C,101,C;C:51,A;D:133,A;E:143,A,-44,E;F:-112,B,5,A,82,B",
-// ]
