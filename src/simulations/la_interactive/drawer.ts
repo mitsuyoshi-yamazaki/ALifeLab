@@ -100,16 +100,22 @@ export class Drawer {
       break 
     case "interactive":
       if (this._currentModel.model.calculationStopped === true && this._currentModel.ruleDefinitions.length <= 0) {
-        if (this._interfaceDrawer.qrCodeUrl == null) {
-          const codableRuleInfo = this._currentModel.model.codableRuleInfo
-          const qrCodePosition = ((): Vector => {
-            return new Vector(100, 100)  // TODO:
-          })()
-          this._interfaceDrawer.setQrCodeInfo({
-            url: this.getUrl(codableRuleInfo),
-            position: qrCodePosition,
-          })
+        if (this._currentModel.state !== "share") {
+          this._currentModel.state = "share"
+          console.log("Drawing finished")
         }
+
+        // TODO: シェア機能を実装
+        // if (this._interfaceDrawer.qrCodeUrl == null) {
+        //   const codableRuleInfo = this._currentModel.model.codableRuleInfo
+        //   const qrCodePosition = ((): Vector => {
+        //     return new Vector(100, 100)  // TODO:
+        //   })()
+        //   this._interfaceDrawer.setQrCodeInfo({
+        //     url: this.getUrl(codableRuleInfo),
+        //     position: qrCodePosition,
+        //   })
+        // }
       }
       break
     }
