@@ -342,7 +342,7 @@ class InterfaceDrawer {
     const x = margin
     const y = margin + textSize
 
-    p.fill(0xFF, 0xC0)
+    p.fill(0xFF, 0xE0)
     p.textAlign(p.LEFT)
     p.textStyle(p.NORMAL)
     p.textSize(textSize)
