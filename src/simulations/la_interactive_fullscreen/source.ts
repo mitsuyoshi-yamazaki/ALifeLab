@@ -25,7 +25,7 @@ const fieldSize = ((): Vector => {
 const excludedRuleNames: string[] = [
   // 描画時間が長い
   "落書き",
-  "星",
+  // "星",  // 跳ね返りがあるためやはり含める
 
   // 模様が小さく干渉しにくい
   "Caduceus1",
