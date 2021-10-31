@@ -42,6 +42,7 @@ const colorTheme = "grayscale"
 function createAddRuleSystemMessage(remainingRuleCount: number): string {
   return `画面をタップして模様を追加(あと${remainingRuleCount}回)`
 }
+const tipPrefix = "ヒント："
 const tips: string[] = [
   "模様を近所に配置して、模様同士がどのように干渉するか観察してみましょう",
   "成長する枝が、別の模様や画面の縁に当たって跳ね返るような模様を探してみましょう",
@@ -198,14 +199,14 @@ export class Drawer {
     case "share": {
       this._interfaceDrawer.setSystemMessage("タップしてリセット", true)
         
-      const tip = ((): string | null => {
+      const tip = ((): string => {
         if (this._tips.length <= 0) {
           this._tips.push(...tips)
         }
         const randomIndex = Math.floor(random(this._tips.length))
         const randomTip = this._tips[randomIndex]
         this._tips.splice(randomIndex, 1)
-        return randomTip
+        return `${tipPrefix}${randomTip}`
       })()
       this._interfaceDrawer.tip = tip
 
