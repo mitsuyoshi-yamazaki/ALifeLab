@@ -76,7 +76,14 @@ export class Drawer {
     case "interactive":
       if (this._currentModel.model.calculationStopped === true && this._currentModel.ruleDefinitions.length <= 0) {
         if (this._interfaceDrawer.qrCodeUrl == null) {
-          this._interfaceDrawer.qrCodeUrl = this.getUrl(this._currentModel.model.codableRuleInfo)
+          const codableRuleInfo = this._currentModel.model.codableRuleInfo
+          const qrCodePosition = ((): Vector => {
+            return this.fieldSize.div(2)  // TODO:
+          })()
+          this._interfaceDrawer.setQrCodeInfo({
+            url: this.getUrl(codableRuleInfo),
+            position: qrCodePosition,
+          })
         }
       }
       break
@@ -170,7 +177,7 @@ export class Drawer {
       ruleDefinitions: selectedDefinitions,
     }
 
-    this._interfaceDrawer.qrCodeUrl = null
+    this._interfaceDrawer.setQrCodeInfo(null)
   }
 
   private createModel(): InteractiveModel {
@@ -185,19 +192,18 @@ export class Drawer {
   }
 }
 
+type QRCodeInfo = {
+  readonly url: string
+  readonly position: Vector
+}
+
 class InterfaceDrawer {
   public get qrCodeUrl(): string | null {
-    return this._qrCodeUrl
-  }
-  public set qrCodeUrl(url: string | null) {
-    if (url != null) {
-      console.log(`Share URL: ${url}`)
-    }
-    this._qrCodeUrl = url
+    return this._qrCodeInfo?.url ?? null
   }
 
   private _currentIndicators: number
-  private _qrCodeUrl: string | null = null
+  private _qrCodeInfo: QRCodeInfo | null = null
 
   public constructor(
     public readonly title: string,
@@ -218,11 +224,18 @@ class InterfaceDrawer {
     this._currentIndicators = this.numberOfIndicators
   }
 
+  public setQrCodeInfo(info: QRCodeInfo | null): void {
+    if (info != null) {
+      console.log(`Share URL: ${info.url}`)
+    }
+    this._qrCodeInfo = info
+  }
+
   // ---- Drawing ---- //
   public draw(p: p5): void {
     this.drawTitle(p)
-    if (this.qrCodeUrl != null) {
-      this.drawQrCode(p, this.qrCodeUrl, new Vector(100, 400), 200)
+    if (this._qrCodeInfo != null) {
+      this.drawQrCode(p, this._qrCodeInfo.url, this._qrCodeInfo.position, 200)
     }
   }
 
@@ -248,11 +261,24 @@ class InterfaceDrawer {
     const QRC = qrcodegen.QrCode
     const qr = QRC.encodeText(text, QRC.Ecc.MEDIUM)
 
-    const cellSize = size / qr.size
+    const { qrCodeSize, cellSize } = ((): { qrCodeSize: number, cellSize: number } => {
+      const cellSize = size / qr.size
+      const minimumCellSize = 3
+      if (cellSize < minimumCellSize) {
+        return {
+          qrCodeSize: minimumCellSize * qr.size,
+          cellSize: minimumCellSize,
+        }
+      }
+      return {
+        qrCodeSize: size,
+        cellSize,
+      }
+    })()
 
     p.fill(0x0)
     p.noStroke()
-    p.rect(position.x, position.y, size, size)
+    p.rect(position.x, position.y, qrCodeSize, qrCodeSize)
     p.fill(0xFF)
 
     for (let y = 0; y < qr.size; y++) {
