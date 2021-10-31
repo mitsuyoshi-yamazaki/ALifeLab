@@ -337,7 +337,7 @@ class InterfaceDrawer {
       return this.systemMessage.slice(0, endIndex)
     })()
 
-    const textSize = 30
+    const textSize = 50
     const margin = 10
     const x = margin
     const y = margin + textSize
