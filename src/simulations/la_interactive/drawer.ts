@@ -5,6 +5,7 @@ import { VanillaLSystemRule } from "../drawer/vanilla_lsystem_rule"
 import { InteractiveModel } from "./interactive_model"
 import { qrcodegen } from "../../../libraries/qrcodegen"
 import { CodableRuleInfo, encodeRules } from "./rule_url_parameter_encoder"
+import { MultiPatternModel } from "../lines_and_angles/multi_pattern_model"
 
 type RuleDefinition = {
   readonly name: string,
@@ -12,6 +13,18 @@ type RuleDefinition = {
   readonly preferredLineCountMultiplier: number
 }
 type DrawerState = "add rules" | "draw" | "share"
+
+type AutomaticDrawModel = {
+  readonly modelType: "automatic"
+  readonly model: MultiPatternModel
+}
+type InteractiveDrawModel = {
+  readonly modelType: "interactive"
+  state: DrawerState,
+  readonly model: InteractiveModel
+  readonly ruleDefinitions: RuleDefinition[]
+}
+type DrawModel = AutomaticDrawModel | InteractiveDrawModel
 
 const maxNumberOfRules = 3
 const colorTheme = "grayscale"
@@ -22,12 +35,14 @@ export class Drawer {
   }
 
   private _t = 0
-  private _currentModel: {
-    state: DrawerState,
-    readonly model: InteractiveModel
-    readonly ruleDefinitions: RuleDefinition[]
-  }
+  private _currentModel: DrawModel
   private get _executionInterval(): number {
+    switch (this._currentModel.modelType) {
+    case "automatic":
+      return 10
+    case "interactive":
+      break
+    }
     switch (this._currentModel.state) {
     case "add rules":
       return 10
@@ -55,10 +70,16 @@ export class Drawer {
     p.background(0x0, 0xFF)
     this._currentModel.model.draw(p, false)
 
-    if (this._currentModel.model.calculationStopped === true && this._currentModel.ruleDefinitions.length <= 0) {
-      if (this._interfaceDrawer.qrCodeUrl == null) {
-        this._interfaceDrawer.qrCodeUrl = this.getUrl(this._currentModel.model.codableRuleInfo)
+    switch (this._currentModel.modelType) {
+    case "automatic":
+      break 
+    case "interactive":
+      if (this._currentModel.model.calculationStopped === true && this._currentModel.ruleDefinitions.length <= 0) {
+        if (this._interfaceDrawer.qrCodeUrl == null) {
+          this._interfaceDrawer.qrCodeUrl = this.getUrl(this._currentModel.model.codableRuleInfo)
+        }
       }
+      break
     }
     this._interfaceDrawer.draw(p)
 
@@ -68,6 +89,13 @@ export class Drawer {
   public didReceiveTouch(position: Vector): void {
     if (position.x < 0 || position.x > this.fieldSize.x || position.y < 0 || position.y > this.fieldSize.y) {
       return
+    }
+    switch (this._currentModel.modelType) {
+    case "automatic":
+      // TODO: interactiveに切り替え
+      return
+    case "interactive":
+      break
     }
     console.log(`didReceiveTouch ${this._currentModel.state}`)
 
@@ -136,6 +164,7 @@ export class Drawer {
     }
     
     this._currentModel = {
+      modelType: "interactive",
       state: "add rules",
       model: this.createModel(),
       ruleDefinitions: selectedDefinitions,
@@ -199,11 +228,12 @@ class InterfaceDrawer {
 
   // ---- Private ---- //
   private drawTitle(p: p5): void {
-    const textSize = 100
-    const x = 0
-    const y = 0 + textSize
+    const textSize = 60
+    const x = this.fieldSize.x / 2
+    const y = this.fieldSize.y - textSize - 20
 
-    p.fill(0xFF, 0xE0)
+    p.fill(0xFF, 0xC0)
+    p.textAlign(p.CENTER)
     p.textStyle(p.NORMAL)
     p.textSize(textSize)
     p.text(this.title, x, y)
