@@ -20,11 +20,11 @@ export const exampleRuleDefinitions: RuleDefinition[] = [
     rule: "A:-142,D;C:.;D:-31,S,-117,I;I:-99,J,-95,C;H:20,L,-30,A,90,H,-50,M,-27,H;J:.;M:.;L:.;S:135,H",
     preferredLineCountMultiplier: 1,
   },
-  // {  // 描画時間が長いので一時的に除外
-  //   name: "落書き",
-  //   rule: "A:116,E,-120,A,101,F,7,G,-99,D,-8,C;C:35,C;E:-32,F;D:.;G:-121,F,107,A;F:-122,C",
-  //   preferredLineCountMultiplier: 1,
-  // },
+  {
+    name: "落書き",
+    rule: "A:116,E,-120,A,101,F,7,G,-99,D,-8,C;C:35,C;E:-32,F;D:.;G:-121,F,107,A;F:-122,C",
+    preferredLineCountMultiplier: 1,
+  },
   {
     name: "羽毛1",
     rule: "A:-101,A,101,A,5,A",
