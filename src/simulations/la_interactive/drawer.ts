@@ -70,7 +70,8 @@ export class Drawer {
     private readonly ruleArgument: RuleArgument,
     private readonly showIndicators: boolean,
   ) {
-    this._interfaceDrawer = new InterfaceDrawer("画面をタップ", fieldSize, maxNumberOfRules)
+    this._interfaceDrawer = new InterfaceDrawer("画面をタップ", fieldSize)
+    this._interfaceDrawer.showTitle()
 
     switch (ruleArgument.ruleType) {
     case "examples":
@@ -102,6 +103,7 @@ export class Drawer {
       if (this._currentModel.model.calculationStopped === true && this._currentModel.ruleDefinitions.length <= 0) {
         if (this._currentModel.state !== "share") {
           this._currentModel.state = "share"
+          this._interfaceDrawer.showTitle()
           console.log("Drawing finished")
         }
 
@@ -150,12 +152,14 @@ export class Drawer {
       const nextRuleDefinition = this._currentModel.ruleDefinitions.shift()
       if (nextRuleDefinition == null) {
         this._currentModel.state = "draw"
+        this._interfaceDrawer.hideTitle()
         console.log("draw state (no rule)")
         break
       }
       this.addRule(nextRuleDefinition.rule, position) // TODO: preferredLineCountMultiplierを入れる
       if (this._currentModel.model.numberOfRules >= maxNumberOfRules) {
         this._currentModel.state = "draw"
+        this._interfaceDrawer.hideTitle()
         console.log("draw state")
       }
       break
@@ -248,26 +252,13 @@ class InterfaceDrawer {
     return this._qrCodeInfo?.url ?? null
   }
 
-  private _currentIndicators: number
   private _qrCodeInfo: QRCodeInfo | null = null
+  private _shouldDrawTitle = false
 
   public constructor(
     public readonly title: string,
     public readonly fieldSize: Vector,
-    public readonly numberOfIndicators: number,
   ) {
-    this._currentIndicators = numberOfIndicators
-  }
-
-  public decreaseIndicator(): void {
-    if (this._currentIndicators <= 0) {
-      return
-    }
-    this._currentIndicators -= 1
-  }
-
-  public resetIndicator(): void {
-    this._currentIndicators = this.numberOfIndicators
   }
 
   public setQrCodeInfo(info: QRCodeInfo | null): void {
@@ -277,9 +268,19 @@ class InterfaceDrawer {
     this._qrCodeInfo = info
   }
 
+  public showTitle(): void {
+    this._shouldDrawTitle = true
+  }
+
+  public hideTitle(): void {
+    this._shouldDrawTitle = false
+  }
+
   // ---- Drawing ---- //
   public draw(p: p5): void {
-    this.drawTitle(p)
+    if (this._shouldDrawTitle === true) {
+      this.drawTitle(p)
+    }
     if (this._qrCodeInfo != null) {
       this.drawQrCode(p, this._qrCodeInfo.url, this._qrCodeInfo.position, 200)
     }
