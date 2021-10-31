@@ -270,7 +270,7 @@ type QRCodeInfo = {
   readonly url: string
   readonly position: Vector
 }
-const systemMessageFadeDuration = 20
+const systemMessageFadeDuration = 14
 
 class InterfaceDrawer {
   public get qrCodeUrl(): string | null {
