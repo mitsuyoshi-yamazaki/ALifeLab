@@ -70,7 +70,7 @@ export const main = (p: p5): void => {
     }
 
     const now = Date.now()
-    if (tappedTimestamp - now < 800) {
+    if (now - tappedTimestamp < 800) {
       return  // iPadでのチャタリング対策
     }
     tappedTimestamp = now
