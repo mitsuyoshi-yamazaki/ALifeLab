@@ -24,8 +24,10 @@ export class InteractiveModel extends Model {
   public get codableRuleInfo(): CodableRuleInfo[] {
     return [...this._codableRuleInfo]
   }
-  public get lineLimitReached(): boolean {
-    return Array.from(this._runningRuleInfo.values()).every(info => info.lines.length >= this.maxLineCount)
+  public get calculationStopped(): boolean {
+    const lineLimitReached = Array.from(this._runningRuleInfo.values()).every(info => info.lines.length >= this.maxLineCount)
+    const drawersDied = this._drawers.length <= 0
+    return lineLimitReached || drawersDied
   }
 
   private _runningRuleInfo: Map<string, RuleInfo>
