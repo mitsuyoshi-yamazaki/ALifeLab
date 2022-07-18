@@ -24,6 +24,7 @@ module.exports = {
     hex_cellular_automata: "./src/simulations/hex_cellular_automata/layout.tsx",
     hex_cellular_automata_autosearch: "./src/simulations/hex_cellular_automata_autosearch/layout.tsx",
     kaleidoscope_v2: "./src/simulations/kaleidoscope_v2/layout.tsx",
+    genetic: "./src/simulations/genetic/layout.tsx",
   },
   output: {
     path: path.resolve(__dirname, "dist"),
