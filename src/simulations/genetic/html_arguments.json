@@ -1,0 +1,6 @@
+{
+  "page_title": "Genetic Generative Art",
+  "og_description": "遺伝的プログラミングを利用したジェネラティブアート",
+  "og_image": "",
+  "script_path": "../dist/genetic.js"
+}
