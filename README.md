@@ -4,6 +4,10 @@
 
 ## Getting started
 ```shell
+$ python3 -m venv venv # need only once
+
+$ source venv/bin/activate
+
 # Install
 $ yarn install
 
