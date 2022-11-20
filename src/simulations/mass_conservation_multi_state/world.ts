@@ -2,10 +2,10 @@ import { Vector } from "../../classes/physics"
 import { Drawable } from "./drawable"
 
 export const cellSubstances = [
-  0,
-  1,
+  "hydrogen",
+  "nitrogen",
 ] as const
-export type CellSubstance = typeof cellSubstances[number]
+export type CellSubstance = (typeof cellSubstances[number]) | "vacuum"
 
 export type CellState = {
   readonly substance: CellSubstance

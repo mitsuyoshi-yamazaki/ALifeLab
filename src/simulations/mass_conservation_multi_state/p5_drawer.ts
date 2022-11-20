@@ -18,8 +18,9 @@ export class P5Drawer {
     private readonly cellSize: number,
   ) {
     this.substanceColor = {
-      "0": p.color(0x94, 0xBC, 0xD7),
-      "1": p.color(0xDC, 0xDC, 0xAE),
+      vacuum: p.color(0x00),
+      hydrogen: p.color(100, 221, 251),
+      nitrogen: p.color(205, 160, 196),
     }
   }
 
