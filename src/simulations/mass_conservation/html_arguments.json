@@ -1,6 +1,6 @@
 {
   "page_title": "Mass Conservation CA",
-  "og_description": "",
+  "og_description": "離散的・決定論的・質量保存セルオートマトン",
   "og_image": "",
   "script_path": "../dist/mass_conservation.js"
 }
