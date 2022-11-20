@@ -1,6 +1,5 @@
 node_modules/
 tmp/
-dist/*
 venv/
 
 src/local_configs.js
