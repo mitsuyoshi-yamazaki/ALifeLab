@@ -1,8 +1,15 @@
 import { Vector } from "../../classes/physics"
 import { Drawable } from "./drawable"
 
+export const cellSubstances = [
+  "hydrogen",
+  "nitrogen",
+] as const
+export type CellSubstance = (typeof cellSubstances[number]) | "vacuum"
+
 export type CellState = {
-  mass: number
+  readonly substance: CellSubstance
+  readonly mass: number
 }
 
 type MassTransfer = {
@@ -81,6 +88,7 @@ export class World implements Drawable<WorldDrawableState> {
       row.forEach((state, x) => {
         const mass = state.mass + getAllTransfer(x, y)
         nextRow.push({
+          substance: state.substance,
           mass,
         })
       })
