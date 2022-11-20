@@ -1,31 +1,9 @@
-import { Vector } from "../../classes/physics"
-import { WorldObject } from "./world_object"
-
-type TerrainStateNone = {
-  readonly case: "none"
+export type TerrainStatePlain = {
+  readonly case: "plain"
+  readonly energy: number
 }
-type TerrainState = TerrainStateNone
-type TerrainStates = TerrainState["case"]
-
-export type TerrainDrawableState = {
-  readonly case: "terrain"
-  readonly state: TerrainStates
+export type TerrainStateEnergySource = {
+  readonly case: "energy source"
+  readonly production: number
 }
-
-export class Terrain implements WorldObject<TerrainDrawableState> {
-  private state: TerrainState
-
-  public constructor(
-    public readonly position: Vector,
-    initialState: TerrainState,
-  ) {
-    this.state = initialState
-  }
-
-  public drawableState(): TerrainDrawableState {
-    return {
-      case: "terrain",
-      state: this.state.case,
-    }
-  }
-}
+export type TerrainState = TerrainStatePlain | TerrainStateEnergySource
