@@ -8,8 +8,8 @@ import { constants } from "./constants"
 
 let t = 0
 const canvasId = "canvas"
-const cellSize = 4
-const worldSize = new Vector(200, 200)
+const cellSize = constants.simulation.cellSize
+const worldSize = new Vector(constants.simulation.worldSize, constants.simulation.worldSize)
 const fieldSize = worldSize.mult(cellSize)
 
 export const main = (p: p5): void => {
