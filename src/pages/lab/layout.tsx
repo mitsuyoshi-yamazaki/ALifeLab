@@ -33,6 +33,7 @@ const App = () => {
         <LinkCard title="Extended Machines and Tapes v2" link="machines_and_tapes_ex2.html" />
         <LinkCard title="万華鏡" link="kaleidoscope_v2.html" />
         <LinkCard title="Darwin's Garden" link="garden.html" />
+        <LinkCard title="質量保存CA" link="mass_conservation.html" />
       </div>
       <Footer homePath="../" />
     </ThemeProvider>
