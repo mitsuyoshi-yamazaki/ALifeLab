@@ -1,6 +1,6 @@
 import p5 from "p5"
 import { AnyDrawableStates } from "./drawable_types"
-import { WorldDrawableState } from "./world"
+import { CellSubstance, WorldDrawableState } from "./world"
 
 const maximumDrawPressure = 1000
 
@@ -11,14 +11,20 @@ const drawPriority: { [K in AnyDrawableStateCases]: number } = {  // 数字の�
 }
 
 export class P5Drawer {
+  private substanceColor: { [S in CellSubstance]: p5.Color }
+
   public constructor(
     private readonly p: p5,
     private readonly cellSize: number,
   ) {
+    this.substanceColor = {
+      "0": p.color(0x94, 0xBC, 0xD7),
+      "1": p.color(0xDC, 0xDC, 0xAE),
+    }
   }
 
   public drawAll<DrawableState extends AnyDrawableStates>(states: DrawableState[]): void {
-    this.p.background(0, 0xFF);
+    this.p.background(0xFF, 0xFF);
 
     [...states]
       .sort((lhs, rhs) => drawPriority[lhs.case] - drawPriority[rhs.case])
@@ -47,7 +53,10 @@ export class P5Drawer {
 
     state.cellStates.forEach((row, y) => {
       row.forEach((state, x) => {
-        this.p.fill(Math.min((state.mass / maximumDrawPressure) * 0xFF, 0xFF))
+        const transparency = Math.min((state.mass / maximumDrawPressure) * 0xFF, 0xFF)
+        const color = this.substanceColor[state.substance]
+        color.setAlpha(transparency)
+        this.p.fill(color)
         this.p.rect(x * this.cellSize, y * this.cellSize, this.cellSize, this.cellSize)
       })
     })

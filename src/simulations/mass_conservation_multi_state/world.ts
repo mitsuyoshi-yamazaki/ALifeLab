@@ -1,8 +1,15 @@
 import { Vector } from "../../classes/physics"
 import { Drawable } from "./drawable"
 
+export const cellSubstances = [
+  0,
+  1,
+] as const
+export type CellSubstance = typeof cellSubstances[number]
+
 export type CellState = {
-  mass: number
+  readonly substance: CellSubstance
+  readonly mass: number
 }
 
 type MassTransfer = {
@@ -10,7 +17,7 @@ type MassTransfer = {
   readonly left: number
 }
 
-const massTransferResistration = 128
+const massTransferResistance = 128
 
 export type WorldDrawableState = {
   readonly case: "world"
@@ -60,11 +67,11 @@ export class World implements Drawable<WorldDrawableState> {
       row.forEach((state, x) => {
         const topY = (y - 1 + this.size.y) % this.size.y
         const topState = this.cells[topY][x]
-        const top = Math.floor((topState.mass - state.mass) / massTransferResistration)
+        const top = Math.floor((topState.mass - state.mass) / massTransferResistance)
 
         const leftX = (x- 1 + this.size.x) % this.size.x
         const leftState = this.cells[y][leftX]
-        const left = Math.floor((leftState.mass - state.mass) / massTransferResistration)
+        const left = Math.floor((leftState.mass - state.mass) / massTransferResistance)
 
         transferRow.push({
           top,
@@ -81,6 +88,7 @@ export class World implements Drawable<WorldDrawableState> {
       row.forEach((state, x) => {
         const mass = state.mass + getAllTransfer(x, y)
         nextRow.push({
+          substance: state.substance,
           mass,
         })
       })
