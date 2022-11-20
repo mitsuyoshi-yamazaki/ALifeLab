@@ -1,4 +1,4 @@
-import { Vector } from "src/classes/physics"
+import { Vector } from "../../classes/physics"
 import { WorldObject } from "./world_object"
 
 export type LifeDrawableState = {

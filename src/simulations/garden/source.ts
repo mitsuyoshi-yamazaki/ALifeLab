@@ -1,5 +1,5 @@
 import p5 from "p5"
-import { Vector } from "src/classes/physics"
+import { Vector } from "../../classes/physics"
 import { defaultCanvasParentId } from "../../react-components/common/default_canvas_parent_id"
 import { P5Drawer } from "./p5_drawer"
 import { World } from "./world"

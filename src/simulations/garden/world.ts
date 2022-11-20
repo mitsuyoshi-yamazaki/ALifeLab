@@ -1,4 +1,4 @@
-import { Vector } from "src/classes/physics"
+import { Vector } from "../../classes/physics"
 import { Drawable } from "./drawable"
 import { Life } from "./life"
 import { Terrain } from "./terrain"
