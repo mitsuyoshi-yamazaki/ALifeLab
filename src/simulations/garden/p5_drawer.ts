@@ -18,6 +18,8 @@ export class P5Drawer {
   }
 
   public drawAll<DrawableState extends AnyDrawableStates>(states: DrawableState[]): void {
+    this.p.background(0, 0xFF);
+
     [...states]
       .sort((lhs, rhs) => drawPriority[lhs.case] - drawPriority[rhs.case])
       .forEach(state => this.draw(state))
