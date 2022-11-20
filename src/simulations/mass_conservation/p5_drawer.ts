@@ -1,17 +1,19 @@
 import p5 from "p5"
-import { CellDrawableState } from "./cell"
 import { AnyDrawableStates } from "./drawable_types"
 import { WorldDrawableState } from "./world"
+
+const maximumDrawPressure = 1000
 
 type AnyDrawableStateCases = AnyDrawableStates["case"]
 const drawPriority: { [K in AnyDrawableStateCases]: number } = {  // 数字の小さい方が先に描画
   world: 0,
-  cell: 10,
+  dummy: 0,
 }
 
 export class P5Drawer {
   public constructor(
     private readonly p: p5,
+    private readonly cellSize: number,
   ) {
   }
 
@@ -28,9 +30,10 @@ export class P5Drawer {
     case "world":
       this.drawWorld(state)
       return
-    case "cell":
-      this.drawCell(state)
+      
+    case "dummy": // dummyがないと type AnyDrawableStates = WorldDrawableState となることにより default 節に WorldDrawableState が入りうると認識される
       return
+     
     default: {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const _: never = state
@@ -40,8 +43,13 @@ export class P5Drawer {
   }
 
   private drawWorld(state: WorldDrawableState): void {
-  }
+    this.p.noStroke()
 
-  private drawCell(state: CellDrawableState): void {
+    state.cellStates.forEach((row, y) => {
+      row.forEach((state, x) => {
+        this.p.fill(Math.min((state.mass / maximumDrawPressure) * 0xFF, 0xFF))
+        this.p.rect(x * this.cellSize, y * this.cellSize, this.cellSize, this.cellSize)
+      })
+    })
   }
 }

@@ -1,8 +1,9 @@
 import p5 from "p5"
+import { random } from "../../classes/utilities"
 import { Vector } from "../../classes/physics"
 import { defaultCanvasParentId } from "../../react-components/common/default_canvas_parent_id"
 import { P5Drawer } from "./p5_drawer"
-import { World } from "./world"
+import { CellState, World } from "./world"
 
 let t = 0
 const canvasId = "canvas"
@@ -11,8 +12,8 @@ const worldSize = new Vector(200, 200)
 const fieldSize = worldSize.mult(cellSize)
 
 export const main = (p: p5): void => {
-  const world = new World(worldSize)
-  const drawer = new P5Drawer(p)
+  const world = new World(worldSize, initializeStates())
+  const drawer = new P5Drawer(p, cellSize)
 
   p.setup = () => {
     const canvas = p.createCanvas(fieldSize.x, fieldSize.y)
@@ -23,9 +24,10 @@ export const main = (p: p5): void => {
   }
 
   p.draw = () => {
+    world.calculate()
+    
     const drawableObjects = [
       world.drawableState(),
-      ...world.getDrawableObjects().map(obj => obj.drawableState()),
     ]
     drawer.drawAll(drawableObjects)
     t += 1
@@ -34,4 +36,22 @@ export const main = (p: p5): void => {
 
 export const getTimestamp = (): number => {
   return t
+}
+
+const initializeStates = (): CellState[][] => {
+  const initialMaximumPressure = 1000
+  const result: CellState[][] = []
+
+  for (let y = 0; y < worldSize.y; y += 1) {
+    const row: CellState[] = []
+    result.push(row)
+
+    for (let x = 0; x < worldSize.x; x += 1) {
+      row.push({
+        mass: Math.floor(random(initialMaximumPressure)),
+      })
+    }
+  }
+
+  return result
 }

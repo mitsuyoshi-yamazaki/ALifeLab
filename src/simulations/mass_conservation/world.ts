@@ -1,26 +1,32 @@
 import { Vector } from "../../classes/physics"
-import { Cell } from "./cell"
 import { Drawable } from "./drawable"
 
-type DrawableWorldObjects = Cell
+export type CellState = {
+  mass: number
+}
 
 export type WorldDrawableState = {
   readonly case: "world"
+  readonly cellStates: CellState[][]
 }
 
 export class World implements Drawable<WorldDrawableState> {
+  private cells: CellState[][]
+
   public constructor(
     public readonly size: Vector,
+    initialStates: CellState[][],
   ) {
+    this.cells = initialStates
   }
 
   public drawableState(): WorldDrawableState {
     return {
       case: "world",
+      cellStates: this.cells,
     }
   }
 
-  public getDrawableObjects(): DrawableWorldObjects[] {
-    return []
+  public calculate(): void {
   }
 }

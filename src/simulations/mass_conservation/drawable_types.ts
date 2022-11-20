@@ -1,6 +1,9 @@
-import { Cell } from "./cell"
 import { World } from "./world"
 
-type AnyDrawable = World | Cell
+type DummyDrawableState = {
+  readonly case: "dummy"
+}
 
-export type AnyDrawableStates = ReturnType<AnyDrawable["drawableState"]>
+type AnyDrawable = World
+
+export type AnyDrawableStates = ReturnType<AnyDrawable["drawableState"]> | DummyDrawableState
