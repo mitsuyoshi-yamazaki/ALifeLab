@@ -4,6 +4,7 @@ import { Vector } from "../../classes/physics"
 import { defaultCanvasParentId } from "../../react-components/common/default_canvas_parent_id"
 import { P5Drawer } from "./p5_drawer"
 import { CellState, World } from "./world"
+import { constants } from "./constants"
 
 let t = 0
 const canvasId = "canvas"
@@ -14,6 +15,7 @@ const fieldSize = worldSize.mult(cellSize)
 export const main = (p: p5): void => {
   const world = new World(worldSize, initializeStates())
   const drawer = new P5Drawer(p, cellSize)
+  log(`total mass: ${totalMass(world.cells.flatMap(x => x))}`)
 
   p.setup = () => {
     const canvas = p.createCanvas(fieldSize.x, fieldSize.y)
@@ -25,7 +27,8 @@ export const main = (p: p5): void => {
 
   p.draw = () => {
     world.calculate()
-    
+    log(`total mass: ${totalMass(world.cells.flatMap(x => x))}`)
+
     const drawableObjects = [
       world.drawableState(),
     ]
@@ -54,4 +57,14 @@ const initializeStates = (): CellState[][] => {
   }
 
   return result
+}
+
+const totalMass = (cells: CellState[]): number => {
+  return cells.reduce((result, current) => result + current.mass, 0)
+}
+
+const log = (message: string): void => {
+  if (constants.system.debug) {
+    console.log(message)
+  }
 }
