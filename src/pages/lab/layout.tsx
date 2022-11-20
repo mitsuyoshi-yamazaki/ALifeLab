@@ -32,6 +32,7 @@ const App = () => {
         <LinkCard title="Extended Machines and Tapes" link="machines_and_tapes.html?d=1&m=attracted&a=0&t=0&si=200&s=1000&f=0.94&g=&ig=0&p=200&ls=6&mr=0&l=40&bl=20&mi=210&ri=210&af=0.6&rf=0.5&fd=0.05&fv=0.45" />
         <LinkCard title="Extended Machines and Tapes v2" link="machines_and_tapes_ex2.html" />
         <LinkCard title="万華鏡" link="kaleidoscope_v2.html" />
+        <LinkCard title="Darwin's Garden" link="garden.html" />
       </div>
       <Footer homePath="../" />
     </ThemeProvider>
