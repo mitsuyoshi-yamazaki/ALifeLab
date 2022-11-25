@@ -5,12 +5,14 @@ import { defaultCanvasParentId } from "../../react-components/common/default_can
 import { P5Drawer } from "./p5_drawer"
 import { CellState, World } from "./world"
 import { constants } from "./constants"
+import { ScreenshotDownloader } from "../../classes/downloader"
 
 let t = 0
 const canvasId = "canvas"
 const cellSize = constants.simulation.cellSize
 const worldSize = new Vector(constants.simulation.worldSize, constants.simulation.worldSize)
 const fieldSize = worldSize.mult(cellSize)
+const downloader = new ScreenshotDownloader()
 
 export const main = (p: p5): void => {
   const world = new World(worldSize, initializeStates())
@@ -33,6 +35,11 @@ export const main = (p: p5): void => {
       world.drawableState(),
     ]
     drawer.drawAll(drawableObjects)
+
+    if (constants.simulation.autoDownload != null && (t % constants.simulation.autoDownload) === 0) {
+      downloader.saveScreenshot(t)
+    }
+
     t += 1
   }
 }
