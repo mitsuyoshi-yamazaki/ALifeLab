@@ -9,5 +9,13 @@ export const constants = {
   simulation: {
     cellSize: parameters.int("cell_size", 4, "si.c"),
     worldSize: parameters.int("world_size", 200, "si.w"),
+    autoDownload: ((): number | null => {
+      const key = "download_interval"
+      const shortKey = "si.d"
+      if (parameters.hasKey(key, shortKey) !== true) {
+        return null
+      }
+      return parameters.int(key, 100, shortKey)
+    })(),
   }
 }

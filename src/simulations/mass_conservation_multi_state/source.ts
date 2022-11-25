@@ -3,14 +3,16 @@ import { random } from "../../classes/utilities"
 import { Vector } from "../../classes/physics"
 import { defaultCanvasParentId } from "../../react-components/common/default_canvas_parent_id"
 import { P5Drawer } from "./p5_drawer"
-import { CellState, CellSubstance, cellSubstances, World } from "./world"
+import { CellState, World } from "./world"
 import { constants } from "./constants"
+import { ScreenshotDownloader } from "../../classes/downloader"
 
 let t = 0
 const canvasId = "canvas"
 const cellSize = constants.simulation.cellSize
 const worldSize = new Vector(constants.simulation.worldSize, constants.simulation.worldSize)
 const fieldSize = worldSize.mult(cellSize)
+const downloader = new ScreenshotDownloader()
 
 export const main = (p: p5): void => {
   const world = new World(worldSize, initializeStates())
@@ -33,6 +35,11 @@ export const main = (p: p5): void => {
       world.drawableState(),
     ]
     drawer.drawAll(drawableObjects)
+
+    if (constants.simulation.autoDownload != null && (t % constants.simulation.autoDownload) === 0) {
+      downloader.saveScreenshot(t)
+    }
+
     t += 1
   }
 }
@@ -45,11 +52,6 @@ const initializeStates = (): CellState[][] => {
   const initialMaximumPressure = 1000
   const result: CellState[][] = []
 
-  const numberOfSubstance = cellSubstances.length
-  const randomSubstance = (): CellSubstance => {
-    return cellSubstances[Math.floor(random(numberOfSubstance))]
-  }
-
   for (let y = 0; y < worldSize.y; y += 1) {
     const row: CellState[] = []
     result.push(row)
@@ -57,8 +59,10 @@ const initializeStates = (): CellState[][] => {
     for (let x = 0; x < worldSize.x; x += 1) {
       
       row.push({
-        substance: randomSubstance(),
-        mass: Math.floor(random(initialMaximumPressure)),
+        substances: {
+          blue: Math.floor(random(initialMaximumPressure)),
+          red: Math.floor(random(initialMaximumPressure)),
+        }
       })
     }
   }
@@ -67,7 +71,9 @@ const initializeStates = (): CellState[][] => {
 }
 
 const totalMass = (cells: CellState[]): number => {
-  return cells.reduce((result, current) => result + current.mass, 0)
+  return cells.reduce((result, current) => {
+    return result + Object.values(current.substances).reduce((r, c) => r + c, 0)
+  }, 0)
 }
 
 const log = (message: string): void => {
