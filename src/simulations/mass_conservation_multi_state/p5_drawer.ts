@@ -19,7 +19,7 @@ export class P5Drawer {
   ) {
     this.substanceColor = {
       blue: p.color(0x00, 0x00, 0xFF),
-      red: p.color(0xFF, 0x00, 0x00),
+      red: p.color(0x00, 0xFF, 0x00), // 赤いとキモいため
     }
   }
 

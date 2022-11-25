@@ -28,8 +28,8 @@ export type CellState = {
 // type TransitionRule = void  // TODO:
 
 type MassTransfer = {
-  readonly top: number
-  readonly left: number
+  readonly top: number  // 上セルから流入する量
+  readonly left: number // 左セルから流入する量
 }
 
 export type WorldDrawableState = {
@@ -130,12 +130,23 @@ export class World implements Drawable<WorldDrawableState> {
   private blueTransitionAmount(state: CellState, neighbourState: CellState): number {
     const substance = "blue"
     const massTransferResistance = 128
-    const diff = Math.floor((neighbourState.substances[substance] - state.substances[substance]) / massTransferResistance)
+    const incommingPressure = neighbourState.substances[substance] - state.substances[substance]
+    const outgoingPressure = state.substances["red"] - state.substances[substance]
+
+    const diff = Math.floor((incommingPressure - outgoingPressure) / massTransferResistance)
 
     return diff
   }
 
   private redTransitionAmount(state: CellState, neighbourState: CellState): number {
-    return 0  // TODO:
+    // blueTransitionAmountと同じ内容s
+    const substance = "red"
+    const massTransferResistance = 128
+    const incommingPressure = neighbourState.substances[substance] - state.substances[substance]
+    const outgoingPressure = state.substances["blue"] - state.substances[substance]
+
+    const diff = Math.floor((incommingPressure - outgoingPressure) / massTransferResistance)
+
+    return diff
   }
 }
