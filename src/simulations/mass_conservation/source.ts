@@ -11,6 +11,7 @@ const canvasId = "canvas"
 const cellSize = 4
 const worldSize = new Vector(200, 200)
 const fieldSize = worldSize.mult(cellSize)
+export const canvasWidth = fieldSize.x
 
 export const main = (p: p5): void => {
   const world = new World(worldSize, initializeStates())
