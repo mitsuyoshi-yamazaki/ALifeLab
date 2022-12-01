@@ -1,21 +1,19 @@
-import { URLParameterParser } from "../../classes/url_parameter_parser"
+import { URLParameterParser } from "../../classes/url_parameter_parser_v2"
 
-const parameters = new URLParameterParser()
+const parameters = new URLParameterParser(document.location.search)
 
 export const constants = {
   system: {
-    debug: parameters.boolean("debug", false, "d"),
+    debug: parameters.parseBoolean("debug", "d"),
   },
   simulation: {
-    cellSize: parameters.int("cell_size", 4, "si.c"),
-    worldSize: parameters.int("world_size", 200, "si.w"),
-    autoDownload: ((): number | null => {
-      const key = "download_interval"
-      const shortKey = "si.d"
-      if (parameters.hasKey(key, shortKey) !== true) {
-        return null
-      }
-      return parameters.int(key, 100, shortKey)
-    })(),
-  }
+    cellSize: parameters.parseInt("cell_size", "si.c") ?? 4,
+    worldSize: parameters.parseInt("world_size", "si.w") ?? 200,
+    autoDownload: parameters.parseInt("download_interval", "si.d"),
+  },
+  parameters: {
+    sameSubstancePressureMultiplier: parameters.parseFloat("same_substance_pressure_multiplier", "p.p1") ?? 1,
+    differentSubstancePressureMultiplier: parameters.parseFloat("different_substance_pressure_multiplier", "p.p2") ?? 1,
+    densityPressureMultiplier: parameters.parseFloat("density_pressure_multiplier", "p.p3") ?? 1,
+  },
 }
