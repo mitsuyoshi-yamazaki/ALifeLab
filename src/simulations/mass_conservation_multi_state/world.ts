@@ -16,6 +16,9 @@ export type CellState = {
   readonly substances: {[Substance in CellSubstanceType]: number}
 }
 
+const numberOfNeighbourCells = 4
+const minimumOutgoingMass = numberOfNeighbourCells
+
 // type TransitionRuleCohesive = {
 //   readonly case: "cohesive"
 // }
@@ -83,8 +86,22 @@ export class World implements Drawable<WorldDrawableState> {
         massTransfer[substance].push(transferRow)
 
         row.forEach((state, x) => {
+          if (state.substances["blue"] < 0 || state.substances["red"] < 0) {
+            console.log("below zero") // FixMe: 消す
+          }
+
           const topY = (y - 1 + this.size.y) % this.size.y
-          const topState = this.cells[topY][x]
+          const topX = ((): number => {
+            if (y !== 0) {
+              return x
+            }
+            // return this.size.x - x - 1
+            return x
+          })()
+          const topState = this.cells[topY][topX]
+          if (topState == null) {
+            console.log(`${x},${y}, ${topX},${topY}, ${this.size}`)
+          }
 
           const leftX = (x - 1 + this.size.x) % this.size.x
           const leftState = this.cells[y][leftX]
@@ -128,25 +145,38 @@ export class World implements Drawable<WorldDrawableState> {
   }
 
   private blueTransitionAmount(state: CellState, neighbourState: CellState): number {
-    const substance = "blue"
-    const massTransferResistance = 128
-    const incommingPressure = neighbourState.substances[substance] - state.substances[substance]
-    const outgoingPressure = state.substances["red"] - state.substances[substance]
-
-    const diff = Math.floor((incommingPressure - outgoingPressure) / massTransferResistance)
-
-    return diff
+    return this.transitionInTwoSubstances(state, neighbourState, "blue", "red")
   }
 
   private redTransitionAmount(state: CellState, neighbourState: CellState): number {
-    // blueTransitionAmountと同じ内容s
-    const substance = "red"
+    return this.transitionInTwoSubstances(state, neighbourState, "red", "blue")
+  }
+
+  private transitionInTwoSubstances(state: CellState, neighbourState: CellState, substance: CellSubstanceType, other: CellSubstanceType): number {
     const massTransferResistance = 128
-    const incommingPressure = neighbourState.substances[substance] - state.substances[substance]
-    const outgoingPressure = state.substances["blue"] - state.substances[substance]
 
-    const diff = Math.floor((incommingPressure - outgoingPressure) / massTransferResistance)
+    // 正の数ならt+1でstateの質量が増加⏫
+    const sameSubstancePressure = neighbourState.substances[substance] - state.substances[substance]
 
-    return diff
+    // 正の数ならt+1でstateの質量が減少⏬
+    const otherSubstancePressure = state.substances[other] - state.substances[substance]
+
+    // 正の数ならt+1でstateの質量が増加⏫
+    const neighbourOtherSubstancePressure = neighbourState.substances[other] - neighbourState.substances[substance]
+
+    // 正の数ならt+1でstateの質量が減少⏬
+    const otherSubstanceTotalPressure = otherSubstancePressure - neighbourOtherSubstancePressure
+
+    // 正の数ならt+1でstateの質量が増加⏫
+    const totalPressure = sameSubstancePressure - otherSubstanceTotalPressure
+    const transitionAmount = totalPressure / massTransferResistance
+    
+    if (transitionAmount > 0) {
+      const maximumIncommingTransitionAmount = neighbourState.substances[substance] / numberOfNeighbourCells
+      return Math.floor(Math.min(transitionAmount, maximumIncommingTransitionAmount))
+    } else {
+      const minimumOutgoingTransitionAmount = state.substances[substance] / numberOfNeighbourCells
+      return Math.ceil(Math.max(transitionAmount, -minimumOutgoingTransitionAmount))
+    }
   }
 }
