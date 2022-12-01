@@ -1,5 +1,8 @@
 import { Vector } from "../../classes/physics"
+import { constants } from "./constants"
 import { Drawable } from "./drawable"
+
+const { sameSubstancePressureMultiplier, differentSubstancePressureMultiplier, densityPressureMultiplier } = constants.parameters
 
 export const cellSubstanceTypes = [
   "blue",
@@ -158,6 +161,11 @@ export class World implements Drawable<WorldDrawableState> {
     // 正の数ならt+1でstateの質量が増加⏫
     const sameSubstancePressure = neighbourState.substances[substance] - state.substances[substance]
 
+    const totalMass = state.substances[substance] + state.substances[other]
+    const neighbourTotalMass = neighbourState.substances[substance] + neighbourState.substances[other]
+    // 正の数ならt+1でstateの質量が減少⏬
+    const densityPressure = (totalMass - neighbourTotalMass) * (state.substances[substance] / totalMass)
+
     // 正の数ならt+1でstateの質量が減少⏬
     const otherSubstancePressure = state.substances[other] - state.substances[substance]
 
@@ -166,9 +174,11 @@ export class World implements Drawable<WorldDrawableState> {
 
     // 正の数ならt+1でstateの質量が減少⏬
     const otherSubstanceTotalPressure = otherSubstancePressure - neighbourOtherSubstancePressure
-
+    
     // 正の数ならt+1でstateの質量が増加⏫
-    const totalPressure = sameSubstancePressure - otherSubstanceTotalPressure
+    const totalPressure = (sameSubstancePressure * sameSubstancePressureMultiplier)
+      - (densityPressure * densityPressureMultiplier)
+      - (otherSubstanceTotalPressure * differentSubstancePressureMultiplier)
     const transitionAmount = totalPressure / massTransferResistance
     
     if (transitionAmount > 0) {

@@ -49,7 +49,8 @@ export const getTimestamp = (): number => {
 }
 
 const initializeStates = (): CellState[][] => {
-  const initialMaximumPressure = 1000
+  const blueMaximumPressure = 1000
+  const redMaximumPressure = blueMaximumPressure
   const result: CellState[][] = []
 
   for (let y = 0; y < worldSize.y; y += 1) {
@@ -60,8 +61,8 @@ const initializeStates = (): CellState[][] => {
       
       row.push({
         substances: {
-          blue: Math.floor(random(initialMaximumPressure)),
-          red: Math.floor(random(initialMaximumPressure)),
+          blue: Math.floor(random(blueMaximumPressure)),
+          red: Math.floor(random(redMaximumPressure)),
         }
       })
     }
