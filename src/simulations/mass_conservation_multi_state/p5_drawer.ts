@@ -50,18 +50,17 @@ export class P5Drawer implements Drawer {
     results.forEach((row, y) => {
       row.forEach((result, x) => {
         const substance = result.dominantSubstance
-        if (substance !== "none") {
-          const color = (this.substanceColor[substance]).p5(this.p)
-          this.p.noFill()
-          this.p.strokeWeight(strokeWeight)
-          this.p.stroke(color)
-          this.p.rect(x * this.cellSize, y * this.cellSize, this.cellSize, this.cellSize)
-
-          this.p.fill(color)
-        } else {
-          this.p.fill(0xFF)
+        if (substance === "none") {
+          return
         }
 
+        const color = (this.substanceColor[substance]).p5(this.p)
+        this.p.noFill()
+        this.p.strokeWeight(strokeWeight)
+        this.p.stroke(color)
+        this.p.rect(x * this.cellSize, y * this.cellSize, this.cellSize, this.cellSize)
+
+        this.p.fill(color)
         this.p.noStroke()
         this.p.text(`${result.distance}`, x * this.cellSize + cellRadius, y * this.cellSize + cellRadius)
       })

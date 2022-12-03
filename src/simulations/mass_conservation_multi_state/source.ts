@@ -36,7 +36,7 @@ export const main = (p: p5): void => {
     drawer.drawWorld(world)
 
     if (constants.simulation.enableStripeDetection === true) {
-      drawer.drawDistanceTransform(distanceTransform(world.cells))
+      drawer.drawDistanceTransform(distanceTransform(world.cells, world.size))
     }
 
     if (constants.simulation.autoDownload != null && (t % constants.simulation.autoDownload) === 0) {
