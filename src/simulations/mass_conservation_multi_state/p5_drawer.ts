@@ -1,16 +1,11 @@
 import p5 from "p5"
-import { AnyDrawableStates } from "./drawable_types"
-import { CellSubstanceType, cellSubstanceTypes, WorldDrawableState } from "./world"
+import { Vector } from "../../classes/physics"
+import { Drawer } from "./drawer"
+import { CellSubstanceType, cellSubstanceTypes, World } from "./world"
 
 const maximumDrawPressure = 1000
 
-type AnyDrawableStateCases = AnyDrawableStates["case"]
-const drawPriority: { [K in AnyDrawableStateCases]: number } = {  // 数字の小さい方が先に描画
-  world: 0,
-  dummy: 0,
-}
-
-export class P5Drawer {
+export class P5Drawer implements Drawer {
   private substanceColor: { [S in CellSubstanceType]: p5.Color }
 
   public constructor(
@@ -23,35 +18,11 @@ export class P5Drawer {
     }
   }
 
-  public drawAll<DrawableState extends AnyDrawableStates>(states: DrawableState[]): void {
-    this.p.background(0xFF, 0xFF);
-
-    [...states]
-      .sort((lhs, rhs) => drawPriority[lhs.case] - drawPriority[rhs.case])
-      .forEach(state => this.draw(state))
-  }
-
-  private draw<DrawableState extends AnyDrawableStates>(state: DrawableState): void {
-    switch (state.case) {
-    case "world":
-      this.drawWorld(state)
-      return
-      
-    case "dummy": // dummyがないと type AnyDrawableStates = WorldDrawableState となることにより default 節に WorldDrawableState が入りうると認識される
-      return
-     
-    default: {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const _: never = state
-      return
-    }
-    }
-  }
-
-  private drawWorld(state: WorldDrawableState): void {
+  public drawWorld(world: World): void {
+    this.p.background(0xFF, 0xFF)
     this.p.noStroke()
 
-    state.cellStates.forEach((row, y) => {
+    world.cells.forEach((row, y) => {
       row.forEach((state, x) => {
         cellSubstanceTypes.forEach(substance => {
           const transparency = Math.min((state.substances[substance] / maximumDrawPressure) * 0x7F, 0xFF)
@@ -62,5 +33,9 @@ export class P5Drawer {
         })
       })
     })
+  }
+
+  public drawDistanceTransform(result: any, worldSize: Vector, cellSize: number): void {
+    // TODO:
   }
 }

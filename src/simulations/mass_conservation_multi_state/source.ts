@@ -31,10 +31,7 @@ export const main = (p: p5): void => {
     world.calculate()
     log(`total mass: ${totalMass(world.cells.flatMap(x => x))}`)
 
-    const drawableObjects = [
-      world.drawableState(),
-    ]
-    drawer.drawAll(drawableObjects)
+    drawer.drawWorld(world)
 
     if (constants.simulation.autoDownload != null && (t % constants.simulation.autoDownload) === 0) {
       downloader.saveScreenshot(t)

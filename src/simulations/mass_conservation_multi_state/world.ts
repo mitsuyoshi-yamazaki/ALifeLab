@@ -1,6 +1,5 @@
 import { Vector } from "../../classes/physics"
 import { constants } from "./constants"
-import { Drawable } from "./drawable"
 
 const { sameSubstancePressureMultiplier, differentSubstancePressureMultiplier, densityPressureMultiplier } = constants.parameters
 
@@ -38,12 +37,7 @@ type MassTransfer = {
   readonly left: number // 左セルから流入する量
 }
 
-export type WorldDrawableState = {
-  readonly case: "world"
-  readonly cellStates: CellState[][]
-}
-
-export class World implements Drawable<WorldDrawableState> {
+export class World {
   public cells: CellState[][]
 
   public constructor(
@@ -52,13 +46,6 @@ export class World implements Drawable<WorldDrawableState> {
     initialStates: CellState[][],
   ) {
     this.cells = initialStates
-  }
-
-  public drawableState(): WorldDrawableState {
-    return {
-      case: "world",
-      cellStates: this.cells,
-    }
   }
 
   public calculate(): void {
