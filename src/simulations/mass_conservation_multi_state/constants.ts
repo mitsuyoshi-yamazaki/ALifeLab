@@ -5,11 +5,13 @@ const parameters = new URLParameterParser(document.location.search)
 export const constants = {
   system: {
     debug: parameters.parseBoolean("debug", "d"),
+    debugValue: parameters.parseFloat("debug_value") ?? 1,
   },
   simulation: {
     cellSize: parameters.parseInt("cell_size", "si.c") ?? 4,
     worldSize: parameters.parseInt("world_size", "si.w") ?? 200,
     autoDownload: parameters.parseInt("download_interval", "si.d"),
+    enableStripeDetection: parameters.parseBoolean("enable_stripe_detection", "si.s") ?? false, 
   },
   parameters: {
     sameSubstancePressureMultiplier: parameters.parseFloat("same_substance_pressure_multiplier", "p.p1") ?? 1,

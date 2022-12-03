@@ -6,6 +6,7 @@ import { P5Drawer } from "./p5_drawer"
 import { CellState, World } from "./world"
 import { constants } from "./constants"
 import { ScreenshotDownloader } from "../../classes/downloader"
+import { distanceTransform } from "./distance_transform"
 
 let t = 0
 const canvasId = "canvas"
@@ -31,7 +32,12 @@ export const main = (p: p5): void => {
     world.calculate()
     log(`total mass: ${totalMass(world.cells.flatMap(x => x))}`)
 
+    drawer.drawCanvas()
     drawer.drawWorld(world)
+
+    if (constants.simulation.enableStripeDetection === true) {
+      drawer.drawDistanceTransform(distanceTransform(world.cells))
+    }
 
     if (constants.simulation.autoDownload != null && (t % constants.simulation.autoDownload) === 0) {
       downloader.saveScreenshot(t)
