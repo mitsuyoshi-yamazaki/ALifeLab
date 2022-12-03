@@ -17,3 +17,11 @@ export const constants = {
     densityPressureMultiplier: parameters.parseFloat("density_pressure_multiplier", "p.p3") ?? 1,
   },
 }
+
+const constantsDescription: string[] = [
+  "constants: ",
+  ...Array.from(Object.values(constants)).flatMap((constantGroup): string[] => {
+    return Array.from(Object.entries(constantGroup)).map(([key, value]) => `${key}: ${value}`)
+  })
+]
+console.log(constantsDescription.join("\n"))
