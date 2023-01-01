@@ -27,6 +27,7 @@ module.exports = {
     garden: "./src/simulations/garden/layout.tsx",
     mass_conservation: "./src/simulations/mass_conservation/layout.tsx",
     mass_conservation_multi_state: "./src/simulations/mass_conservation_multi_state/layout.tsx",
+    hex_mn_mcca: "./src/simulations/hex_mn_mcca/layout.tsx",
   },
   output: {
     path: path.resolve(__dirname, "dist"),
