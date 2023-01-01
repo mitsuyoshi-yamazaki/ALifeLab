@@ -1,65 +1,68 @@
 import p5 from "p5"
-import { AnyDrawableStates } from "./drawable_types"
-import { CellSubstanceType, cellSubstanceTypes, WorldDrawableState } from "./world"
+import { Color } from "../../classes/color"
+import { DistanceTransformResult } from "./distance_transform"
+import { Drawer } from "./drawer"
+import { CellSubstanceType, cellSubstanceTypes, World } from "./world"
 
 const maximumDrawPressure = 1000
 
-type AnyDrawableStateCases = AnyDrawableStates["case"]
-const drawPriority: { [K in AnyDrawableStateCases]: number } = {  // 数字の小さい方が先に描画
-  world: 0,
-  dummy: 0,
-}
-
-export class P5Drawer {
-  private substanceColor: { [S in CellSubstanceType]: p5.Color }
+export class P5Drawer implements Drawer {
+  private substanceColor: { [S in CellSubstanceType]: Color }
 
   public constructor(
     private readonly p: p5,
-    private readonly cellSize: number,
+    public readonly cellSize: number,
   ) {
     this.substanceColor = {
-      blue: p.color(0x00, 0x00, 0xFF),
-      red: p.color(0x00, 0xFF, 0x00), // 赤いとキモいため
+      blue: new Color(0x00, 0x00, 0xFF),
+      red: new Color(0x00, 0xFF, 0x00), // 赤いとキモいため
     }
   }
 
-  public drawAll<DrawableState extends AnyDrawableStates>(states: DrawableState[]): void {
-    this.p.background(0xFF, 0xFF);
-
-    [...states]
-      .sort((lhs, rhs) => drawPriority[lhs.case] - drawPriority[rhs.case])
-      .forEach(state => this.draw(state))
+  public drawCanvas(): void {
+    this.p.clear()
   }
 
-  private draw<DrawableState extends AnyDrawableStates>(state: DrawableState): void {
-    switch (state.case) {
-    case "world":
-      this.drawWorld(state)
-      return
-      
-    case "dummy": // dummyがないと type AnyDrawableStates = WorldDrawableState となることにより default 節に WorldDrawableState が入りうると認識される
-      return
-     
-    default: {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const _: never = state
-      return
-    }
-    }
-  }
-
-  private drawWorld(state: WorldDrawableState): void {
+  public drawWorld(world: World): void {
+    this.p.background(0xFF, 0xFF)
     this.p.noStroke()
 
-    state.cellStates.forEach((row, y) => {
+    world.cells.forEach((row, y) => {
       row.forEach((state, x) => {
         cellSubstanceTypes.forEach(substance => {
           const transparency = Math.min((state.substances[substance] / maximumDrawPressure) * 0x7F, 0xFF)
           const color = this.substanceColor[substance]
-          color.setAlpha(transparency)
-          this.p.fill(color)
+          this.p.fill(color.p5(this.p, transparency))
           this.p.rect(x * this.cellSize, y * this.cellSize, this.cellSize, this.cellSize)
         })
+      })
+    })
+  }
+
+  drawDistanceTransform(results: DistanceTransformResult[][]): void {
+    this.p.background(0x22, 0x48)
+
+    const strokeWeight = 2
+    const cellRadius = this.cellSize / 2
+
+    this.p.textAlign(this.p.CENTER, this.p.CENTER)
+
+    results.forEach((row, y) => {
+      row.forEach((result, x) => {
+        const substance = result.dominantSubstance
+        if (substance === "none") {
+          return
+        }
+
+        const color = (this.substanceColor[substance]).p5(this.p)
+        this.p.noFill()
+        this.p.strokeWeight(strokeWeight)
+        this.p.stroke(color)
+        this.p.rect(x * this.cellSize, y * this.cellSize, this.cellSize, this.cellSize)
+
+        this.p.fill(color)
+        this.p.noStroke()
+        this.p.text(`${result.distance}`, x * this.cellSize + cellRadius, y * this.cellSize + cellRadius)
       })
     })
   }

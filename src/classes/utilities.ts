@@ -1,3 +1,8 @@
+export type Mutable<T> = {
+  -readonly [P in keyof T]: T[P]
+}
+export type DeepMutable<T> = { -readonly [P in keyof T]: DeepMutable<T[P]> }
+
 // export function random(max: number): number	// not working: raises "Expected 1 arguments, but got 2."
 export function random(max: number, min?: number): number {
   if (min == null) {
@@ -38,4 +43,9 @@ export function toggleFullscreen(elementId: string): void {
       canvas.msRequestFullscreen()
     }
   }
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const strictEntries = <T extends Record<string, any>>(object: T): [keyof T, T[keyof T]][] => {
+  return Object.entries(object)
 }
