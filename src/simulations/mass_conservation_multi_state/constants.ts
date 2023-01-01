@@ -10,6 +10,7 @@ export const constants = {
   simulation: {
     cellSize: parameters.parseInt("cell_size", "si.c") ?? 4,
     worldSize: parameters.parseInt("world_size", "si.w") ?? 200,
+    automatic: parameters.parseBoolean("automatic", "si.a") ?? false,
     autoDownload: parameters.parseInt("download_interval", "si.d"),
     enableStripeDetection: parameters.parseBoolean("enable_stripe_detection", "si.s") ?? false, 
   },
