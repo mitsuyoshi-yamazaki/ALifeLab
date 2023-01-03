@@ -1,7 +1,9 @@
 import p5 from "p5"
+import { random } from "../../classes/utilities"
 import { defaultCanvasParentId } from "../../react-components/common/default_canvas_parent_id"
 import { CellState } from "./cell_state"
-import { HexVector } from "./coordinate"
+import { exampleGrowthFunction } from "./growth_function"
+import { minimumNeighbourKernel } from "./kernel"
 import { Model } from "./model"
 import { P5Drawer } from "./p5_drawer"
 
@@ -10,7 +12,11 @@ const canvasId = "canvas"
 const fieldSize = 720
 const cellSize = 12
 const modelSize = Math.floor(fieldSize / cellSize)
-const model = new Model(modelSize)
+const model = new Model(
+  modelSize,
+  minimumNeighbourKernel,
+  exampleGrowthFunction,
+)
 
 model.initialize(size => {
   const states: CellState[][] = []
@@ -20,16 +26,12 @@ model.initialize(size => {
     states.push(row)
 
     for (let x = 0; x < size; x += 1) {
-      const vector = new HexVector(x, y)
-      if (vector.r === vector.q || vector.q === vector.s || vector.s === vector.r) {
-        // console.log(`${vector}`)
-        row.push({ alive: true })
+      if (random(1) < 0.5) {
+        row.push(1)
       } else {
-        row.push({ alive: false })
+        row.push(0)
       }
     }
-
-    // console.log(`${y}: ${row.map(x => x.alive ? 1 : 0)}`)
   }
   return states
 })

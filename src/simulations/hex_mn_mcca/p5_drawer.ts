@@ -33,18 +33,19 @@ export class P5Drawer implements Drawer {
     const marginX = distanceX / 2
     const marginY = distanceY / 2
 
-    p.background(0, 0x00)
+    p.background(0xFF)
     p.noStroke()
-    p.fill(0x20, 0x80)
+    p.fill(0x20, 0xFF)
 
     model.states.forEach((row, y) => {
       row.forEach((state, x) => {
-        // if (state.alive !== true) {
-        //   return
-        // }
-        
+        if (state <= 0) {
+          return
+        }
+
         const xPosition = ((y % 2) === 0 ? marginX : 0) + x * distanceX
-        p.circle(xPosition, marginY + y * distanceY, this.cellSize)
+        const diameter = this.cellSize * state
+        p.circle(xPosition, marginY + y * distanceY, diameter)
       })
     })
   }

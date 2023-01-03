@@ -1,4 +1,6 @@
 import { CellState } from "./cell_state"
+import { GrowthFunction } from "./growth_function"
+import { Kernel } from "./kernel"
 
 export type ModelInitializer = (size: number) => CellState[][]
 
@@ -11,6 +13,8 @@ export class Model {
   
   public constructor(
     public readonly size: number,
+    public readonly kernel: Kernel,
+    public readonly growthFunction: GrowthFunction,
   ) {
   }
 
