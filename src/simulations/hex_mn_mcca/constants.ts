@@ -8,8 +8,9 @@ export const constants = {
     debugValue: parameters.parseFloat("debug_value") ?? 1,
   },
   simulation: {
-    cellSize: parameters.parseInt("cell_size", "si.c") ?? 4,
-    worldSize: parameters.parseInt("world_size", "si.w") ?? 200,
+    cellSize: parameters.parseInt("cell_size", "si.c") ?? 12,
+    worldSize: parameters.parseInt("world_size", "si.w") ?? 720,
+    calculationSpeed: parameters.parseInt("calculation_speed", "si.s") ?? 1,
   },
   parameters: {
   },

@@ -43,9 +43,10 @@ export class P5Drawer implements Drawer {
           return
         }
 
-        const xPosition = ((y % 2) === 0 ? marginX : 0) + x * distanceX
         const diameter = this.cellSize * state
-        p.circle(xPosition, marginY + y * distanceY, diameter)
+        const xPosition = marginX + y * marginX + x * distanceX
+        const xPositionInCanvas = (xPosition > this.fieldWidth) ? xPosition - this.fieldWidth : xPosition
+        p.circle(xPositionInCanvas, marginY + y * distanceY, diameter)
       })
     })
   }
