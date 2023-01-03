@@ -12,3 +12,10 @@ export const minimumNeighbourKernel: Kernel = {
     1,
   ],
 }
+
+export class GenericKernel implements Kernel {
+  public constructor(
+    public readonly weights: number[],
+  ) {
+  }
+}

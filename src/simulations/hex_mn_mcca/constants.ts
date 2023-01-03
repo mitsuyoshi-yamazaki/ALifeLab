@@ -13,6 +13,9 @@ export const constants = {
     calculationSpeed: parameters.parseInt("calculation_speed", "si.s") ?? 1,
   },
   parameters: {
+    initialAliveRatio: parameters.parseFloat("initial_alive_ratio", "p.i") ?? 0.5,
+    kernel: parameters.parseList("float", "kernel", "p.k"),
+    growthFunction: parameters.parseString("growth_function", "p.gf"),
   },
 }
 

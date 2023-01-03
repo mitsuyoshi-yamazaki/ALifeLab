@@ -20,3 +20,33 @@ export class HexVector {
     return new HexVector(this.q + other.q, this.r + other.r)
   }
 }
+
+// /**
+//  * Cube Coordinateでアクセスできる、外形が六角形の配列
+//  */
+// export class HexArray<T> {
+//   private content: (T | undefined)[][] = []
+
+//   public constructor(
+//     public readonly size: number,
+//   ) {
+//     this.initialize()
+//   }
+
+//   private initialize(): void {
+//     this.content = (new Array(this.size)).map((_, i): undefined[] => {
+//       if (i <= 0) {
+//         return [undefined]
+//       }
+//       return (new Array(i * 6)).fill(undefined)
+//     })
+//   }
+
+//   public clear(): void {
+//     this.initialize()
+//   }
+
+//   public get(index: HexVector): T | undefined {
+    
+//   }
+// }

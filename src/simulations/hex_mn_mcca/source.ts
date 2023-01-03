@@ -3,8 +3,8 @@ import { random } from "../../classes/utilities"
 import { defaultCanvasParentId } from "../../react-components/common/default_canvas_parent_id"
 import { CellState } from "./cell_state"
 import { constants } from "./constants"
-import { exampleGrowthFunction, growingGrowthFunction } from "./growth_function"
-import { minimumNeighbourKernel } from "./kernel"
+import { exampleGrowthFunction, GrowthFunction, RangeGrowthFunction } from "./growth_function"
+import { GenericKernel, Kernel, minimumNeighbourKernel } from "./kernel"
 import { Model } from "./model"
 import { P5Drawer } from "./p5_drawer"
 
@@ -13,10 +13,36 @@ const canvasId = "canvas"
 const fieldSize = constants.simulation.worldSize
 const cellSize = constants.simulation.cellSize
 const modelSize = Math.floor(fieldSize / cellSize)
+
+const givenRule = ((): { kernel: Kernel, growthFunction: GrowthFunction } | null => {
+  if (constants.parameters.kernel == null) {
+    return null
+  }
+  if (constants.parameters.growthFunction == null) {
+    return null
+  }
+  try {
+    const ranges = RangeGrowthFunction.parseRanges(constants.parameters.growthFunction)
+    return {
+      kernel: new GenericKernel(constants.parameters.kernel),
+      growthFunction: new RangeGrowthFunction(ranges),
+    }
+  } catch (error) {
+    alert(`growth_function parse error: ${error}`)
+    return null
+  }
+})()
+
+const kernel = givenRule?.kernel ?? minimumNeighbourKernel
+const growthFunction = givenRule?.growthFunction ?? exampleGrowthFunction
+
+console.log(`kernel: ${kernel.weights}`)
+// console.log(`growth function:\n${}`) // TODO:
+
 const model = new Model(
   modelSize,
-  minimumNeighbourKernel,
-  exampleGrowthFunction,
+  kernel,
+  growthFunction,
 )
 
 model.initialize(size => {
@@ -27,11 +53,10 @@ model.initialize(size => {
     states.push(row)
 
     for (let x = 0; x < size; x += 1) {
-      // if (x === 50 && y === 50) {
-      if (random(1) < 0.5) {
-        row.push(1)
-      } else {
+      if (random(1) < constants.parameters.initialAliveRatio) {
         row.push(0)
+      } else {
+        row.push(1)
       }
     }
   }

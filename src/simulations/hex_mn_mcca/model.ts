@@ -74,8 +74,7 @@ export class Model {
 
       row.forEach((state, x) => {
         const sum = this.sumOf(x, y)
-        const nextState = Math.min(Math.max(state + this.growthFunction.nextStateOf(sum), 0), 1)
-        nextRow.push(nextState)
+        nextRow.push(this.growthFunction.nextStateOf(sum))
       })
     })
 
