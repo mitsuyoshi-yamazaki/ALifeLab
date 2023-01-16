@@ -34,7 +34,8 @@ const App = () => {
         <LinkCard title="万華鏡" link="kaleidoscope_v2.html" />
         <LinkCard title="Darwin's Garden" link="garden.html" />
         <LinkCard title="質量保存CA" link="mass_conservation.html" />
-        <LinkCard title="多状態質量保存CA" link="mass_conservation_multi_state.html" />
+        <LinkCard title="多状態質量保存CA" link="mass_conservation_multi_state.html?debug=1&cell_size=12&world_size=80" />
+        <LinkCard title="多近傍質量保存CA" link="hex_mn_mcca.html" />
       </div>
       <Footer homePath="../" />
     </ThemeProvider>
