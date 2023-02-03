@@ -45,7 +45,6 @@ export function toggleFullscreen(elementId: string): void {
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const strictEntries = <T extends Record<string, any>>(object: T): [keyof T, T[keyof T]][] => {
-  return Object.entries(object)
+export const strictEntries = <Key extends string, Value>(object: {[K in Key]: Value}): [Key, Value][] => {
+  return Object.entries(object) as [Key, Value][]
 }
