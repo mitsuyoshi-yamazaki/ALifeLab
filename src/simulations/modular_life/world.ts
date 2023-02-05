@@ -11,8 +11,13 @@ export type Life = {
 }
 
 export class World implements WorldDelegate {
+  public get t(): number {
+    return this._t
+  }
   public readonly lives: Life[] = []
   
+  private _t = 0
+
   public constructor(
     public readonly size: Vector,
   ) {
@@ -53,9 +58,11 @@ export class World implements WorldDelegate {
       life.hull.internalModules
         .filter(isCompute)
         .forEach(computer => {
-          computer.run(modules, {})
+          computer.run(modules, {time: this._t})
         })
     })
+
+    this._t += 1
   }
 
   private getNewPosition(origin: Vector, direction: Direction): Vector {
