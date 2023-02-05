@@ -9,7 +9,7 @@ export const constants = {
   },
   simulation: {
     cellSize: parameters.parseInt("cell_size", "si.c") ?? 8,
-    worldSize: parameters.parseInt("canvas_size", "si.w") ?? 800,
+    worldSize: parameters.parseInt("canvas_size", "si.w") ?? 100,
   },
   parameters: {
   },

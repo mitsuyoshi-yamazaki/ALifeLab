@@ -3,7 +3,7 @@ import { World } from "./world"
 
 interface Drawer {
   drawCanvas(): void
-  drawWorld(world: World): void
+  drawWorld(world: World, cellSize: number): void
 }
 
 export class P5Drawer implements Drawer {
@@ -17,8 +17,15 @@ export class P5Drawer implements Drawer {
     this.p.clear()
   }
 
-  public drawWorld(world: World): void {
-    this.p.background(0xFF, 0xFF)
-    this.p.noStroke()
+  public drawWorld(world: World, cellSize: number): void {
+    const p = this.p
+
+    p.background(0xFF, 0xFF)
+    p.noStroke()
+
+    world.lives.forEach(life => {
+      p.fill(0x20, 0xC0)
+      p.ellipse(life.position.x * cellSize, life.position.y * cellSize, cellSize)
+    })
   }
 }
