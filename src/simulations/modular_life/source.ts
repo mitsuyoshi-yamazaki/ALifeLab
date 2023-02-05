@@ -6,6 +6,7 @@ import { createMoveCode } from "./ancestor/source_code"
 import { constants } from "./constants"
 import { Directions } from "./direction"
 import { P5Drawer } from "./p5_drawer"
+import { System } from "./system"
 import { World } from "./world"
 import { worldDelegate } from "./world_delegate"
 
@@ -32,6 +33,7 @@ export const main = (p: p5): void => {
       
     drawer.drawCanvas()
     drawer.drawWorld(world, cellSize)
+    drawer.drawStatus(canvasSize, `${System.version}\n${world.t}`)
 
     t += 1
   }
