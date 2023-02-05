@@ -1,13 +1,16 @@
 import { Result } from "../../classes/result"
 import { Vector } from "../../classes/physics"
 import { Module } from "./module/module"
+import { WorldDelegate } from "./world_delegate"
+import { Direction, getDirectionVector } from "./direction"
+import { AnyModule, isCompute } from "./module"
 
 export type Life = {
   position: Vector
-  hull: Module.Hull
+  readonly hull: Module.Hull
 }
 
-export class World {
+export class World implements WorldDelegate {
   public readonly lives: Life[] = []
   
   public constructor(
@@ -15,13 +18,22 @@ export class World {
   ) {
   }
 
-  public addLife(hull: Module.Hull, atPosition: Vector): Result<void, string> {
-    // TODO: 位置検証
+  public addLife(hull: Module.Hull): Result<void, string> {
     this.lives.push({
-      position: atPosition,
+      position: this.size.div(2), // TODO:
       hull,
     })
 
+    return Result.Succeeded(undefined)
+  }
+
+  public move(hull: Module.Hull, direction: Direction): Result<void, string> {
+    const life = this.lives.find(l => l.hull.id === hull.id)
+    if (life == null) {
+      return Result.Failed(`no life with hull ${hull.id}`)
+    }
+
+    life.position = this.getNewPosition(life.position, direction)
     return Result.Succeeded(undefined)
   }
 
@@ -32,6 +44,25 @@ export class World {
   }
 
   private step(): void {
-    // TODO:
+    this.lives.forEach(life => {
+      const modules: AnyModule[] = [
+        life.hull,
+        ...life.hull.internalModules,
+      ]
+
+      life.hull.internalModules
+        .filter(isCompute)
+        .forEach(computer => {
+          computer.run(modules, {})
+        })
+    })
+  }
+
+  private getNewPosition(origin: Vector, direction: Direction): Vector {
+    const directionVector = getDirectionVector(direction)
+    return new Vector(
+      (origin.x + directionVector.x + this.size.x) % this.size.x,
+      (origin.y + directionVector.y + this.size.y) % this.size.y,
+    )
   }
 }

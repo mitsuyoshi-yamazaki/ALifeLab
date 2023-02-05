@@ -2,10 +2,12 @@ import p5 from "p5"
 import { Vector } from "../../classes/physics"
 import { defaultCanvasParentId } from "../../react-components/common/default_canvas_parent_id"
 import { createAncestor } from "./ancestor/ancestor"
-import { stillCode } from "./ancestor/source_code"
+import { createMoveCode } from "./ancestor/source_code"
 import { constants } from "./constants"
+import { Directions } from "./direction"
 import { P5Drawer } from "./p5_drawer"
 import { World } from "./world"
+import { worldDelegate } from "./world_delegate"
 
 let t = 0
 
@@ -16,6 +18,7 @@ export const main = (p: p5): void => {
   const drawer = new P5Drawer(p, cellSize)
 
   const world = new World(worldSize)
+  worldDelegate.delegate = world
   initializeLives(world)
 
   p.setup = () => {
@@ -39,5 +42,5 @@ export const getTimestamp = (): number => {
 }
 
 const initializeLives = (world: World): void => {
-  world.addLife(createAncestor(stillCode), world.size.div(2))
+  world.addLife(createAncestor(createMoveCode(Directions.right)))
 }
