@@ -7,6 +7,7 @@ export class Compute implements Module<"compute"> {
   readonly type = "compute"
 
   public constructor(
+    public readonly code: SourceCode,
   ) {
   }
 }

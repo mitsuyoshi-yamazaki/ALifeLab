@@ -1,5 +1,9 @@
 import { Module } from "../module/module"
 
-export const createAncestor = (code: Module.SourceCode, body: Module.AssembleSpec): Module.Hull => {
-  
+export const createAncestor = (code: Module.SourceCode): Module.Hull => {
+  const modules: Module.InternalModule[] = [
+    new Module.Compute(code),
+    new Module.Assemble(),
+  ]
+  return new Module.Hull(modules)
 }

@@ -1,7 +1,7 @@
 import type { AnyModule } from "./any_module"
 import { Module } from "./types"
 
-type InternalModule = Exclude<AnyModule, Hull>
+export type InternalModule = Exclude<AnyModule, Hull>
 
 export class Hull implements Module<"hull"> {
   public readonly name = "Hull"
