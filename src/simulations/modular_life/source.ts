@@ -5,6 +5,7 @@ import { createAncestor } from "./ancestor/ancestor"
 import { createMoveCode } from "./ancestor/source_code"
 import { constants } from "./constants"
 import { Directions } from "./direction"
+import { EnergySource } from "./energy_source"
 import { P5Drawer } from "./p5_drawer"
 import { System } from "./system"
 import { World } from "./world"
@@ -20,6 +21,7 @@ export const main = (p: p5): void => {
 
   const world = new World(worldSize)
   worldDelegate.delegate = world
+  initializeEnergySources(world)
   initializeLives(world)
 
   p.setup = () => {
@@ -41,6 +43,11 @@ export const main = (p: p5): void => {
 
 export const getTimestamp = (): number => {
   return t
+}
+
+const initializeEnergySources = (world: World): void => {
+  world.addEnergySource(new EnergySource(world.size.div(4), 1000))
+  world.addEnergySource(new EnergySource(world.size.div(4).mult(3), 5000))
 }
 
 const initializeLives = (world: World): void => {

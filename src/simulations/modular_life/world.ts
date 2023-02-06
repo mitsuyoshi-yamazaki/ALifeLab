@@ -4,6 +4,7 @@ import { Module } from "./module/module"
 import { WorldDelegate } from "./world_delegate"
 import { Direction, getDirectionVector } from "./direction"
 import { AnyModule, isCompute } from "./module"
+import { EnergySource } from "./energy_source"
 
 export type Life = {
   position: Vector
@@ -14,6 +15,7 @@ export class World implements WorldDelegate {
   public get t(): number {
     return this._t
   }
+  public readonly energySources: EnergySource[] = []
   public readonly lives: Life[] = []
   
   private _t = 0
@@ -21,6 +23,10 @@ export class World implements WorldDelegate {
   public constructor(
     public readonly size: Vector,
   ) {
+  }
+
+  public addEnergySource(energySource: EnergySource): void {
+    this.energySources.push(energySource)
   }
 
   public addLife(hull: Module.Hull): Result<void, string> {

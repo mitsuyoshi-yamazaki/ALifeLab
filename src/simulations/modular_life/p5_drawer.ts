@@ -19,7 +19,7 @@ export class P5Drawer implements Drawer {
     const p = this.p
 
     p.clear()
-    p.background(0xFF, 0xFF)
+    p.background(0x20, 0xFF)
   }
 
   public drawStatus(size: Vector, status: string): void {
@@ -40,8 +40,13 @@ export class P5Drawer implements Drawer {
 
     p.noStroke()
 
+    world.energySources.forEach(energySource => {
+      p.fill(0xFF, 0xFF, 0x00, 0xC0)
+      p.rect(energySource.position.x * cellSize, energySource.position.y * cellSize, cellSize, cellSize)
+    })
+
     world.lives.forEach(life => {
-      p.fill(0x20, 0xC0)
+      p.fill(0xFF, 0xC0)
       p.ellipse(life.position.x * cellSize, life.position.y * cellSize, cellSize)
     })
   }
