@@ -1,6 +1,6 @@
-import { Result } from "../../classes/result"
-import { EnergySource } from "./world_object/energy_source"
-import * as Module from "./module"
+import { Result } from "../../../classes/result"
+import { EnergySource } from "../world_object/energy_source"
+import * as Module from "../module"
 
 // TODO: 具体型を指定している部分をインターフェースに置き換える
 
