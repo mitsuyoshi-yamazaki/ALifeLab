@@ -16,7 +16,7 @@ export class Hull implements Module<"hull"> {
   public readonly type = "hull"
 
   public get energy(): number {
-    return this.energy
+    return this._energy
   }
 
   private _energy = 0
