@@ -1,26 +1,24 @@
 import { Result } from "../../../classes/result"
-import { EnergySource } from "../world_object/energy_source"
-import * as Module from "../module"
+import { StringConvertible } from "./utility"
 
-// TODO: 具体型を指定している部分をインターフェースに置き換える
+export type EnergyWithdrawable = {
+  energyAmount: number
+  withdrawEnergy(amount: number): Result<void, string>
+} & StringConvertible
+
+export type EnergyTransferable = {
+  transferEnergy(amount: number): Result<void, string>
+} & StringConvertible
 
 type EnergyTransactionResult = Result<number, string>
 type EnergyTransaction = {
-  (from: EnergySource, to: Module.Hull): EnergyTransactionResult
+  (from: EnergyWithdrawable, to: EnergyTransferable): EnergyTransactionResult
 }
 
-export const energyTransaction: EnergyTransaction = (...args: [EnergySource, Module.Hull]) => {
-  return fromEnergySourceToHull(args[0], args[1])
-}
-
-const fromEnergySourceToHull = (energySource: EnergySource, hull: Module.Hull): EnergyTransactionResult => {
-  if (energySource.energyAmount <= 0) {
-    return Result.Failed(`EnergySource at ${energySource.position} is empty`)
-  }
-
-  const transferAmount = energySource.energyAmount
-  energySource.harvest(transferAmount)
-  hull.addEnergy(transferAmount)
+export const energyTransaction: EnergyTransaction = (from: EnergyWithdrawable, to: EnergyTransferable): EnergyTransactionResult => {
+  const transferAmount = from.energyAmount
+  from.withdrawEnergy(transferAmount)
+  to.transferEnergy(transferAmount)
 
   return Result.Succeeded(transferAmount)
 }

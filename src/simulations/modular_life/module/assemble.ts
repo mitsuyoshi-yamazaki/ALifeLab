@@ -2,7 +2,6 @@ import { Module } from "./types"
 import { Result } from "../../../classes/result"
 import { Hull, InternalModule } from "./hull"
 import { Compute } from "./compute"
-import { createId } from "./module_id"
 import { AnyModule } from "./any_module"
 import type { LifeSpec } from "../primitive/types"
 
@@ -10,8 +9,7 @@ export const isAssemble = (module: AnyModule): module is Assemble => {
   return module.type === "assemble"
 }
 
-export class Assemble implements Module<"assemble"> {
-  public readonly id: number
+export class Assemble extends Module<"assemble"> {
   public readonly name = "Assembler"
   public readonly type = "assemble"
 
@@ -23,7 +21,7 @@ export class Assemble implements Module<"assemble"> {
 
   public constructor(
   ) {
-    this.id = createId()
+    super()
   }
 
   public assemble(spec: LifeSpec): Result<void, string> {

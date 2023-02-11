@@ -1,3 +1,5 @@
+import { createId } from "./module_id"
+
 export type ModuleType = "compute" | "assemble" | "hull"
 export const getShortModuleName = (moduleType: ModuleType): string => {
   switch (moduleType) {
@@ -15,8 +17,16 @@ export const getShortModuleName = (moduleType: ModuleType): string => {
   }
 }
 
-export interface Module<T extends ModuleType> {
+export abstract class Module<T extends ModuleType> {
   readonly id: number
   readonly name: string
   readonly type: T
+
+  public constructor() {
+    this.id = createId()
+  }
+  
+  public toString(): string {
+    return `${this.constructor.name}[${this.id}]`
+  }
 }
