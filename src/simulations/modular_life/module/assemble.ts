@@ -1,10 +1,10 @@
 import { Module } from "./types"
 import { Result } from "../../../classes/result"
-import { Hull } from "./hull"
+import { Hull, InternalModule } from "./hull"
 import { Compute } from "./compute"
 import { createId } from "./module_id"
 import { AnyModule } from "./any_module"
-import type { AssembleSpec } from "../types"
+import type { LifeSpec } from "../types"
 
 export const isAssemble = (module: AnyModule): module is Assemble => {
   return module.type === "assemble"
@@ -26,12 +26,20 @@ export class Assemble implements Module<"assemble"> {
     this.id = createId()
   }
 
-  public assemble(spec: AssembleSpec): Result<void, string> {
+  public assemble(spec: LifeSpec): Result<void, string> {
     if (this.assembling != null) {
       return Result.Failed("already assembling")
     }
 
-    this._assembling = new Hull([new Compute(spec.code), new Assemble()])
+    const internalModules: InternalModule[] = spec.internalModuleSpecs.map(moduleSpec => {
+      switch (moduleSpec.case) {
+      case "assemble":
+        return new Assemble()
+      case "compute":
+        return new Compute(moduleSpec.code)
+      }
+    })
+    this._assembling = new Hull(internalModules)
     return Result.Succeeded(undefined)
   }
 

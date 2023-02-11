@@ -1,13 +1,42 @@
 import type { ComputerApi } from "./api"
 import type { EnergySource } from "./energy_source"
 import type { Environment } from "./environment"
-import type { Hull } from "./module"
+import { getShortModuleName, Hull, ModuleType } from "./module"
 
 export type WorldObject = Hull | EnergySource
 
+type ModuleSpecBase<T extends ModuleType> = {
+  readonly case: T
+}
 export type AssembleSpec = {
-  // TODO: 現状はHull(Compute, Assemble)の一種類のみ
+} & ModuleSpecBase<"assemble">
+
+export type ComputeSpec = {
   readonly code: SourceCode
+} & ModuleSpecBase<"compute">
+
+export type HullSpec = {
+} & ModuleSpecBase<"hull">
+
+export type ModuleSpec = AssembleSpec | ComputeSpec | HullSpec
+
+export type LifeSpec = {
+  readonly hullSpec: HullSpec
+  readonly internalModuleSpecs: (Exclude<ModuleSpec, HullSpec>)[]
+}
+
+export const describeLifeSpec = (spec: LifeSpec): string => {
+  const internalModules = new Map<ModuleType, number>()
+  spec.internalModuleSpecs.forEach(module => {
+    const moduleCount = internalModules.get(module.case) ?? 0
+    internalModules.set(module.case, moduleCount + 1)
+  })
+
+  const internalModuleDescriptions = Array.from(internalModules.entries()).map(([moduleType, count]): string => {
+    return `${count}${getShortModuleName(moduleType)}`
+  })
+
+  return `H(${internalModuleDescriptions.join("")})`
 }
 
 export type SourceCode = ([api, environment]: ComputeArgument) => void

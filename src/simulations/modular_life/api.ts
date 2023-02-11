@@ -2,7 +2,7 @@ import type { Result } from "../../classes/result"
 import type { Direction, NeighbourDirection } from "./direction"
 import type { EnergySource } from "./energy_source"
 import type { ModuleType } from "./module/types"
-import type { AssembleSpec, WorldObject } from "./types"
+import type { LifeSpec, WorldObject } from "./types"
 
 export type LookAroundResult = { [K in Direction]: WorldObject[] }
 
@@ -20,7 +20,7 @@ export type ComputerApi = {
   harvest(energySource: EnergySource): Result<number, string>
 
   /// 新たな生命を生成
-  assemble(spec: AssembleSpec): Result<void, string> // TODO: 複数のAssemblerに対応する
+  assemble(spec: LifeSpec): Result<void, string> // TODO: 複数のAssemblerに対応する
 
   /// 生成した生命を世界に放つ
   release(): Result<void, string> // TODO: 複数のAssemblerに対応する

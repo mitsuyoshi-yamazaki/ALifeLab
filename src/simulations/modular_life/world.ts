@@ -5,10 +5,11 @@ import { EnergySource } from "./energy_source"
 import type { Environment } from "./environment"
 import type { ComputerApi, LookAroundResult } from "./api"
 import * as Module from "./module"
-import { AssembleSpec, ComputeArgument, WorldObject } from "./types"
+import { ComputeArgument, describeLifeSpec, LifeSpec, WorldObject } from "./types"
 import { energyTransaction } from "./energy_transaction"
 import { isNearTo } from "./utility"
 import { isAssemble } from "./module"
+import { Logger } from "./logger"
 
 export type Life = {
   position: Vector
@@ -26,6 +27,7 @@ export class World {
 
   public constructor(
     public readonly size: Vector,
+    public readonly logger: Logger,
   ) {
   }
 
@@ -119,8 +121,8 @@ export class World {
       harvest: (energySource: EnergySource) => {
         return this.harvest(life, energySource)
       },
-      assemble: (spec: AssembleSpec) => {
-        return this.assemble(spec, modules)
+      assemble: (spec: LifeSpec) => {
+        return this.assemble(life, spec, modules)
       },
       release: () => {
         return this.release(life, modules)
@@ -129,6 +131,8 @@ export class World {
   }
 
   private release(life: Life, modules: Module.AnyModule[]): Result<void, string> {
+    this.logActiveApiCall(life, "release")
+    
     const assemblers = modules.filter(isAssemble)
     assemblers.forEach(assembler => {
       const offspring = assembler.release()
@@ -142,7 +146,9 @@ export class World {
     return Result.Succeeded(undefined)
   }
 
-  private assemble(spec: AssembleSpec, modules: Module.AnyModule[]): Result<void, string> {
+  private assemble(life: Life, spec: LifeSpec, modules: Module.AnyModule[]): Result<void, string> {
+    this.logActiveApiCall(life, `assemble: ${describeLifeSpec(spec)}`)
+
     const assembler = modules.filter(isAssemble).find(assembler => assembler.assembling == null)
     if (assembler == null) {
       const descriptions = modules.filter(isAssemble).map(assembler => {
@@ -171,10 +177,17 @@ export class World {
   }
 
   private harvest(life: Life, energySource: EnergySource): Result<number, string> {
+    this.logActiveApiCall(life, `harvest source at ${energySource.position}`)
+
     if (isNearTo(life.position, energySource.position) !== true) {
       return Result.Failed(`EnergySource at ${energySource.position} is not in range from ${life.position}`)
     }
 
     return energyTransaction(energySource, life.hull)    
+  }
+
+  /// 世界に対して働きかけるAPI呼び出しのログ出力
+  private logActiveApiCall(life: Life, message: string): void {
+    this.logger.debug(`Life[${life.hull.id}] at ${life.position} ${message}`)
   }
 }

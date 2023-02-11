@@ -1,7 +1,7 @@
 import { clockwiseDirection, NeighbourDirection } from "../direction"
 import { isEnergySource } from "../energy_source"
 import { logFailure } from "../result"
-import type { ComputeArgument, SourceCode, WorldObject } from "../types"
+import type { ComputeArgument, LifeSpec, SourceCode, WorldObject } from "../types"
 
 /// ゲーム世界上で何も行わない
 export const createStillCode = (): SourceCode => {
@@ -24,9 +24,24 @@ export const createMoveCode = (direction: NeighbourDirection): SourceCode => {
     }
 
     switch (environment.time % 300) {
-    case 0:
-      logFailure(api.assemble({ code: createMoveCode(clockwiseDirection(direction)) }))
+    case 0: {
+      const spec: LifeSpec = {
+        hullSpec: {
+          case: "hull",
+        },
+        internalModuleSpecs: [
+          {
+            case: "compute",
+            code: createMoveCode(clockwiseDirection(direction)),
+          },
+          {
+            case: "assemble",
+          }
+        ]
+      }
+      logFailure(api.assemble(spec))
       break
+    }
     case 1:
       logFailure(api.release())
       break
