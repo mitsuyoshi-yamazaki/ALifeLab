@@ -1,7 +1,3 @@
-import { Result } from "../../../classes/result"
-import { Direction } from "../direction"
-import { EnergySource } from "../energy_source"
-import { worldDelegate } from "../world_delegate"
 import type { AnyModule } from "./any_module"
 import { createId } from "./module_id"
 import { Module } from "./types"
@@ -31,11 +27,7 @@ export class Hull implements Module<"hull"> {
     this.id = createId()
   }
 
-  public harvest(energySource: EnergySource): Result<number, string> {
-    return Result.Failed("not implemented")
-  }
-
-  public distribute(energyAmount: number, toModule: InternalModule): Result<number, string> {
-    return Result.Failed("not implemented")
+  public addEnergy(amount: number): void {
+    this._energy += amount
   }
 }

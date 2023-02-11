@@ -7,6 +7,8 @@ import type { Environment } from "./environment"
 import type { ComputerApi, LookAroundResult } from "./api"
 import * as Module from "./module"
 import { WorldObject } from "./types"
+import { energyTransaction } from "./energy_transaction"
+import { isNearTo } from "./utility"
 
 export type Life = {
   position: Vector
@@ -83,6 +85,9 @@ export class World implements WorldDelegate {
           lookAround: () => {
             return this.lookAround(life, objectCache)
           },
+          harvest: (energySource: EnergySource) => {
+            return this.harvest(life, energySource)
+          },
         }
         return [api, environment]
       })()
@@ -93,6 +98,8 @@ export class World implements WorldDelegate {
           computer.run(computerArguments)
         })
     })
+
+    this.energySources.forEach(energySource => energySource.step())
 
     this._t += 1
   }
@@ -123,5 +130,13 @@ export class World implements WorldDelegate {
       left: objectCache[y][left],
       right: objectCache[y][right],
     }
+  }
+
+  private harvest(life: Life, energySource: EnergySource): Result<number, string> {
+    if (isNearTo(life.position, energySource.position) !== true) {
+      return Result.Failed(`EnergySource at ${energySource.position} is not in range from ${life.position}`)
+    }
+
+    return energyTransaction(energySource, life.hull)    
   }
 }

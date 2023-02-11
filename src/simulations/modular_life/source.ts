@@ -46,7 +46,7 @@ export const getTimestamp = (): number => {
 }
 
 const initializeEnergySources = (world: World): void => {
-  world.addEnergySource(new EnergySource(world.size.div(2), 1000))
+  world.addEnergySource(new EnergySource(world.size.div(2), 10, 1000))
 }
 
 const initializeLives = (world: World): void => {
