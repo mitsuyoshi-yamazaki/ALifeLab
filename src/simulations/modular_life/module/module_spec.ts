@@ -12,6 +12,7 @@ export type ComputeSpec = {
 } & ModuleSpecBase<"compute">
 
 export type HullSpec = {
+  readonly energyAmount: number
 } & ModuleSpecBase<"hull">
 
 export type ModuleSpec = AssembleSpec | ComputeSpec | HullSpec
@@ -33,4 +34,20 @@ export const describeLifeSpec = (spec: LifeSpec): string => {
   })
 
   return `H(${internalModuleDescriptions.join("")})`
+}
+
+const moduleAssembleEnergyConsumption: { [T in ModuleType]: number } = {
+  hull: 100,
+  assemble: 100,
+  compute: 50,
+}
+
+export const calculateAssembleEnergyConsumption = (spec: LifeSpec): number => {
+  const assemble = 100
+  const hullGeneration = moduleAssembleEnergyConsumption["hull"]
+  const internalModuleGeneration = spec.internalModuleSpecs.reduce((result, module) => {
+    return result + moduleAssembleEnergyConsumption[module.case]
+  }, 0)
+
+  return assemble + spec.hullSpec.energyAmount + hullGeneration + internalModuleGeneration
 }

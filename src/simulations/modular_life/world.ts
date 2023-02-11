@@ -12,16 +12,23 @@ import { Logger } from "./logger"
 import { WorldObject } from "./primitive/world_object_interface"
 import { Life } from "./life"
 import { ComputeArgument } from "./module/source_code"
-import { describeLifeSpec, LifeSpec } from "./module/module_spec"
+import { calculateAssembleEnergyConsumption, describeLifeSpec, LifeSpec } from "./module/module_spec"
 
 export class World {
   public get t(): number {
     return this._t
   }
-  public readonly energySources: EnergySource[] = []
-  public readonly lives: Life[] = []
+  public get energySources(): EnergySource[] {
+    return this._energySources
+  }
+  public get lives(): Life[] {
+    return this._lives
+  }
   
   private _t = 0
+  private nextLives: Life[] = []
+  private _lives: Life[] = []
+  private _energySources: EnergySource[] = []
 
   public constructor(
     public readonly size: Vector,
@@ -34,7 +41,7 @@ export class World {
   }
 
   public addLife(hull: Module.Hull, atPosition: Vector): Result<void, string> {
-    this.lives.push(new Life(hull, atPosition))
+    this.nextLives.push(new Life(hull, atPosition))
 
     return Result.Succeeded(undefined)
   }
@@ -83,7 +90,33 @@ export class World {
         })
     })
 
-    this.energySources.forEach(energySource => energySource.step())
+    const nextEnergySources: EnergySource[] = []
+
+    this.energySources.forEach(energySource => {
+      if (energySource.production <= 0 && energySource.energyAmount <= 0) {
+        return
+      }
+      energySource.energyAmount = Math.max(Math.min(energySource.energyAmount + energySource.production, energySource.capacity), 0)
+      nextEnergySources.push(energySource)
+    })
+
+    const energyConsumption = 1
+    this.lives.forEach(life => {
+      if (life.hull.energyAmount <= energyConsumption) {
+        const energyAmount = 300  // FixMe: 仮で置いた値：算出する
+        const energySource = new EnergySource(life.position, 0, energyAmount, energyAmount)
+        nextEnergySources.push(energySource)
+        return
+      }
+
+      life.hull.withdrawEnergy(energyConsumption)
+      this.nextLives.push(life)
+    })
+
+    this._lives = this.nextLives
+    this.nextLives = []
+
+    this._energySources = nextEnergySources
 
     this._t += 1
   }
@@ -144,6 +177,11 @@ export class World {
   private assemble(life: Life, spec: LifeSpec, modules: Module.AnyModule[]): Result<void, string> {
     this.logActiveApiCall(life, `assemble: ${describeLifeSpec(spec)}`)
 
+    const requiredEnergy = calculateAssembleEnergyConsumption(spec)
+    if (life.hull.energyAmount < requiredEnergy) {
+      return Result.Failed(`Lack of energy (required: ${requiredEnergy}, current: ${life.hull.energyAmount})`)
+    }
+
     const assembler = modules.filter(isAssemble).find(assembler => assembler.assembling == null)
     if (assembler == null) {
       const descriptions = modules.filter(isAssemble).map(assembler => {
@@ -151,6 +189,8 @@ export class World {
       })
       return Result.Failed(`No empty assembler:\n${descriptions.join("\n")}`)
     }
+
+    life.hull.withdrawEnergy(requiredEnergy)  // TODO: Fail時の処理
 
     return assembler.assemble(spec)
   }

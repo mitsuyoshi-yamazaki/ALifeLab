@@ -37,7 +37,7 @@ export class Assemble extends Module<"assemble"> {
         return new Compute(moduleSpec.code)
       }
     })
-    this._assembling = new Hull(internalModules)
+    this._assembling = new Hull(internalModules, spec.hullSpec.energyAmount)
     return Result.Succeeded(undefined)
   }
 

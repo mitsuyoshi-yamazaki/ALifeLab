@@ -30,6 +30,7 @@ export const createMoveCode = (direction: NeighbourDirection): SourceCode => {
       const spec: LifeSpec = {
         hullSpec: {
           case: "hull",
+          energyAmount: 200,
         },
         internalModuleSpecs: [
           {

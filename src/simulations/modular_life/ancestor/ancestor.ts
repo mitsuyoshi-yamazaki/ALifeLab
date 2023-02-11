@@ -6,5 +6,5 @@ export const createAncestor = (code: SourceCode): Module.Hull => {
     new Module.Compute(code),
     new Module.Assemble(),
   ]
-  return new Module.Hull(modules)
+  return new Module.Hull(modules, 1000)  
 }
