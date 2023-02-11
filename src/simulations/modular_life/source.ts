@@ -4,7 +4,7 @@ import { defaultCanvasParentId } from "../../react-components/common/default_can
 import { createAncestor } from "./ancestor/ancestor"
 import { createMoveCode } from "./ancestor/source_code"
 import { constants } from "./constants"
-import { Directions } from "./direction"
+import { NeighbourDirections } from "./direction"
 import { EnergySource } from "./energy_source"
 import { P5Drawer } from "./p5_drawer"
 import { System } from "./system"
@@ -50,5 +50,5 @@ const initializeEnergySources = (world: World): void => {
 }
 
 const initializeLives = (world: World): void => {
-  world.addLife(createAncestor(createMoveCode(Directions.right)))
+  world.addLife(createAncestor(createMoveCode(NeighbourDirections.right)))
 }

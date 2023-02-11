@@ -129,6 +129,7 @@ export class World implements WorldDelegate {
       bottom: objectCache[bottom][x],
       left: objectCache[y][left],
       right: objectCache[y][right],
+      center: objectCache[y][x],
     }
   }
 

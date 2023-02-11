@@ -1,13 +1,13 @@
 import { Vector } from "../../classes/physics"
 
-export const Directions = {
+export const NeighbourDirections = {
   top: "top",
   bottom: "bottom",
   left: "left",
   right: "right",
 } as const
 
-export type Direction = keyof typeof Directions
+export type Direction = (keyof typeof NeighbourDirections) | "center"
 
 export const getDirectionVector = (direction: Direction): Vector => {
   switch (direction) {
@@ -19,5 +19,7 @@ export const getDirectionVector = (direction: Direction): Vector => {
     return new Vector(-1, 0)
   case "right":
     return new Vector(1, 0)
+  case "center":
+    return Vector.zero()
   }
 }
