@@ -1,21 +1,21 @@
 import { Result } from "../../classes/result"
 import { Vector } from "../../classes/physics"
-import type { WorldDelegate } from "./world_delegate"
 import { Direction, getDirectionVector } from "./direction"
 import { EnergySource } from "./energy_source"
 import type { Environment } from "./environment"
 import type { ComputerApi, LookAroundResult } from "./api"
 import * as Module from "./module"
-import { WorldObject } from "./types"
+import { AssembleSpec, ComputeArgument, WorldObject } from "./types"
 import { energyTransaction } from "./energy_transaction"
 import { isNearTo } from "./utility"
+import { isAssemble } from "./module"
 
 export type Life = {
   position: Vector
   readonly hull: Module.Hull
 }
 
-export class World implements WorldDelegate {
+export class World {
   public get t(): number {
     return this._t
   }
@@ -33,9 +33,9 @@ export class World implements WorldDelegate {
     this.energySources.push(energySource)
   }
 
-  public addLife(hull: Module.Hull): Result<void, string> {
+  public addLife(hull: Module.Hull, atPosition: Vector): Result<void, string> {
     this.lives.push({
-      position: this.size.div(2), // TODO:
+      position: atPosition,
       hull,
     })
 
@@ -74,23 +74,10 @@ export class World implements WorldDelegate {
         ...life.hull.internalModules,
       ]
 
-      const computerArguments = ((): Module.ComputeArgument => {
-        const api: ComputerApi = {
-          connectedModules(): Module.ModuleType[] {
-            return modules.map(module => module.type) // FixMe: 現在は全モジュールが接続している前提
-          },
-          move: (direction: Direction) => {
-            return this.move(life, direction)
-          },
-          lookAround: () => {
-            return this.lookAround(life, objectCache)
-          },
-          harvest: (energySource: EnergySource) => {
-            return this.harvest(life, energySource)
-          },
-        }
-        return [api, environment]
-      })()
+      const computerArguments: ComputeArgument = [
+        this.createApiFor(life, modules, objectCache),
+        environment,
+      ]
 
       life.hull.internalModules
         .filter(Module.isCompute)
@@ -115,6 +102,53 @@ export class World implements WorldDelegate {
   private move(life: Life, direction: Direction): Result<void, string> {
     life.position = this.getNewPosition(life.position, direction)
     return Result.Succeeded(undefined)
+  }
+
+  // ---- API ---- //
+  private createApiFor(life: Life, modules: Module.AnyModule[], objectCache: WorldObject[][][]): ComputerApi {
+    return {
+      connectedModules(): Module.ModuleType[] {
+        return modules.map(module => module.type) // FixMe: 現在は全モジュールが接続している前提
+      },
+      move: (direction: Direction) => {
+        return this.move(life, direction)
+      },
+      lookAround: () => {
+        return this.lookAround(life, objectCache)
+      },
+      harvest: (energySource: EnergySource) => {
+        return this.harvest(life, energySource)
+      },
+      spawn: (spec: AssembleSpec) => {
+        return this.spawn(spec, modules)
+      },
+      release: () => {
+        return this.release(life, modules)
+      },
+    }
+  }
+
+  private release(life: Life, modules: Module.AnyModule[]): Result<void, string> {
+    const assemblers = modules.filter(isAssemble)
+    assemblers.forEach(assembler => {
+      const offspring = assembler.release()
+      if (offspring == null) {
+        return
+      }
+
+      this.addLife(offspring, life.position)
+    })
+
+    return Result.Succeeded(undefined)
+  }
+
+  private spawn(spec: AssembleSpec, modules: Module.AnyModule[]): Result<void, string> {
+    const assembler = modules.filter(isAssemble).find(assembler => assembler.assembling == null)
+    if (assembler == null) {
+      return Result.Failed("No empty assembler")
+    }
+
+    return assembler.assemble(spec)
   }
 
   private lookAround(life: Life, objectCache: WorldObject[][][]): LookAroundResult {

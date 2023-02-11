@@ -1,15 +1,10 @@
 import { Module } from "./types"
 import { Result } from "../../../classes/result"
-import { worldDelegate } from "../world_delegate"
 import { Hull } from "./hull"
-import { Compute, SourceCode } from "./compute"
+import { Compute } from "./compute"
 import { createId } from "./module_id"
 import { AnyModule } from "./any_module"
-
-export type AssembleSpec = {
-  // 現状はHull(Compute, Assemble)の一種類のみ
-  readonly code: SourceCode
-}
+import type { AssembleSpec } from "../types"
 
 export const isAssemble = (module: AnyModule): module is Assemble => {
   return module.type === "assemble"
@@ -31,22 +26,21 @@ export class Assemble implements Module<"assemble"> {
     this.id = createId()
   }
 
-  public assemble(spec: AssembleSpec): Result<Hull, string> {
+  public assemble(spec: AssembleSpec): Result<void, string> {
     if (this.assembling != null) {
       return Result.Failed("already assembling")
     }
 
     this._assembling = new Hull([new Compute(spec.code), new Assemble()])
-    return Result.Succeeded(this._assembling)
+    return Result.Succeeded(undefined)
   }
 
-  /// assemblingを独立したエージェントとして環境に放つ
-  public release(): Result<void, string> {
+  public release(): Hull | null {
     if (this.assembling == null) {
-      return Result.Failed("no module to release")
+      return null
     }
-
-    worldDelegate.delegate?.addLife(this.assembling)
-    return Result.Succeeded(undefined)
+    const assembling = this.assembling
+    this._assembling = null
+    return assembling
   }
 }

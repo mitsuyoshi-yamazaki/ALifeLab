@@ -9,20 +9,17 @@ import { EnergySource } from "./energy_source"
 import { P5Drawer } from "./p5_drawer"
 import { System } from "./system"
 import { World } from "./world"
-import { worldDelegate } from "./world_delegate"
 
 let t = 0
+const worldSize = new Vector(constants.simulation.worldSize, constants.simulation.worldSize)
+const cellSize = constants.simulation.cellSize
+const canvasSize = worldSize.mult(cellSize)
 
 export const main = (p: p5): void => {
-  const worldSize = new Vector(constants.simulation.worldSize, constants.simulation.worldSize)
-  const cellSize = constants.simulation.cellSize
-  const canvasSize = worldSize.mult(cellSize)
-  const drawer = new P5Drawer(p, cellSize)
-
   const world = new World(worldSize)
-  worldDelegate.delegate = world
   initializeEnergySources(world)
   initializeLives(world)
+  const drawer = new P5Drawer(p, cellSize)
 
   p.setup = () => {
     const canvas = p.createCanvas(canvasSize.x, canvasSize.y)
@@ -50,5 +47,5 @@ const initializeEnergySources = (world: World): void => {
 }
 
 const initializeLives = (world: World): void => {
-  world.addLife(createAncestor(createMoveCode(NeighbourDirections.right)))
+  world.addLife(createAncestor(createMoveCode(NeighbourDirections.right)), worldSize.div(2))
 }

@@ -1,12 +1,7 @@
-import { ComputerApi } from "../api"
-import { Environment } from "../environment"
+import { ComputeArgument, SourceCode } from "../types"
 import { AnyModule } from "./any_module"
 import { createId } from "./module_id"
 import { Module } from "./types"
-
-export type SourceCode = ([api, environment]: ComputeArgument) => void
-
-export type ComputeArgument = [ComputerApi, Environment]
 
 export const isCompute = (module: AnyModule): module is Compute => {
   return module.type === "compute"

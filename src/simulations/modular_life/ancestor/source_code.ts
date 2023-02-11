@@ -1,19 +1,17 @@
 import { NeighbourDirection } from "../direction"
 import { isEnergySource } from "../energy_source"
-import { ComputeArgument } from "../module"
-import * as Module from "../module"
 import { logFailure } from "../result"
-import { WorldObject } from "../types"
+import type { ComputeArgument, SourceCode, WorldObject } from "../types"
 
 /// ゲーム世界上で何も行わない
-export const createStillCode = (): Module.SourceCode => {
+export const createStillCode = (): SourceCode => {
   return () => {
     console.log("still code")
   }
 }
 
 /// 指定の方向に移動し続け、EnergySourceに行き当たったらエネルギーを回収する
-export const createMoveCode = (direction: NeighbourDirection): Module.SourceCode => {
+export const createMoveCode = (direction: NeighbourDirection): SourceCode => {
   return ([api, environment]: ComputeArgument) => {
     if (environment.time % 10 !== 0) {
       return
