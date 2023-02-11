@@ -48,19 +48,20 @@ export class P5Drawer implements Drawer {
       p.stroke(energyColor)
       p.strokeWeight(1)
       p.noFill()
-      p.square(x, y, cellSize, energyCornerRadius)
+      p.square(x - radius, y - radius, cellSize, energyCornerRadius)
 
       const energyAmountSize = cellSize * (energySource.energyAmount / energySource.capacity)
+      const energyAmountRadius = energyAmountSize * 0.5
 
       p.noStroke()
       p.fill(energyColor)
-      p.square(x, y, energyAmountSize, energyCornerRadius)
+      p.square(x - energyAmountRadius, y - energyAmountRadius, energyAmountSize, energyCornerRadius)
     })
 
     p.noStroke()
     world.lives.forEach(life => {
       p.fill(0xFF, 0xC0)
-      p.ellipse(life.position.x * cellSize, life.position.y * cellSize, cellSize)
+      p.circle(life.position.x * cellSize, life.position.y * cellSize, cellSize)
     })
   }
 }
