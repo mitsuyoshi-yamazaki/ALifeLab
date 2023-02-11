@@ -1,6 +1,7 @@
 import * as Module from "../module"
+import type { SourceCode } from "../types"
 
-export const createAncestor = (code: Module.SourceCode): Module.Hull => {
+export const createAncestor = (code: SourceCode): Module.Hull => {
   const modules: Module.InternalModule[] = [
     new Module.Compute(code),
     new Module.Assemble(),

@@ -32,7 +32,7 @@ export const main = (p: p5): void => {
       
     drawer.drawCanvas()
     drawer.drawWorld(world, cellSize)
-    drawer.drawStatus(canvasSize, `${System.version}\n${world.t}`)
+    drawer.drawStatus(canvasSize, `v:${System.version}\n${world.t}`)
 
     t += 1
   }

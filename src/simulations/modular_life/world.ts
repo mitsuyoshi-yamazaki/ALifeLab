@@ -119,8 +119,8 @@ export class World {
       harvest: (energySource: EnergySource) => {
         return this.harvest(life, energySource)
       },
-      spawn: (spec: AssembleSpec) => {
-        return this.spawn(spec, modules)
+      assemble: (spec: AssembleSpec) => {
+        return this.assemble(spec, modules)
       },
       release: () => {
         return this.release(life, modules)
@@ -142,10 +142,13 @@ export class World {
     return Result.Succeeded(undefined)
   }
 
-  private spawn(spec: AssembleSpec, modules: Module.AnyModule[]): Result<void, string> {
+  private assemble(spec: AssembleSpec, modules: Module.AnyModule[]): Result<void, string> {
     const assembler = modules.filter(isAssemble).find(assembler => assembler.assembling == null)
     if (assembler == null) {
-      return Result.Failed("No empty assembler")
+      const descriptions = modules.filter(isAssemble).map(assembler => {
+        return `- ${assembler.id}: assembling ${assembler.assembling?.id} (${(assembler.assembling?.internalModules ?? []).map(module => `${module.id} ${module.type}`).join(", ")})`
+      })
+      return Result.Failed(`No empty assembler:\n${descriptions.join("\n")}`)
     }
 
     return assembler.assemble(spec)

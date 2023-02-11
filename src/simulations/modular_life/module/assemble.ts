@@ -19,7 +19,7 @@ export class Assemble implements Module<"assemble"> {
     return this._assembling
   }
 
-  private _assembling: Hull | null
+  private _assembling: Hull | null = null
 
   public constructor(
   ) {

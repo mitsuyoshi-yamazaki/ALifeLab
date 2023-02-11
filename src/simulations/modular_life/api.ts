@@ -20,7 +20,7 @@ export type ComputerApi = {
   harvest(energySource: EnergySource): Result<number, string>
 
   /// 新たな生命を生成
-  spawn(spec: AssembleSpec): Result<void, string> // TODO: 複数のAssemblerに対応する
+  assemble(spec: AssembleSpec): Result<void, string> // TODO: 複数のAssemblerに対応する
 
   /// 生成した生命を世界に放つ
   release(): Result<void, string> // TODO: 複数のAssemblerに対応する

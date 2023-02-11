@@ -24,3 +24,42 @@ export const getDirectionVector = (direction: Direction): Vector => {
     return Vector.zero()
   }
 }
+
+export const clockwiseDirection = (direction: NeighbourDirection): NeighbourDirection => {
+  switch (direction) {
+  case "top":
+    return NeighbourDirections.right
+  case "bottom":
+    return NeighbourDirections.left
+  case "left":
+    return NeighbourDirections.top
+  case "right":
+    return NeighbourDirections.bottom
+  }
+}
+
+export const counterClockwiseDirection = (direction: NeighbourDirection): NeighbourDirection => {
+  switch (direction) {
+  case "top":
+    return NeighbourDirections.left
+  case "bottom":
+    return NeighbourDirections.right
+  case "left":
+    return NeighbourDirections.bottom
+  case "right":
+    return NeighbourDirections.top
+  }
+}
+
+export const oppositeDirection = (direction: NeighbourDirection): NeighbourDirection => {
+  switch (direction) {
+  case "top":
+    return NeighbourDirections.bottom
+  case "bottom":
+    return NeighbourDirections.top
+  case "left":
+    return NeighbourDirections.right
+  case "right":
+    return NeighbourDirections.left
+  }
+}
