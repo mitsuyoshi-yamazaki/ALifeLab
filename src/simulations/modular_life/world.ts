@@ -3,18 +3,15 @@ import { Vector } from "../../classes/physics"
 import { Direction, getDirectionVector } from "./primitive/direction"
 import { EnergySource } from "./world_object/energy_source"
 import type { Environment } from "./primitive/environment"
-import type { ComputerApi, LookAroundResult } from "./api"
+import type { ComputerApi, LookAroundResult } from "./module/api"
 import * as Module from "./module"
-import { ComputeArgument, describeLifeSpec, LifeSpec, WorldObject } from "./primitive/types"
+import { ComputeArgument, describeLifeSpec, LifeSpec } from "./primitive/types"
 import { energyTransaction } from "./primitive/energy_transaction"
 import { isNearTo } from "./primitive/utility"
 import { isAssemble } from "./module"
 import { Logger } from "./logger"
-
-export type Life = {
-  position: Vector
-  readonly hull: Module.Hull
-}
+import { WorldObject } from "./primitive/world_object_interface"
+import { Life } from "./life"
 
 export class World {
   public get t(): number {
@@ -36,10 +33,7 @@ export class World {
   }
 
   public addLife(hull: Module.Hull, atPosition: Vector): Result<void, string> {
-    this.lives.push({
-      position: atPosition,
-      hull,
-    })
+    this.lives.push(new Life(hull, atPosition))
 
     return Result.Succeeded(undefined)
   }
@@ -60,7 +54,7 @@ export class World {
       }
     }
     this.lives.forEach(life => {
-      objectCache[life.position.y][life.position.x].push(life.hull)
+      objectCache[life.position.y][life.position.x].push()
     })
     this.energySources.forEach(energySource => {
       objectCache[energySource.position.y][energySource.position.x].push(energySource)

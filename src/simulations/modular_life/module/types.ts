@@ -1,4 +1,4 @@
-import { createId } from "./module_id"
+import { createId } from "../primitive/world_object_id"
 
 export type ModuleType = "compute" | "assemble" | "hull"
 export const getShortModuleName = (moduleType: ModuleType): string => {

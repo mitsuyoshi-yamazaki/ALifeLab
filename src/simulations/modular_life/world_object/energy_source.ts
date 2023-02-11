@@ -1,12 +1,16 @@
 import { Result } from "../../../classes/result"
 import { Vector } from "../../../classes/physics"
 import { EnergyWithdrawable } from "../primitive/energy_transaction"
+import { EnergySourceInterface } from "../primitive/world_object_interface"
+import { createId } from "../primitive/world_object_id"
 
 export const isEnergySource = (obj: unknown): obj is EnergySource => {
   return obj instanceof EnergySource
 }
 
-export class EnergySource implements EnergyWithdrawable {
+export class EnergySource implements EnergyWithdrawable, EnergySourceInterface {
+  public readonly id: number
+  public readonly case = "energy_source"
   public get energyAmount(): number {
     return this._energyAmount
   }
@@ -18,6 +22,7 @@ export class EnergySource implements EnergyWithdrawable {
     readonly production: number,  // energy production per each tick
     readonly capacity: number,
   ) {
+    this.id = createId()
   }
 
   public withdrawEnergy(amount: number): Result<void, string> {

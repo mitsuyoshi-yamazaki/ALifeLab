@@ -1,8 +1,8 @@
-import type { Result } from "../../classes/result"
-import type { Direction, NeighbourDirection } from "./primitive/direction"
-import type { EnergySource } from "./world_object/energy_source"
-import type { ModuleType } from "./module/types"
-import type { LifeSpec, WorldObject } from "./primitive/types"
+import type { Result } from "../../../classes/result"
+import type { Direction, NeighbourDirection } from "../primitive/direction"
+import type { ModuleType } from "./types"
+import type { LifeSpec } from "../primitive/types"
+import type { EnergySourceInterface, WorldObject } from "../primitive/world_object_interface"
 
 export type LookAroundResult = { [K in Direction]: WorldObject[] }
 
@@ -17,7 +17,7 @@ export type ComputerApi = {
   lookAround(): LookAroundResult
 
   /// 対象のEnergySourceからエネルギーを採掘する
-  harvest(energySource: EnergySource): Result<number, string>
+  harvest(energySource: EnergySourceInterface): Result<number, string>
 
   /// 新たな生命を生成
   assemble(spec: LifeSpec): Result<void, string> // TODO: 複数のAssemblerに対応する
