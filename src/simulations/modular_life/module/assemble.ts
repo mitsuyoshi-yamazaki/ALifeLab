@@ -3,7 +3,7 @@ import { Result } from "../../../classes/result"
 import { Hull, InternalModule } from "./hull"
 import { Compute } from "./compute"
 import { AnyModule } from "./any_module"
-import { LifeSpec } from "./spec"
+import { LifeSpec } from "./module_spec"
 
 export const isAssemble = (module: AnyModule): module is Assemble => {
   return module.type === "assemble"

@@ -3,7 +3,7 @@ import { isEnergySource } from "../world_object/energy_source"
 import { logFailure } from "../primitive/result"
 import { WorldObject } from "../primitive/world_object_interface"
 import { ComputeArgument, SourceCode } from "../module/source_code"
-import { LifeSpec } from "../module/spec"
+import { LifeSpec } from "../module/module_spec"
 
 /// ゲーム世界上で何も行わない
 export const createStillCode = (): SourceCode => {

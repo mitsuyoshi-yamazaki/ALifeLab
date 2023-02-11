@@ -12,7 +12,7 @@ import { Logger } from "./logger"
 import { WorldObject } from "./primitive/world_object_interface"
 import { Life } from "./life"
 import { ComputeArgument } from "./module/source_code"
-import { describeLifeSpec, LifeSpec } from "./module/spec"
+import { describeLifeSpec, LifeSpec } from "./module/module_spec"
 
 export class World {
   public get t(): number {
