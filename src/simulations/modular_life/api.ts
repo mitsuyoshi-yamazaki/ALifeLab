@@ -1,5 +1,5 @@
 import type { Result } from "../../classes/result"
-import type { Direction } from "./direction"
+import type { Direction, NeighbourDirection } from "./direction"
 import type { EnergySource } from "./energy_source"
 import type { ModuleType } from "./module/types"
 import type { WorldObject } from "./types"
@@ -7,8 +7,15 @@ import type { WorldObject } from "./types"
 export type LookAroundResult = { [K in Direction]: WorldObject[] }
 
 export type ComputerApi = {
+  /// 生命がもつモジュールの一覧を返す
   connectedModules(): ModuleType[]
-  move(direction: Direction): Result<void, string>
+
+  /// 生命を隣接するセルに動かす
+  move(direction: NeighbourDirection): Result<void, string>
+
+  /// 現在位置を含む周囲に存在するオブジェクトを返す
   lookAround(): LookAroundResult
+
+  /// 対象のEnergySourceからエネルギーを採掘する
   harvest(energySource: EnergySource): Result<number, string>
 }

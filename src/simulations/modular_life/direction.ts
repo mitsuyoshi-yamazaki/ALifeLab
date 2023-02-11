@@ -7,7 +7,8 @@ export const NeighbourDirections = {
   right: "right",
 } as const
 
-export type Direction = (keyof typeof NeighbourDirections) | "center"
+export type NeighbourDirection = keyof typeof NeighbourDirections
+export type Direction = NeighbourDirection | "center"
 
 export const getDirectionVector = (direction: Direction): Vector => {
   switch (direction) {

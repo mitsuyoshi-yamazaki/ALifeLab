@@ -1,4 +1,4 @@
-import { Direction } from "../direction"
+import { NeighbourDirection } from "../direction"
 import { isEnergySource } from "../energy_source"
 import { ComputeArgument } from "../module"
 import * as Module from "../module"
@@ -11,7 +11,7 @@ export const createStillCode = (): Module.SourceCode => {
   }
 }
 
-export const createMoveCode = (direction: Direction): Module.SourceCode => {
+export const createMoveCode = (direction: NeighbourDirection): Module.SourceCode => {
   return ([api, environment]: ComputeArgument) => {
     if (environment.time % 10 !== 0) {
       return
