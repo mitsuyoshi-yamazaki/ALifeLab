@@ -1,4 +1,4 @@
-import { Module } from "../module/module"
+import * as Module from "../module"
 
 export const createAncestor = (code: Module.SourceCode): Module.Hull => {
   const modules: Module.InternalModule[] = [

@@ -1,7 +1,7 @@
 import { Direction } from "../direction"
 import { isEnergySource } from "../energy_source"
 import { ComputeArgument } from "../module"
-import { Module } from "../module/module"
+import * as Module from "../module"
 import { logFailure } from "../result"
 import { WorldObject } from "../types"
 
