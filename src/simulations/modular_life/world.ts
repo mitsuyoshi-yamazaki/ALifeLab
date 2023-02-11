@@ -5,13 +5,14 @@ import { EnergySource } from "./world_object/energy_source"
 import type { Environment } from "./primitive/environment"
 import type { ComputerApi, LookAroundResult } from "./module/api"
 import * as Module from "./module"
-import { ComputeArgument, describeLifeSpec, LifeSpec } from "./primitive/types"
 import { energyTransaction } from "./primitive/energy_transaction"
 import { isNearTo } from "./primitive/utility"
 import { isAssemble } from "./module"
 import { Logger } from "./logger"
 import { WorldObject } from "./primitive/world_object_interface"
 import { Life } from "./life"
+import { ComputeArgument } from "./module/source_code"
+import { describeLifeSpec, LifeSpec } from "./module/spec"
 
 export class World {
   public get t(): number {

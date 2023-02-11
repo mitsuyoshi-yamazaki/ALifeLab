@@ -1,6 +1,5 @@
-import type { ComputerApi } from "../module/api"
-import type { Environment } from "./environment"
-import { getShortModuleName, ModuleType } from "../module"
+import type { SourceCode } from "./source_code"
+import { getShortModuleName, ModuleType } from "./types"
 
 type ModuleSpecBase<T extends ModuleType> = {
   readonly case: T
@@ -35,7 +34,3 @@ export const describeLifeSpec = (spec: LifeSpec): string => {
 
   return `H(${internalModuleDescriptions.join("")})`
 }
-
-export type SourceCode = ([api, environment]: ComputeArgument) => void
-
-export type ComputeArgument = [ComputerApi, Environment]

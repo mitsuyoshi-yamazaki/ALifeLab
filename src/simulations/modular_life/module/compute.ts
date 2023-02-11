@@ -1,5 +1,5 @@
-import { ComputeArgument, SourceCode } from "../primitive/types"
 import { AnyModule } from "./any_module"
+import { ComputeArgument, SourceCode } from "./source_code"
 import { Module } from "./types"
 
 export const isCompute = (module: AnyModule): module is Compute => {
