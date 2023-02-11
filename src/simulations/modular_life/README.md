@@ -12,10 +12,15 @@
   - それ自体はOpen-Endedでない系に、人間の想像力を投入することでOpen-Endedを達成する
 
 ### 仕様
+#### モデル
 - 計算
   - Computorが最初
 - 位置
   - 現状ではcollisionはない
+
+#### 実装
+- import順序：
+  - primitive -> world_object -> module -> world等
 
 ## アイデア
 - 自動でエネルギーを分配する循環系をつくることができる

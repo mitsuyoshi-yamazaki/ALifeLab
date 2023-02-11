@@ -1,7 +1,7 @@
-import type { ComputerApi } from "./api"
-import type { EnergySource } from "./energy_source"
+import type { ComputerApi } from "../api"
+import type { EnergySource } from "../energy_source"
 import type { Environment } from "./environment"
-import { getShortModuleName, Hull, ModuleType } from "./module"
+import { getShortModuleName, Hull, ModuleType } from "../module"
 
 export type WorldObject = Hull | EnergySource
 

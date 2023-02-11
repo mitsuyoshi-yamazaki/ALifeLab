@@ -1,7 +1,7 @@
-import { clockwiseDirection, NeighbourDirection } from "../direction"
+import { clockwiseDirection, NeighbourDirection } from "../primitive/direction"
 import { isEnergySource } from "../energy_source"
-import { logFailure } from "../result"
-import type { ComputeArgument, LifeSpec, SourceCode, WorldObject } from "../types"
+import { logFailure } from "../primitive/result"
+import type { ComputeArgument, LifeSpec, SourceCode, WorldObject } from "../primitive/types"
 
 /// ゲーム世界上で何も行わない
 export const createStillCode = (): SourceCode => {

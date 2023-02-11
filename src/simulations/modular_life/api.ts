@@ -1,8 +1,8 @@
 import type { Result } from "../../classes/result"
-import type { Direction, NeighbourDirection } from "./direction"
+import type { Direction, NeighbourDirection } from "./primitive/direction"
 import type { EnergySource } from "./energy_source"
 import type { ModuleType } from "./module/types"
-import type { LifeSpec, WorldObject } from "./types"
+import type { LifeSpec, WorldObject } from "./primitive/types"
 
 export type LookAroundResult = { [K in Direction]: WorldObject[] }
 

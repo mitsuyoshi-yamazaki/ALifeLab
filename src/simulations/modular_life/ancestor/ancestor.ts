@@ -1,5 +1,5 @@
 import * as Module from "../module"
-import type { SourceCode } from "../types"
+import type { SourceCode } from "../primitive/types"
 
 export const createAncestor = (code: SourceCode): Module.Hull => {
   const modules: Module.InternalModule[] = [

@@ -1,4 +1,4 @@
-import { ComputeArgument, SourceCode } from "../types"
+import { ComputeArgument, SourceCode } from "../primitive/types"
 import { AnyModule } from "./any_module"
 import { createId } from "./module_id"
 import { Module } from "./types"

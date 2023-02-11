@@ -4,7 +4,7 @@ import { Hull, InternalModule } from "./hull"
 import { Compute } from "./compute"
 import { createId } from "./module_id"
 import { AnyModule } from "./any_module"
-import type { LifeSpec } from "../types"
+import type { LifeSpec } from "../primitive/types"
 
 export const isAssemble = (module: AnyModule): module is Assemble => {
   return module.type === "assemble"

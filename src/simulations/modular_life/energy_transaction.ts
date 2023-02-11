@@ -2,6 +2,8 @@ import { Result } from "../../classes/result"
 import { EnergySource } from "./energy_source"
 import * as Module from "./module"
 
+// TODO: 具体型を指定している部分をインターフェースに置き換える
+
 type EnergyTransactionResult = Result<number, string>
 type EnergyTransaction = {
   (from: EnergySource, to: Module.Hull): EnergyTransactionResult

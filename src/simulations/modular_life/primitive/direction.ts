@@ -1,4 +1,4 @@
-import { Vector } from "../../classes/physics"
+import { Vector } from "../../../classes/physics"
 
 export const NeighbourDirections = {
   top: "top",
