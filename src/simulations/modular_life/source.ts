@@ -33,7 +33,9 @@ export const main = (p: p5): void => {
   }
 
   p.draw = () => {
-    world.run(1)
+    if (t % constants.simulation.frameSkip === 0) {
+      world.run(1)
+    }
       
     drawer.drawCanvas()
     drawer.drawWorld(world, cellSize)
