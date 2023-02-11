@@ -1,5 +1,9 @@
 import { Vector } from "../../classes/physics"
 
+export const isEnergySource = (obj: unknown): obj is EnergySource => {
+  return obj instanceof EnergySource
+}
+
 export class EnergySource {
   public get energyAmount(): number {
     return this._energyAmount

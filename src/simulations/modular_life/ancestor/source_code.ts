@@ -1,7 +1,9 @@
 import { Direction } from "../direction"
+import { isEnergySource } from "../energy_source"
 import { ComputeArgument } from "../module"
 import { Module } from "../module/module"
 import { logFailure } from "../result"
+import { WorldObject } from "../types"
 
 export const createStillCode = (): Module.SourceCode => {
   return () => {
@@ -16,5 +18,11 @@ export const createMoveCode = (direction: Direction): Module.SourceCode => {
     }
 
     logFailure(api.move(direction))
+
+    const nearbyObjects: WorldObject[] = Array.from(Object.values(api.lookAround())).flatMap(x => x)
+    const energySource = nearbyObjects.find(isEnergySource)
+    if (energySource != null) {
+      logFailure(api.harvest(energySource))
+    }
   }
 }
