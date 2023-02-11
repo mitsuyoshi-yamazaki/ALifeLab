@@ -1,5 +1,5 @@
 import { clockwiseDirection, NeighbourDirection } from "../primitive/direction"
-import { isEnergySource } from "../energy_source"
+import { isEnergySource } from "../world_object/energy_source"
 import { logFailure } from "../primitive/result"
 import type { ComputeArgument, LifeSpec, SourceCode, WorldObject } from "../primitive/types"
 

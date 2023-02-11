@@ -1,4 +1,4 @@
-import { Vector } from "../../classes/physics"
+import { Vector } from "../../../classes/physics"
 
 export const isEnergySource = (obj: unknown): obj is EnergySource => {
   return obj instanceof EnergySource

@@ -1,6 +1,6 @@
 import type { Result } from "../../classes/result"
 import type { Direction, NeighbourDirection } from "./primitive/direction"
-import type { EnergySource } from "./energy_source"
+import type { EnergySource } from "./world_object/energy_source"
 import type { ModuleType } from "./module/types"
 import type { LifeSpec, WorldObject } from "./primitive/types"
 

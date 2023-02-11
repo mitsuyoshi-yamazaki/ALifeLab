@@ -1,7 +1,7 @@
 import { Result } from "../../classes/result"
 import { Vector } from "../../classes/physics"
 import { Direction, getDirectionVector } from "./primitive/direction"
-import { EnergySource } from "./energy_source"
+import { EnergySource } from "./world_object/energy_source"
 import type { Environment } from "./primitive/environment"
 import type { ComputerApi, LookAroundResult } from "./api"
 import * as Module from "./module"
