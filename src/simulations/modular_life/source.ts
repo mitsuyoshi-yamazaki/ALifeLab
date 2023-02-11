@@ -6,17 +6,22 @@ import { createMoveCode } from "./ancestor/source_code"
 import { constants } from "./constants"
 import { NeighbourDirections } from "./direction"
 import { EnergySource } from "./energy_source"
+import { Logger } from "./logger"
 import { P5Drawer } from "./p5_drawer"
 import { System } from "./system"
 import { World } from "./world"
 
 let t = 0
+const logger = new Logger()
+logger.enabled = true
+logger.logLevel = constants.system.logLevel
+
 const worldSize = new Vector(constants.simulation.worldSize, constants.simulation.worldSize)
 const cellSize = constants.simulation.cellSize
 const canvasSize = worldSize.mult(cellSize)
 
 export const main = (p: p5): void => {
-  const world = new World(worldSize)
+  const world = new World(worldSize, logger)
   initializeEnergySources(world)
   initializeLives(world)
   const drawer = new P5Drawer(p, cellSize)

@@ -1,11 +1,14 @@
 import { URLParameterParser } from "../../classes/url_parameter_parser_v2"
+import { isLogLevel, LogLevel } from "./logger"
 
 const parameters = new URLParameterParser(document.location.search)
+
+const logLevel: LogLevel = parameters.parseTypedString("log_level", "LogLevel", isLogLevel) ?? "warning"
 
 export const constants = {
   system: {
     debug: parameters.parseBoolean("debug", "d"),
-    debugValue: parameters.parseFloat("debug_value") ?? 1,
+    logLevel,
   },
   simulation: {
     cellSize: parameters.parseInt("cell_size", "si.c") ?? 8,
