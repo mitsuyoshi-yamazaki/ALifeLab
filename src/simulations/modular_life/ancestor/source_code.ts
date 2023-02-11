@@ -1,6 +1,5 @@
 import { Direction } from "../direction"
-import { Environment } from "../environment"
-import { AnyModule, isHull } from "../module"
+import { ComputeArgument } from "../module"
 import { Module } from "../module/module"
 import { logFailure } from "../result"
 
@@ -11,16 +10,11 @@ export const createStillCode = (): Module.SourceCode => {
 }
 
 export const createMoveCode = (direction: Direction): Module.SourceCode => {
-  return (modules: AnyModule[], environment: Environment) => {
+  return ([api, environment]: ComputeArgument) => {
     if (environment.time % 10 !== 0) {
       return
     }
 
-    const hull = modules.find(isHull)
-    if (hull == null) {
-      return
-    }
-
-    logFailure(hull.move(direction))
+    logFailure(api.move(direction))
   }
 }

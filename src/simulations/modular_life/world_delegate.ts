@@ -1,13 +1,11 @@
-import { Result } from "../../classes/result"
-import { Direction } from "./direction"
-import { Module } from "./module/module"
-
+import type { Result } from "../../classes/result"
+import type { Module } from "./module/module"
 
 // ModuleからWorldを呼び出すdelegate
-// APIを準備したら不要になる
+// 循環参照を避けるために設置している
+// プレイヤーが触るComputer以外のモジュールが呼び出す
 export type WorldDelegate = {
   addLife(hull: Module.Hull): Result<void, string>
-  move(hull: Module.Hull, direction: Direction): Result<void, string>
 }
 
 export const worldDelegate = {

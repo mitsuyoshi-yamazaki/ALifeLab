@@ -35,10 +35,6 @@ export class Hull implements Module<"hull"> {
     return Result.Failed("not implemented")
   }
 
-  public move(direction: Direction): Result<void, string> {
-    return worldDelegate.delegate?.move(this, direction) ?? Result.Failed("no worldDelegate")
-  }
-
   public distribute(energyAmount: number, toModule: InternalModule): Result<number, string> {
     return Result.Failed("not implemented")
   }

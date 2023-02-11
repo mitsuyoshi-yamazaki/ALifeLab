@@ -1,10 +1,12 @@
 import { Result } from "../../classes/result"
 import { Vector } from "../../classes/physics"
-import { Module } from "./module/module"
-import { WorldDelegate } from "./world_delegate"
+import type { WorldDelegate } from "./world_delegate"
 import { Direction, getDirectionVector } from "./direction"
-import { AnyModule, isCompute } from "./module"
 import { EnergySource } from "./energy_source"
+import type { Environment } from "./environment"
+import type { ComputerApi, LookAroundResult } from "./api"
+import * as Module from "./module"
+import { WorldObject } from "./types"
 
 export type Life = {
   position: Vector
@@ -38,16 +40,6 @@ export class World implements WorldDelegate {
     return Result.Succeeded(undefined)
   }
 
-  public move(hull: Module.Hull, direction: Direction): Result<void, string> {
-    const life = this.lives.find(l => l.hull.id === hull.id)
-    if (life == null) {
-      return Result.Failed(`no life with hull ${hull.id}`)
-    }
-
-    life.position = this.getNewPosition(life.position, direction)
-    return Result.Succeeded(undefined)
-  }
-
   public run(step: number): void {
     for (let i = 0; i < step; i += 1) {
       this.step()
@@ -55,16 +47,50 @@ export class World implements WorldDelegate {
   }
 
   private step(): void {
+    const objectCache: WorldObject[][][] = []
+    for (let y = 0; y < this.size.y; y += 1) {
+      const row: WorldObject[][] = []
+      objectCache.push(row)
+      for (let x = 0; x < this.size.x; x += 1) {
+        row.push([])
+      }
+    }
     this.lives.forEach(life => {
-      const modules: AnyModule[] = [
+      objectCache[life.position.y][life.position.x].push(life.hull)
+    })
+    this.energySources.forEach(energySource => {
+      objectCache[energySource.position.y][energySource.position.x].push(energySource)
+    })
+
+    const environment: Environment = {
+      time: this.t,
+    }
+
+    this.lives.forEach(life => {
+      const modules: Module.AnyModule[] = [
         life.hull,
         ...life.hull.internalModules,
       ]
 
+      const computerArguments = ((): Module.ComputeArgument => {
+        const api: ComputerApi = {
+          connectedModules(): Module.ModuleType[] {
+            return modules.map(module => module.type) // FixMe: 現在は全モジュールが接続している前提
+          },
+          move: (direction: Direction) => {
+            return this.move(life, direction)
+          },
+          lookAround: () => {
+            return this.lookAround(life, objectCache)
+          },
+        }
+        return [api, environment]
+      })()
+
       life.hull.internalModules
-        .filter(isCompute)
+        .filter(Module.isCompute)
         .forEach(computer => {
-          computer.run(modules, {time: this._t})
+          computer.run(computerArguments)
         })
     })
 
@@ -77,5 +103,25 @@ export class World implements WorldDelegate {
       (origin.x + directionVector.x + this.size.x) % this.size.x,
       (origin.y + directionVector.y + this.size.y) % this.size.y,
     )
+  }
+
+  private move(life: Life, direction: Direction): Result<void, string> {
+    life.position = this.getNewPosition(life.position, direction)
+    return Result.Succeeded(undefined)
+  }
+
+  private lookAround(life: Life, objectCache: WorldObject[][][]): LookAroundResult {
+    const { x, y } = life.position
+    const top = (y - 1 + this.size.y) % this.size.y
+    const bottom = (y + 1) % this.size.y
+    const left = (x - 1 + this.size.x) % this.size.x
+    const right = (x + 1) % this.size.x
+
+    return {
+      top: objectCache[top][x],
+      bottom: objectCache[bottom][x],
+      left: objectCache[y][left],
+      right: objectCache[y][right],
+    }
   }
 }
