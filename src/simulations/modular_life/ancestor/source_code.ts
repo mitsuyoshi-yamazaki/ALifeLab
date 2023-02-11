@@ -25,7 +25,7 @@ export const createMoveCode = (direction: NeighbourDirection): SourceCode => {
       }
     }
 
-    switch (environment.time % 300) {
+    switch (environment.time % 150) {
     case 0: {
       const spec: LifeSpec = {
         hullSpec: {

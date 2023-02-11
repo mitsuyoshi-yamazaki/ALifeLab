@@ -20,7 +20,7 @@
 
 #### 実装
 - import順序：
-  - primitive -> world_object -> module -> world等
+  - primitive -> world_object, module -> world他
 
 ## アイデア
 - 自動でエネルギーを分配する循環系をつくることができる
