@@ -1,31 +1,38 @@
 import { Result } from "../../classes/result"
 import { Vector } from "../../classes/physics"
-import type { WorldDelegate } from "./world_delegate"
-import { Direction, getDirectionVector } from "./direction"
-import { EnergySource } from "./energy_source"
-import type { Environment } from "./environment"
-import type { ComputerApi, LookAroundResult } from "./api"
+import { Direction, getDirectionVector } from "./primitive/direction"
+import { EnergySource } from "./world_object/energy_source"
+import type { Environment } from "./primitive/environment"
+import type { ComputerApi, LookAroundResult } from "./module/api"
 import * as Module from "./module"
-import { WorldObject } from "./types"
-import { energyTransaction } from "./energy_transaction"
-import { isNearTo } from "./utility"
+import { energyTransaction } from "./primitive/energy_transaction"
+import { isNearTo } from "./primitive/utility"
+import { isAssemble } from "./module"
+import { Logger } from "./logger"
+import { WorldObject } from "./primitive/world_object_interface"
+import { Life } from "./life"
+import { ComputeArgument } from "./module/source_code"
+import { calculateAssembleEnergyConsumption, describeLifeSpec, LifeSpec } from "./module/module_spec"
 
-export type Life = {
-  position: Vector
-  readonly hull: Module.Hull
-}
-
-export class World implements WorldDelegate {
+export class World {
   public get t(): number {
     return this._t
   }
-  public readonly energySources: EnergySource[] = []
-  public readonly lives: Life[] = []
+  public get energySources(): EnergySource[] {
+    return this._energySources
+  }
+  public get lives(): Life[] {
+    return this._lives
+  }
   
   private _t = 0
+  private nextLives: Life[] = []
+  private _lives: Life[] = []
+  private _energySources: EnergySource[] = []
 
   public constructor(
     public readonly size: Vector,
+    public readonly logger: Logger,
   ) {
   }
 
@@ -33,11 +40,8 @@ export class World implements WorldDelegate {
     this.energySources.push(energySource)
   }
 
-  public addLife(hull: Module.Hull): Result<void, string> {
-    this.lives.push({
-      position: this.size.div(2), // TODO:
-      hull,
-    })
+  public addLife(hull: Module.Hull, atPosition: Vector): Result<void, string> {
+    this.nextLives.push(new Life(hull, atPosition))
 
     return Result.Succeeded(undefined)
   }
@@ -58,7 +62,7 @@ export class World implements WorldDelegate {
       }
     }
     this.lives.forEach(life => {
-      objectCache[life.position.y][life.position.x].push(life.hull)
+      objectCache[life.position.y][life.position.x].push()
     })
     this.energySources.forEach(energySource => {
       objectCache[energySource.position.y][energySource.position.x].push(energySource)
@@ -74,23 +78,10 @@ export class World implements WorldDelegate {
         ...life.hull.internalModules,
       ]
 
-      const computerArguments = ((): Module.ComputeArgument => {
-        const api: ComputerApi = {
-          connectedModules(): Module.ModuleType[] {
-            return modules.map(module => module.type) // FixMe: 現在は全モジュールが接続している前提
-          },
-          move: (direction: Direction) => {
-            return this.move(life, direction)
-          },
-          lookAround: () => {
-            return this.lookAround(life, objectCache)
-          },
-          harvest: (energySource: EnergySource) => {
-            return this.harvest(life, energySource)
-          },
-        }
-        return [api, environment]
-      })()
+      const computerArguments: ComputeArgument = [
+        this.createApiFor(life, modules, objectCache),
+        environment,
+      ]
 
       life.hull.internalModules
         .filter(Module.isCompute)
@@ -99,7 +90,33 @@ export class World implements WorldDelegate {
         })
     })
 
-    this.energySources.forEach(energySource => energySource.step())
+    const nextEnergySources: EnergySource[] = []
+
+    this.energySources.forEach(energySource => {
+      if (energySource.production <= 0 && energySource.energyAmount <= 0) {
+        return
+      }
+      energySource.energyAmount = Math.max(Math.min(energySource.energyAmount + energySource.production, energySource.capacity), 0)
+      nextEnergySources.push(energySource)
+    })
+
+    const energyConsumption = 1
+    this.lives.forEach(life => {
+      if (life.hull.energyAmount <= energyConsumption) {
+        const energyAmount = 300  // FixMe: 仮で置いた値：算出する
+        const energySource = new EnergySource(life.position, 0, energyAmount, energyAmount)
+        nextEnergySources.push(energySource)
+        return
+      }
+
+      life.hull.withdrawEnergy(energyConsumption)
+      this.nextLives.push(life)
+    })
+
+    this._lives = this.nextLives
+    this.nextLives = []
+
+    this._energySources = nextEnergySources
 
     this._t += 1
   }
@@ -115,6 +132,67 @@ export class World implements WorldDelegate {
   private move(life: Life, direction: Direction): Result<void, string> {
     life.position = this.getNewPosition(life.position, direction)
     return Result.Succeeded(undefined)
+  }
+
+  // ---- API ---- //
+  private createApiFor(life: Life, modules: Module.AnyModule[], objectCache: WorldObject[][][]): ComputerApi {
+    return {
+      connectedModules(): Module.ModuleType[] {
+        return modules.map(module => module.type) // FixMe: 現在は全モジュールが接続している前提
+      },
+      move: (direction: Direction) => {
+        return this.move(life, direction)
+      },
+      lookAround: () => {
+        return this.lookAround(life, objectCache)
+      },
+      harvest: (energySource: EnergySource) => {
+        return this.harvest(life, energySource)
+      },
+      assemble: (spec: LifeSpec) => {
+        return this.assemble(life, spec, modules)
+      },
+      release: () => {
+        return this.release(life, modules)
+      },
+    }
+  }
+
+  private release(life: Life, modules: Module.AnyModule[]): Result<void, string> {
+    this.logActiveApiCall(life, "release")
+    
+    const assemblers = modules.filter(isAssemble)
+    assemblers.forEach(assembler => {
+      const offspring = assembler.release()
+      if (offspring == null) {
+        return
+      }
+
+      this.addLife(offspring, life.position)
+    })
+
+    return Result.Succeeded(undefined)
+  }
+
+  private assemble(life: Life, spec: LifeSpec, modules: Module.AnyModule[]): Result<void, string> {
+    this.logActiveApiCall(life, `assemble: ${describeLifeSpec(spec)}`)
+
+    const requiredEnergy = calculateAssembleEnergyConsumption(spec)
+    if (life.hull.energyAmount < requiredEnergy) {
+      return Result.Failed(`Lack of energy (required: ${requiredEnergy}, current: ${life.hull.energyAmount})`)
+    }
+
+    const assembler = modules.filter(isAssemble).find(assembler => assembler.assembling == null)
+    if (assembler == null) {
+      const descriptions = modules.filter(isAssemble).map(assembler => {
+        return `- ${assembler.id}: assembling ${assembler.assembling?.id} (${(assembler.assembling?.internalModules ?? []).map(module => `${module.id} ${module.type}`).join(", ")})`
+      })
+      return Result.Failed(`No empty assembler:\n${descriptions.join("\n")}`)
+    }
+
+    life.hull.withdrawEnergy(requiredEnergy)  // TODO: Fail時の処理
+
+    return assembler.assemble(spec)
   }
 
   private lookAround(life: Life, objectCache: WorldObject[][][]): LookAroundResult {
@@ -134,10 +212,17 @@ export class World implements WorldDelegate {
   }
 
   private harvest(life: Life, energySource: EnergySource): Result<number, string> {
+    this.logActiveApiCall(life, `harvest source at ${energySource.position}`)
+
     if (isNearTo(life.position, energySource.position) !== true) {
       return Result.Failed(`EnergySource at ${energySource.position} is not in range from ${life.position}`)
     }
 
     return energyTransaction(energySource, life.hull)    
+  }
+
+  /// 世界に対して働きかけるAPI呼び出しのログ出力
+  private logActiveApiCall(life: Life, message: string): void {
+    this.logger.debug(`Life[${life.hull.id}] at ${life.position} ${message}`)
   }
 }

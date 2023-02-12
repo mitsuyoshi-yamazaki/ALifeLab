@@ -26,7 +26,7 @@ export class P5Drawer implements Drawer {
     const p = this.p
 
     p.noStroke()
-    p.fill(0x00, 0xE0)
+    p.fill(0xFF, 0xE0)
     p.textAlign(p.RIGHT)
     p.textStyle(p.NORMAL)
     p.textSize(8)

@@ -1,5 +1,6 @@
+import { Result } from "../../../classes/result"
+import { EnergyTransferable, EnergyWithdrawable } from "../primitive/energy_transaction"
 import type { AnyModule } from "./any_module"
-import { createId } from "./module_id"
 import { Module } from "./types"
 
 export type InternalModule = Exclude<AnyModule, Hull>
@@ -10,24 +11,32 @@ export const isHull = (module: AnyModule): module is Hull => {
 
 // 最初はここに各機能を集約しておく
 // Moduleに分割していく
-export class Hull implements Module<"hull"> {
-  public readonly id: number
+export class Hull extends Module<"hull"> implements EnergyTransferable, EnergyWithdrawable {
   public readonly name = "Hull"
   public readonly type = "hull"
 
-  public get energy(): number {
-    return this.energy
+  public get energyAmount(): number {
+    return this._energyAmount
   }
-
-  private _energy = 0
 
   public constructor(
     public readonly internalModules: InternalModule[],
+    private _energyAmount: number,
   ) {
-    this.id = createId()
+    super()
   }
 
-  public addEnergy(amount: number): void {
-    this._energy += amount
+  public transferEnergy(amount: number): Result<void, string> {
+    this._energyAmount += amount
+    return Result.Succeeded(undefined)
+  }
+
+  public withdrawEnergy(amount: number): Result<void, string> {
+    if (this.energyAmount < amount) {
+      return Result.Failed(`${this} lack of energy (${this.energyAmount} < ${amount})`)
+    }
+
+    this._energyAmount -= amount
+    return Result.Succeeded(undefined)
   }
 }
