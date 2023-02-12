@@ -1,26 +1,19 @@
-import { ComputerApi } from "../api"
-import { Environment } from "../environment"
 import { AnyModule } from "./any_module"
-import { createId } from "./module_id"
+import { ComputeArgument, SourceCode } from "./source_code"
 import { Module } from "./types"
-
-export type SourceCode = ([api, environment]: ComputeArgument) => void
-
-export type ComputeArgument = [ComputerApi, Environment]
 
 export const isCompute = (module: AnyModule): module is Compute => {
   return module.type === "compute"
 }
 
-export class Compute implements Module<"compute"> {
-  public readonly id: number
+export class Compute extends Module<"compute"> {
   readonly name = "Computer"
   readonly type = "compute"
 
   public constructor(
     public readonly code: SourceCode,
   ) {
-    this.id = createId()
+    super()
   }
 
   public run(args: ComputeArgument): void {

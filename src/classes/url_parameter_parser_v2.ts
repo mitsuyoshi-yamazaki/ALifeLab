@@ -56,6 +56,19 @@ export class URLParameterParser {
   }
 
   /** @throws */
+  public parseTypedString<T extends string>(key: string, typeName: string, typeGuard: (value: string) => value is T, alternativeKey?: string): T | null {
+    const parsedString = this.parse("string", key, alternativeKey)
+    if (parsedString == null) {
+      return null
+    }
+
+    if (!(typeGuard(parsedString))) {
+      throw `${parsedString} is not ${typeName}`
+    }
+    return parsedString
+  }
+
+  /** @throws */
   public parseInt(key: string, alternativeKey?: string): number | null {
     return this.parse("int", key, alternativeKey)
   }
