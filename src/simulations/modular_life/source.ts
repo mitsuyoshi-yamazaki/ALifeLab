@@ -5,11 +5,11 @@ import { createAncestor } from "./ancestor/ancestor"
 import { createMoveCode } from "./ancestor/source_code"
 import { constants } from "./constants"
 import { NeighbourDirections } from "./primitive/direction"
-import { EnergySource } from "./world_object/energy_source"
 import { Logger } from "./logger"
 import { P5Drawer } from "./p5_drawer"
 import { System } from "./system"
 import { World } from "./world"
+import { Sunlight } from "./world_object/sunlight"
 
 let t = 0
 const logger = new Logger()
@@ -50,9 +50,11 @@ export const getTimestamp = (): number => {
 }
 
 const initializeEnergySources = (world: World): void => {
-  world.addEnergySource(new EnergySource(world.size.div(2), 10, 1000, 500))
-  world.addEnergySource(new EnergySource(world.size.div(2).add(new Vector(15, 0)), 10, 1000, 500))
-  world.addEnergySource(new EnergySource(world.size.div(2).add(new Vector(0, 15)), 10, 1000, 500))
+  for (let y = 0; y < world.size.y; y += 1) {
+    for (let x = 0; x < world.size.x; x += 1) {
+      world.addEnergySource(new Sunlight(new Vector(x, y), 100))
+    }
+  }
 }
 
 const initializeLives = (world: World): void => {

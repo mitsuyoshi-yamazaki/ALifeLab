@@ -9,16 +9,18 @@ import { energyTransaction } from "./primitive/energy_transaction"
 import { isNearTo } from "./primitive/utility"
 import { isAssemble } from "./module"
 import { Logger } from "./logger"
-import { WorldObject } from "./primitive/world_object_interface"
+import { EnergySourceInterface, WorldObject } from "./primitive/world_object_interface"
 import { Life } from "./life"
 import { ComputeArgument } from "./module/source_code"
 import { calculateAssembleEnergyConsumption, describeLifeSpec, LifeSpec } from "./module/module_spec"
+
+type EnergySourceKind = EnergySourceInterface & { position: Vector }
 
 export class World {
   public get t(): number {
     return this._t
   }
-  public get energySources(): EnergySource[] {
+  public get energySources(): EnergySourceKind[] {
     return this._energySources
   }
   public get lives(): Life[] {
@@ -28,7 +30,7 @@ export class World {
   private _t = 0
   private nextLives: Life[] = []
   private _lives: Life[] = []
-  private _energySources: EnergySource[] = []
+  private _energySources: EnergySourceKind[] = []
 
   public constructor(
     public readonly size: Vector,
@@ -36,7 +38,7 @@ export class World {
   ) {
   }
 
-  public addEnergySource(energySource: EnergySource): void {
+  public addEnergySource(energySource: EnergySourceKind): void {
     this.energySources.push(energySource)
   }
 
@@ -90,7 +92,7 @@ export class World {
         })
     })
 
-    const nextEnergySources: EnergySource[] = []
+    const nextEnergySources: EnergySourceKind[] = []
 
     this.energySources.forEach(energySource => {
       if (energySource.production <= 0 && energySource.energyAmount <= 0) {

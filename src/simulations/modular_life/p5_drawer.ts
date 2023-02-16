@@ -1,6 +1,7 @@
 import p5 from "p5"
 import { Vector } from "../../classes/physics"
 import { World } from "./world"
+import { isEnergySource } from "./world_object/energy_source"
 
 interface Drawer {
   drawCanvas(): void
@@ -41,6 +42,7 @@ export class P5Drawer implements Drawer {
     const tombSize = radius
     const tombRadius = tombSize * 0.5
     const energyColor = p.color(0xFF, 0xFF, 0x00, 0xC0)
+    const sunlightColor = p.color(0xFF, 0xFF, 0x00, 0x40)
     const energyCornerRadius = 1
 
     world.energySources.forEach(energySource => {
@@ -51,20 +53,28 @@ export class P5Drawer implements Drawer {
         return
       }
 
-      const x = (energySource.position.x * cellSize) + radius
-      const y = (energySource.position.y * cellSize) + radius
+      if (isEnergySource(energySource)) {
+        const x = (energySource.position.x * cellSize) + radius
+        const y = (energySource.position.y * cellSize) + radius
 
-      p.stroke(energyColor)
-      p.strokeWeight(1)
-      p.noFill()
-      p.square(x - radius, y - radius, cellSize, energyCornerRadius)
+        p.stroke(energyColor)
+        p.strokeWeight(1)
+        p.noFill()
+        p.square(x - radius, y - radius, cellSize, energyCornerRadius)
 
-      const energyAmountSize = cellSize * (energySource.energyAmount / energySource.capacity)
-      const energyAmountRadius = energyAmountSize * 0.5
+        const energyAmountSize = cellSize * (energySource.energyAmount / energySource.capacity)
+        const energyAmountRadius = energyAmountSize * 0.5
 
+        p.noStroke()
+        p.fill(energyColor)
+        p.square(x - energyAmountRadius, y - energyAmountRadius, energyAmountSize, energyCornerRadius)
+        return
+      }
+
+      // Sunlight
       p.noStroke()
-      p.fill(energyColor)
-      p.square(x - energyAmountRadius, y - energyAmountRadius, energyAmountSize, energyCornerRadius)
+      p.fill(sunlightColor)
+      p.square(energySource.position.x * cellSize, energySource.position.y * cellSize, cellSize)
     })
 
     p.noStroke()
