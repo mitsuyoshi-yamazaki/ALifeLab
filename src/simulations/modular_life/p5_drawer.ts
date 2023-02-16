@@ -38,10 +38,19 @@ export class P5Drawer implements Drawer {
   public drawWorld(world: World, cellSize: number): void {
     const p = this.p
     const radius = cellSize * 0.5
+    const tombSize = radius
+    const tombRadius = tombSize * 0.5
     const energyColor = p.color(0xFF, 0xFF, 0x00, 0xC0)
     const energyCornerRadius = 1
 
     world.energySources.forEach(energySource => {
+      if (energySource.production <= 0) {
+        p.noStroke()
+        p.fill(energyColor)
+        p.square(energySource.position.x * cellSize + tombRadius, energySource.position.y * cellSize + tombRadius, tombSize)
+        return
+      }
+
       const x = (energySource.position.x * cellSize) + radius
       const y = (energySource.position.y * cellSize) + radius
 
