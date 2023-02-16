@@ -2,7 +2,7 @@ import p5 from "p5"
 import { Vector } from "../../classes/physics"
 import { defaultCanvasParentId } from "../../react-components/common/default_canvas_parent_id"
 import { createAncestor } from "./ancestor/ancestor"
-import { createMoveCode } from "./ancestor/source_code"
+import { createFloraCode } from "./ancestor/source_code"
 import { constants } from "./constants"
 import { NeighbourDirections } from "./primitive/direction"
 import { Logger } from "./logger"
@@ -50,13 +50,16 @@ export const getTimestamp = (): number => {
 }
 
 const initializeEnergySources = (world: World): void => {
-  for (let y = 0; y < world.size.y; y += 1) {
-    for (let x = 0; x < world.size.x; x += 1) {
+  const fourth = world.size.div(4).floor()
+
+  for (let y = fourth.y; y < world.size.y - fourth.y; y += 1) {
+    for (let x = fourth.x; x < world.size.x - fourth.x; x += 1) {
       world.addEnergySource(new Sunlight(new Vector(x, y), 100))
     }
   }
 }
 
 const initializeLives = (world: World): void => {
-  world.addLife(createAncestor(createMoveCode(NeighbourDirections.right)), worldSize.div(2))
+  // world.addLife(createAncestor(createMoveCode(NeighbourDirections.right)), worldSize.div(2))
+  world.addLife(createAncestor(createFloraCode(NeighbourDirections.left)), worldSize.div(2))
 }

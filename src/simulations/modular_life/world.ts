@@ -132,15 +132,25 @@ export class World {
   }
 
   private move(life: Life, direction: Direction): Result<void, string> {
+    this.logActiveApiCall(life, `move ${direction}`)
+
     life.position = this.getNewPosition(life.position, direction)
+
+    const requiredEnergy = 10
+    life.hull.withdrawEnergy(requiredEnergy)  // TODO: Fail時の処理
+
     return Result.Succeeded(undefined)
   }
 
   // ---- API ---- //
   private createApiFor(life: Life, modules: Module.AnyModule[], objectCache: WorldObject[][][]): ComputerApi {
     return {
+      energyAmount: life.hull.energyAmount,
       connectedModules(): Module.ModuleType[] {
         return modules.map(module => module.type) // FixMe: 現在は全モジュールが接続している前提
+      },
+      isAssembling(): boolean {
+        return modules.some(module => isAssemble(module) && module.assembling != null)
       },
       move: (direction: Direction) => {
         return this.move(life, direction)
