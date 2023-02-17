@@ -1,7 +1,5 @@
 import { clockwiseDirection, NeighbourDirection } from "../primitive/direction"
-import { isEnergySource } from "../world_object/energy_source"
 import { logFailure } from "../primitive/result"
-import { WorldObject } from "../primitive/world_object_interface"
 import { ComputeArgument, SourceCode } from "../module/source_code"
 import { LifeSpec } from "../module/module_spec"
 import { strictEntries } from "../../../classes/utilities"
@@ -19,12 +17,7 @@ export const createMoveCode = (direction: NeighbourDirection): SourceCode => {
   return ([api, environment]: ComputeArgument) => {
     if (environment.time % 10 === 0) {
       logFailure(api.move(direction))
-
-      const nearbyObjects: WorldObject[] = Array.from(Object.values(api.lookAround())).flatMap(x => x)
-      const energySource = nearbyObjects.find(isEnergySource)
-      if (energySource != null) {
-        logFailure(api.harvest(energySource))
-      }
+      logFailure(api.harvest())
     }
 
     switch (environment.time % 150) {
@@ -58,33 +51,27 @@ export const createMoveCode = (direction: NeighbourDirection): SourceCode => {
 
 export const createFloraCode = (direction: NeighbourDirection): SourceCode => {
   return ([api]: ComputeArgument) => {
-    const nearbyObjects = api.lookAround()
-    const sunlight = nearbyObjects.center.find(isSunlight)
-    if (sunlight != null) {
-      logFailure(api.harvest(sunlight))
-    } else {
-      if (api.energyAmount > 11) {
-        const lightingDirection = ((): NeighbourDirection | null => {
-          for (const [direction, objects] of strictEntries(nearbyObjects)) {
-            if (direction === "center") {
-              continue
-            }
-            if (objects.some(isSunlight) === true) {
-              return direction
-            }
-          }
-          return null
-        })()
+    const harvestResult = api.harvest()
+    const noEnergyGain = ((): boolean => {
+      switch (harvestResult.resultType) {
+      case "succeeded":
+        return harvestResult.value <= 0
+      case "failed":
+        return true
+      }
+    })()
 
-        if (lightingDirection != null) {
-          logFailure(api.move(lightingDirection))
-        }
+    if (noEnergyGain === true) {
+      if (api.energyAmount > 11) {
+        logFailure(api.move(direction))
+        return
       }
     }
 
     if (api.isAssembling() === true) {
       if (api.energyAmount >= 20) {
         const moveDirection = ((): NeighbourDirection => {
+          const nearbyObjects = api.lookAround()
           for (const [direction, objects] of strictEntries(nearbyObjects)) {
             if (direction === "center") {
               continue
