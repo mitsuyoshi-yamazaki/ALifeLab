@@ -1,45 +1,38 @@
 import { Result } from "../../classes/result"
 import { Vector } from "../../classes/physics"
 import { Direction, getDirectionVector } from "./primitive/direction"
-import { EnergySource } from "./world_object/energy_source"
 import type { Environment } from "./primitive/environment"
 import type { ComputerApi, LookAroundResult } from "./module/api"
 import * as Module from "./module"
-import { energyTransaction } from "./primitive/energy_transaction"
-import { isNearTo } from "./primitive/utility"
 import { isAssemble } from "./module"
 import { Logger } from "./logger"
-import { EnergySourceInterface, WorldObject } from "./primitive/world_object_interface"
+import { WorldObject } from "./primitive/world_object_interface"
 import { Life } from "./life"
 import { ComputeArgument } from "./module/source_code"
 import { calculateAssembleEnergyConsumption, describeLifeSpec, LifeSpec } from "./module/module_spec"
-
-type EnergySourceKind = EnergySourceInterface & { position: Vector }
 
 export class World {
   public get t(): number {
     return this._t
   }
-  public get energySources(): EnergySourceKind[] {
-    return this._energySources
+  public get terrainEnergy(): number[][] {
+    return this._terrainEnergy
   }
   public get lives(): Life[] {
     return this._lives
   }
+  public energyProduction = 3
   
   private _t = 0
   private nextLives: Life[] = []
   private _lives: Life[] = []
-  private _energySources: EnergySourceKind[] = []
+  private _terrainEnergy: number[][]
 
   public constructor(
     public readonly size: Vector,
     public readonly logger: Logger,
   ) {
-  }
-
-  public addEnergySource(energySource: EnergySourceKind): void {
-    this.energySources.push(energySource)
+    this._terrainEnergy = new Array(size.y).fill(0).map(() => (new Array(size.x).fill(0)))
   }
 
   public addLife(hull: Module.Hull, atPosition: Vector): Result<void, string> {
@@ -66,9 +59,6 @@ export class World {
     this.lives.forEach(life => {
       objectCache[life.position.y][life.position.x].push()
     })
-    this.energySources.forEach(energySource => {
-      objectCache[energySource.position.y][energySource.position.x].push(energySource)
-    })
 
     const environment: Environment = {
       time: this.t,
@@ -92,22 +82,11 @@ export class World {
         })
     })
 
-    const nextEnergySources: EnergySourceKind[] = []
-
-    this.energySources.forEach(energySource => {
-      if (energySource.production <= 0 && energySource.energyAmount <= 0) {
-        return
-      }
-      energySource.energyAmount = Math.max(Math.min(energySource.energyAmount + energySource.production, energySource.capacity), 0)
-      nextEnergySources.push(energySource)
-    })
-
     const energyConsumption = 1
     this.lives.forEach(life => {
       if (life.hull.energyAmount <= energyConsumption) {
         const energyAmount = 300  // FixMe: 仮で置いた値：算出する
-        const energySource = new EnergySource(life.position, 0, energyAmount, energyAmount)
-        nextEnergySources.push(energySource)
+        this.terrainEnergy[life.position.y][life.position.x] += energyAmount
         return
       }
 
@@ -118,7 +97,14 @@ export class World {
     this._lives = this.nextLives
     this.nextLives = []
 
-    this._energySources = nextEnergySources
+    this.terrainEnergy.forEach(row => {
+      for (let x = 0; x < row.length; x += 1) {
+        if (row[x] >= this.energyProduction) {
+          continue
+        }
+        row[x] = this.energyProduction
+      }
+    })
 
     this._t += 1
   }
@@ -158,8 +144,8 @@ export class World {
       lookAround: () => {
         return this.lookAround(life, objectCache)
       },
-      harvest: (energySource: EnergySource) => {
-        return this.harvest(life, energySource)
+      harvest: () => {
+        return this.harvest(life)
       },
       assemble: (spec: LifeSpec) => {
         return this.assemble(life, spec, modules)
@@ -223,14 +209,14 @@ export class World {
     }
   }
 
-  private harvest(life: Life, energySource: EnergySource): Result<number, string> {
-    this.logActiveApiCall(life, `harvest source at ${energySource.position}`)
+  private harvest(life: Life): Result<number, string> {
+    this.logActiveApiCall(life, `harvest source at ${life.position}`)
 
-    if (isNearTo(life.position, energySource.position) !== true) {
-      return Result.Failed(`EnergySource at ${energySource.position} is not in range from ${life.position}`)
-    }
+    const energy = this.terrainEnergy[life.position.y][life.position.x]
+    life.hull.transferEnergy(energy) 
+    this.terrainEnergy[life.position.y][life.position.x] = 0
 
-    return energyTransaction(energySource, life.hull)    
+    return Result.Succeeded(energy)
   }
 
   /// 世界に対して働きかけるAPI呼び出しのログ出力

@@ -1,7 +1,6 @@
 import p5 from "p5"
 import { Vector } from "../../classes/physics"
 import { World } from "./world"
-import { isEnergySource } from "./world_object/energy_source"
 
 interface Drawer {
   drawCanvas(): void
@@ -38,43 +37,16 @@ export class P5Drawer implements Drawer {
 
   public drawWorld(world: World, cellSize: number): void {
     const p = this.p
-    const radius = cellSize * 0.5
-    const tombSize = radius
-    const tombRadius = tombSize * 0.5
-    const energyColor = p.color(0xFF, 0xFF, 0x00, 0xC0)
-    const sunlightColor = p.color(0xFF, 0xFF, 0x00, 0x40)
-    const energyCornerRadius = 1
 
-    world.energySources.forEach(energySource => {
-      if (energySource.production <= 0) {
-        p.noStroke()
-        p.fill(energyColor)
-        p.square(energySource.position.x * cellSize + tombRadius, energySource.position.y * cellSize + tombRadius, tombSize)
-        return
-      }
+    p.noStroke()
+    const energyProduction = world.energyProduction
 
-      if (isEnergySource(energySource)) {
-        const x = (energySource.position.x * cellSize) + radius
-        const y = (energySource.position.y * cellSize) + radius
-
-        p.stroke(energyColor)
-        p.strokeWeight(1)
-        p.noFill()
-        p.square(x - radius, y - radius, cellSize, energyCornerRadius)
-
-        const energyAmountSize = cellSize * (energySource.energyAmount / energySource.capacity)
-        const energyAmountRadius = energyAmountSize * 0.5
-
-        p.noStroke()
-        p.fill(energyColor)
-        p.square(x - energyAmountRadius, y - energyAmountRadius, energyAmountSize, energyCornerRadius)
-        return
-      }
-
-      // Sunlight
-      p.noStroke()
-      p.fill(sunlightColor)
-      p.square(energySource.position.x * cellSize, energySource.position.y * cellSize, cellSize)
+    world.terrainEnergy.forEach((row, y) => {
+      row.forEach((energy, x) => {
+        const alpha = Math.floor((energy / energyProduction) * 0x80)
+        p.fill(0xFF, 0xFF, 0x00, alpha)
+        p.square(x * cellSize, y * cellSize, cellSize)
+      })
     })
 
     p.noStroke()

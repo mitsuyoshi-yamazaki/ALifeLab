@@ -39,7 +39,7 @@ export const main = (p: p5): void => {
       
     drawer.drawCanvas()
     drawer.drawWorld(world, cellSize)
-    drawer.drawStatus(canvasSize, `v:${System.version}\n${world.t}`)
+    drawer.drawStatus(canvasSize, `v:${System.version}\n${world.t}\n${world.lives.length} lives`)
 
     t += 1
   }
@@ -50,13 +50,6 @@ export const getTimestamp = (): number => {
 }
 
 const initializeEnergySources = (world: World): void => {
-  const fourth = world.size.div(4).floor()
-
-  for (let y = fourth.y; y < world.size.y - fourth.y; y += 1) {
-    for (let x = fourth.x; x < world.size.x - fourth.x; x += 1) {
-      world.addEnergySource(new Sunlight(new Vector(x, y), 100))
-    }
-  }
 }
 
 const initializeLives = (world: World): void => {

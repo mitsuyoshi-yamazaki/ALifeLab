@@ -15,4 +15,4 @@ export type LifeInterface = {
   // TODO:
 } & WorldObjectInterface<"life">
 
-export type WorldObject = EnergySourceInterface | LifeInterface
+export type WorldObject = LifeInterface
