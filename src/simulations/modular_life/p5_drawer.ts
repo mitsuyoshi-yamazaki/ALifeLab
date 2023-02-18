@@ -1,25 +1,16 @@
 import p5 from "p5"
 import { Vector } from "../../classes/physics"
-import { World } from "./world"
+import { Life } from "./life"
+import { Terrain } from "./terrain"
 
-interface Drawer {
-  drawCanvas(): void
-  drawStatus(size: Vector, status: string): void
-  drawWorld(world: World, cellSize: number): void
-}
-
-export class P5Drawer implements Drawer {
+export class P5Drawer {
   public constructor(
     private readonly p: p5,
     public readonly cellSize: number,
+
+    /// Canvas上の別の場所に描画する際（異なるレイヤーを隣同士に描画するなど）の座標オフセット
+    public readonly offset: Vector,
   ) {
-  }
-
-  public drawCanvas(): void {
-    const p = this.p
-
-    p.clear()
-    p.background(0x20, 0xFF)
   }
 
   public drawStatus(size: Vector, status: string): void {
@@ -35,24 +26,54 @@ export class P5Drawer implements Drawer {
     p.text(status, size.x - margin, margin)
   }
 
-  public drawWorld(world: World, cellSize: number): void {
+  public drawEnergyAmount(terrain: Terrain): void {
     const p = this.p
+    const cellSize = this.cellSize
+    const offsetX = this.offset.x
+    const offsetY = this.offset.y
+    const energyMeanAmount = 10
 
     p.noStroke()
-    const energyProduction = world.energyProduction
-
-    world.terrainEnergy.forEach((row, y) => {
-      row.forEach((energy, x) => {
-        const alpha = Math.floor((energy / energyProduction) * 0x80)
+    p.fill(0x0)
+    p.rect(offsetX, offsetY, terrain.size.x * cellSize, terrain.size.y * cellSize)
+  
+    terrain.cells.forEach((row, y) => {
+      row.forEach((cell, x) => {
+        const alpha = Math.floor((cell.energy / energyMeanAmount) * 0x80)
         p.fill(0xFF, 0xFF, 0x00, alpha)
-        p.square(x * cellSize, y * cellSize, cellSize)
+        p.square(offsetX + x * cellSize, offsetY + y * cellSize, cellSize)
       })
     })
+  }
+
+  public drawHeatMap(terrain: Terrain): void {
+    const p = this.p
+    const cellSize = this.cellSize
+    const offsetX = this.offset.x
+    const offsetY = this.offset.y
+    const heatMeanAmount = 10
 
     p.noStroke()
-    world.lives.forEach(life => {
+    p.fill(0x0)
+    p.rect(offsetX, offsetY, terrain.size.x * cellSize, terrain.size.y * cellSize)
+
+    terrain.cells.forEach((row, y) => {
+      row.forEach((cell, x) => {
+        const alpha = Math.floor((cell.heat / heatMeanAmount) * 0x80)
+        p.fill(0xFF, 0x00, 0x00, alpha)
+        p.square(offsetX + x * cellSize, offsetY + y * cellSize, cellSize)
+      })
+    })
+  }
+
+  public drawLives(lives: Life[]): void {
+    const p = this.p
+    const cellSize = this.cellSize
+
+    p.noStroke()
+    lives.forEach(life => {
       p.fill(0xFF, 0xC0)
-      p.circle(life.position.x * cellSize, life.position.y * cellSize, cellSize)
+      p.circle(this.offset.x + life.position.x * cellSize, this.offset.y + life.position.y * cellSize, cellSize)
     })
   }
 }

@@ -10,14 +10,17 @@ export type ComputerApi = {
   /// エネルギー量
   energyAmount: number
 
+  /// 熱量
+  heat: number
+
+  /// 周囲の環境の熱量
+  environmentalHeat(): {[D in Direction]: number}
+
   /// 生命がもつモジュールの一覧を返す
   connectedModules(): ModuleType[]
 
   /// 生命を隣接するセルに動かす
   move(direction: NeighbourDirection): Result<void, string>
-
-  /// 現在位置を含む周囲に存在するオブジェクトを返す
-  lookAround(): LookAroundResult
 
   /// 現在位置からエネルギーを回収する
   harvest(): Result<number, string>

@@ -1,22 +1,22 @@
 import { Result } from "../../classes/result"
-import { Vector } from "../../classes/physics"
+import { guardPositionArgument, Vector } from "../../classes/physics"
 import { Direction, getDirectionVector } from "./primitive/direction"
 import type { Environment } from "./primitive/environment"
-import type { ComputerApi, LookAroundResult } from "./module/api"
+import type { ComputerApi } from "./module/api"
 import * as Module from "./module"
 import { isAssemble } from "./module"
 import { Logger } from "./logger"
-import { WorldObject } from "./primitive/world_object_interface"
 import { Life } from "./life"
 import { ComputeArgument } from "./module/source_code"
 import { calculateAssembleEnergyConsumption, describeLifeSpec, LifeSpec } from "./module/module_spec"
+import { Terrain, TerrainCell } from "./terrain"
 
 export class World {
   public get t(): number {
     return this._t
   }
-  public get terrainEnergy(): number[][] {
-    return this._terrainEnergy
+  public get terrain(): Terrain {
+    return this._terrain
   }
   public get lives(): Life[] {
     return this._lives
@@ -26,19 +26,23 @@ export class World {
   private _t = 0
   private nextLives: Life[] = []
   private _lives: Life[] = []
-  private _terrainEnergy: number[][]
+  private _terrain: Terrain
 
   public constructor(
     public readonly size: Vector,
     public readonly logger: Logger,
   ) {
-    this._terrainEnergy = new Array(size.y).fill(0).map(() => (new Array(size.x).fill(0)))
+    this._terrain = new Terrain(size)
   }
 
   public addLife(hull: Module.Hull, atPosition: Vector): Result<void, string> {
     this.nextLives.push(new Life(hull, atPosition))
 
     return Result.Succeeded(undefined)
+  }
+
+  public setEnergyProductionAt(x: number, y: number, energyProduction: number): void {
+    this.terrain.cells[y][x].energyProduction = energyProduction
   }
 
   public run(step: number): void {
@@ -48,18 +52,6 @@ export class World {
   }
 
   private step(): void {
-    const objectCache: WorldObject[][][] = []
-    for (let y = 0; y < this.size.y; y += 1) {
-      const row: WorldObject[][] = []
-      objectCache.push(row)
-      for (let x = 0; x < this.size.x; x += 1) {
-        row.push([])
-      }
-    }
-    this.lives.forEach(life => {
-      objectCache[life.position.y][life.position.x].push()
-    })
-
     const environment: Environment = {
       time: this.t,
     }
@@ -71,7 +63,7 @@ export class World {
       ]
 
       const computerArguments: ComputeArgument = [
-        this.createApiFor(life, modules, objectCache),
+        this.createApiFor(life, modules),
         environment,
       ]
 
@@ -86,7 +78,7 @@ export class World {
     this.lives.forEach(life => {
       if (life.hull.energyAmount <= energyConsumption) {
         const energyAmount = 300  // FixMe: 仮で置いた値：算出する
-        this.terrainEnergy[life.position.y][life.position.x] += energyAmount
+        this.getTerrainCellAt(life.position).energy += energyAmount
         return
       }
 
@@ -97,12 +89,12 @@ export class World {
     this._lives = this.nextLives
     this.nextLives = []
 
-    this.terrainEnergy.forEach(row => {
+    this.terrain.cells.forEach(row => {
       for (let x = 0; x < row.length; x += 1) {
-        if (row[x] >= this.energyProduction) {
+        if (row[x].energy >= row[x].energyProduction) { // FixMe: 熱に変換されないので仮実装
           continue
         }
-        row[x] = this.energyProduction
+        row[x].energy = row[x].energyProduction
       }
     })
 
@@ -128,10 +120,31 @@ export class World {
     return Result.Succeeded(undefined)
   }
 
+  private getTerrainCellAt(position: Vector): TerrainCell
+  private getTerrainCellAt(x: number, y: number): TerrainCell
+  private getTerrainCellAt(...args: [Vector] | [number, number]): TerrainCell {
+    const { x, y } = ((): { x: number, y: number } => {
+      if (guardPositionArgument(args)) {
+        return args[0]
+      }
+
+      return {
+        x: args[0],
+        y: args[1],
+      }
+    })()
+
+    return this.terrain.cells[y][x]
+  }
+
   // ---- API ---- //
-  private createApiFor(life: Life, modules: Module.AnyModule[], objectCache: WorldObject[][][]): ComputerApi {
+  private createApiFor(life: Life, modules: Module.AnyModule[]): ComputerApi {
     return {
       energyAmount: life.hull.energyAmount,
+      heat: 0,  // TODO:
+      environmentalHeat: () => {
+        return this.environmentalHeatAt(life.position)
+      },
       connectedModules(): Module.ModuleType[] {
         return modules.map(module => module.type) // FixMe: 現在は全モジュールが接続している前提
       },
@@ -140,9 +153,6 @@ export class World {
       },
       move: (direction: Direction) => {
         return this.move(life, direction)
-      },
-      lookAround: () => {
-        return this.lookAround(life, objectCache)
       },
       harvest: () => {
         return this.harvest(life)
@@ -153,6 +163,22 @@ export class World {
       release: () => {
         return this.release(life, modules)
       },
+    }
+  }
+
+  private environmentalHeatAt(position: Vector): { [D in Direction]: number } {
+    const { x, y } = position
+    const top = (y - 1 + this.size.y) % this.size.y
+    const bottom = (y + 1) % this.size.y
+    const left = (x - 1 + this.size.x) % this.size.x
+    const right = (x + 1) % this.size.x
+
+    return {
+      top: this.getTerrainCellAt(x, top).heat,
+      bottom: this.getTerrainCellAt(x, bottom).heat,
+      left: this.getTerrainCellAt(left, y).heat,
+      right: this.getTerrainCellAt(right, y).heat,
+      center: this.getTerrainCellAt(x, y).heat,
     }
   }
 
@@ -193,28 +219,13 @@ export class World {
     return assembler.assemble(spec)
   }
 
-  private lookAround(life: Life, objectCache: WorldObject[][][]): LookAroundResult {
-    const { x, y } = life.position
-    const top = (y - 1 + this.size.y) % this.size.y
-    const bottom = (y + 1) % this.size.y
-    const left = (x - 1 + this.size.x) % this.size.x
-    const right = (x + 1) % this.size.x
-
-    return {
-      top: objectCache[top][x],
-      bottom: objectCache[bottom][x],
-      left: objectCache[y][left],
-      right: objectCache[y][right],
-      center: objectCache[y][x],
-    }
-  }
-
   private harvest(life: Life): Result<number, string> {
     this.logActiveApiCall(life, `harvest source at ${life.position}`)
 
-    const energy = this.terrainEnergy[life.position.y][life.position.x]
+    const cell = this.getTerrainCellAt(life.position)
+    const energy = cell.energy
     life.hull.transferEnergy(energy) 
-    this.terrainEnergy[life.position.y][life.position.x] = 0
+    cell.energy = 0
 
     return Result.Succeeded(energy)
   }

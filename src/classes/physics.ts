@@ -98,3 +98,7 @@ export class Vector {
     return new Vector(Math.floor(this.x), Math.floor(this.y))
   }
 }
+
+export const guardPositionArgument = (args: [Vector] | [number, number]): args is [Vector] => {
+  return (args[0] instanceof Vector)
+}

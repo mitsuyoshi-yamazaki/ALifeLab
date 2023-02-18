@@ -9,7 +9,6 @@ import { Logger } from "./logger"
 import { P5Drawer } from "./p5_drawer"
 import { System } from "./system"
 import { World } from "./world"
-import { Sunlight } from "./world_object/sunlight"
 
 let t = 0
 const logger = new Logger()
@@ -18,13 +17,16 @@ logger.logLevel = constants.system.logLevel
 
 const worldSize = new Vector(constants.simulation.worldSize, constants.simulation.worldSize)
 const cellSize = constants.simulation.cellSize
-const canvasSize = worldSize.mult(cellSize)
+const worldDrawSize = worldSize.mult(cellSize)
+const canvasSize = new Vector(worldDrawSize.x * 2, worldDrawSize.y)
 
 export const main = (p: p5): void => {
   const world = new World(worldSize, logger)
   initializeEnergySources(world)
   initializeLives(world)
-  const drawer = new P5Drawer(p, cellSize)
+  const canvasDrawer = new P5Drawer(p, cellSize, Vector.zero())
+  const worldDrawer = new P5Drawer(p, cellSize, Vector.zero())
+  const heatDrawer = new P5Drawer(p, cellSize, new Vector(worldSize.x * cellSize, 0))
 
   p.setup = () => {
     const canvas = p.createCanvas(canvasSize.x, canvasSize.y)
@@ -37,9 +39,11 @@ export const main = (p: p5): void => {
       world.run(1)
     }
       
-    drawer.drawCanvas()
-    drawer.drawWorld(world, cellSize)
-    drawer.drawStatus(canvasSize, `v:${System.version}\n${world.t}\n${world.lives.length} lives`)
+    p.clear()
+    worldDrawer.drawEnergyAmount(world.terrain)
+    worldDrawer.drawLives(world.lives)
+    heatDrawer.drawHeatMap(world.terrain)
+    canvasDrawer.drawStatus(canvasSize, `v:${System.version}\n${world.t}\n${world.lives.length} lives`)
 
     t += 1
   }
@@ -50,6 +54,21 @@ export const getTimestamp = (): number => {
 }
 
 const initializeEnergySources = (world: World): void => {
+  const centerPosition = world.size.div(2).floor()
+  const energyProductionRadius = Math.floor(world.size.x * 0.3)
+  const maxEnergyProduction = 10
+
+  const minimumEnergyProductionPosition = Math.floor(world.size.x / 2 - energyProductionRadius)
+  const maximumEnergyProductionPosition = world.size.x - minimumEnergyProductionPosition
+
+  for (let y = minimumEnergyProductionPosition; y < maximumEnergyProductionPosition; y += 1) {
+    for (let x = minimumEnergyProductionPosition; x < maximumEnergyProductionPosition; x += 1) {
+      const distanceToCenter = (new Vector(x, y)).dist(centerPosition)
+      const closenessToCenter = 1 - (distanceToCenter / energyProductionRadius)
+      const energyProduction = Math.floor(closenessToCenter * maxEnergyProduction)
+      world.setEnergyProductionAt(x, y, energyProduction)
+    }
+  }
 }
 
 const initializeLives = (world: World): void => {
