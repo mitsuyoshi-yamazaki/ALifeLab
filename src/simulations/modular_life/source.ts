@@ -10,11 +10,17 @@ import { P5Drawer } from "./p5_drawer"
 import { System } from "./system"
 import { World } from "./world"
 import { PhysicsRule } from "./physics"
+import { LifeStatistics } from "./statistics"
 
 let t = 0
 const logger = new Logger()
 logger.enabled = true
 logger.logLevel = constants.system.logLevel
+
+const frameSkip = constants.simulation.frameSkip
+const statisticsUpdateInterval = frameSkip * 100
+let lifeStatisticsStatus = ""
+const lifeStatistics = new LifeStatistics(logger)
 
 const worldSize = new Vector(constants.simulation.worldSize, constants.simulation.worldSize)
 const cellSize = constants.simulation.cellSize
@@ -28,7 +34,7 @@ const physicsRule: PhysicsRule = {
 }
 
 export const main = (p: p5): void => {
-  const world = new World(worldSize, logger, physicsRule)
+  const world = new World(worldSize, logger, lifeStatistics, physicsRule)
   initializeEnergySources(world)
   initializeLives(world)
   const canvasDrawer = new P5Drawer(p, cellSize, Vector.zero())
@@ -42,15 +48,19 @@ export const main = (p: p5): void => {
   }
 
   p.draw = () => {
-    if (t % constants.simulation.frameSkip === 0) {
+    if (t % frameSkip === 0) {
       world.run(1)
+    }
+
+    if (t % statisticsUpdateInterval === 0) {
+      lifeStatisticsStatus = lifeStatisticsDescription(world.t)
     }
       
     p.clear()
     worldDrawer.drawEnergyAmount(world.terrain)
     worldDrawer.drawLives(world.lives)
     heatDrawer.drawHeatMap(world.terrain)
-    canvasDrawer.drawStatus(canvasSize, `v:${System.version}\n${world.t}\n${world.lives.length} lives`)
+    canvasDrawer.drawStatus(canvasSize, `v:${System.version}\n${world.t}\n${world.lives.length} lives\n\n${lifeStatisticsStatus}`)
 
     t += 1
   }
@@ -79,5 +89,20 @@ const initializeEnergySources = (world: World): void => {
 }
 
 const initializeLives = (world: World): void => {
-  world.addLife(createAncestor(createFloraCode(NeighbourDirections.left)), worldSize.div(2).floor())
+  world.addAncestor(createAncestor(createFloraCode(NeighbourDirections.left)), worldSize.div(2).floor())
+}
+
+const lifeStatisticsDescription = (t: number): string => {
+  const longestLivedLife = lifeStatistics.getLongestLivedLifeAt(t)
+  if (longestLivedLife == null) {
+    return ""
+  }
+
+  const descriptions: string[] = [
+    "longest lifetime:",
+    `ID: ${longestLivedLife.id}, ancestor: ${longestLivedLife.ancestorId}`,
+    `lifetime: ${longestLivedLife.lifetime}`,
+  ]
+
+  return descriptions.join("\n")
 }

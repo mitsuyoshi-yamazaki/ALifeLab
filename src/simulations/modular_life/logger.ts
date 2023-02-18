@@ -3,6 +3,7 @@ const logLevels = [
   "info",
   "warning",
   "error",
+  "program_error",
 ] as const 
 
 export type LogLevel = typeof logLevels[number]
@@ -16,6 +17,7 @@ const logPriority: { [K in LogLevel]: number } = {
   info: 200,
   warning: 300,
   error: 400,
+  program_error: 500,
 }
 
 export class Logger {
@@ -50,8 +52,13 @@ export class Logger {
       console.warn(message)
       break
     case "error":
+    case "program_error":
       console.error(message)
-      break
+      break        
+    default: {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const _: never = level
+    }
     }
   }
 
@@ -69,5 +76,9 @@ export class Logger {
 
   public error(message: string): void {
     this.log("error", message)
+  }
+
+  public programError(message: string): void {
+    this.log("program_error", message)
   }
 }
