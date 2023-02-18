@@ -240,11 +240,13 @@ export class World {
     this.logActiveApiCall(life, `harvest source at ${life.position}`)
 
     const cell = this.getTerrainCellAt(life.position)
-    const energy = cell.energy
-    life.hull.transferEnergy(energy) 
+    const harvestEnergy = Math.floor(cell.energy * this.physicsRule.harvestEnergyConversionRate)
+    const energyLoss = cell.energy - harvestEnergy
+    life.hull.transferEnergy(harvestEnergy) 
     cell.energy = 0
+    cell.heat += energyLoss
 
-    return Result.Succeeded(energy)
+    return Result.Succeeded(harvestEnergy)
   }
 
   /// 世界に対して働きかけるAPI呼び出しのログ出力

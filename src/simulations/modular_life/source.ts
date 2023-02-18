@@ -24,6 +24,7 @@ const physicsRule: PhysicsRule = {
   heatLoss: constants.physics.heatLoss,
   energyHeatConversion: constants.physics.energyHeatConversion,
   heatDamageRatio: constants.physics.heatDamageRatio,
+  harvestEnergyConversionRate: constants.physics.harvestEnergyConversionRate,
 }
 
 export const main = (p: p5): void => {
@@ -78,6 +79,5 @@ const initializeEnergySources = (world: World): void => {
 }
 
 const initializeLives = (world: World): void => {
-  // world.addLife(createAncestor(createMoveCode(NeighbourDirections.right)), worldSize.div(2))
-  world.addLife(createAncestor(createFloraCode(NeighbourDirections.left)), worldSize.div(2))
+  world.addLife(createAncestor(createFloraCode(NeighbourDirections.left)), worldSize.div(2).floor())
 }

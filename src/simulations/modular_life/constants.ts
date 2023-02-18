@@ -19,6 +19,7 @@ export const constants = {
     heatLoss: parameters.parseFloat("heat_loss", { alternativeKey: "ph.h", min: 0 }) ?? 0.25,
     energyHeatConversion: parameters.parseFloat("energy_heat_conversion", { alternativeKey: "ph.e", min: 0 }) ?? 0.5,
     heatDamageRatio: parameters.parseFloat("heat_damage", { alternativeKey: "ph.d", min: 0 }) ?? 0.1,
+    harvestEnergyConversionRate: parameters.parseFloat("harvest_energy_convertion", { alternativeKey: "ph.h", min: 0 }) ?? 0.9,
   },
 }
 
