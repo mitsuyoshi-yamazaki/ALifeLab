@@ -9,6 +9,7 @@ import { Logger } from "./logger"
 import { P5Drawer } from "./p5_drawer"
 import { System } from "./system"
 import { World } from "./world"
+import { PhysicsRule } from "./physics"
 
 let t = 0
 const logger = new Logger()
@@ -19,9 +20,13 @@ const worldSize = new Vector(constants.simulation.worldSize, constants.simulatio
 const cellSize = constants.simulation.cellSize
 const worldDrawSize = worldSize.mult(cellSize)
 const canvasSize = new Vector(worldDrawSize.x * 2, worldDrawSize.y)
+const physicsRule: PhysicsRule = {
+  heatLoss: constants.physics.heatLoss,
+  energyHeatConversion: constants.physics.energyHeatConversion,
+}
 
 export const main = (p: p5): void => {
-  const world = new World(worldSize, logger)
+  const world = new World(worldSize, logger, physicsRule)
   initializeEnergySources(world)
   initializeLives(world)
   const canvasDrawer = new P5Drawer(p, cellSize, Vector.zero())

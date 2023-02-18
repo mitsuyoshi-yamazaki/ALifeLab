@@ -10,6 +10,7 @@ import { Life } from "./life"
 import { ComputeArgument } from "./module/source_code"
 import { calculateAssembleEnergyConsumption, describeLifeSpec, LifeSpec } from "./module/module_spec"
 import { Terrain, TerrainCell } from "./terrain"
+import { PhysicsRule } from "./physics"
 
 export class World {
   public get t(): number {
@@ -31,6 +32,7 @@ export class World {
   public constructor(
     public readonly size: Vector,
     public readonly logger: Logger,
+    public readonly physicsRule: PhysicsRule,
   ) {
     this._terrain = new Terrain(size)
   }
@@ -89,13 +91,20 @@ export class World {
     this._lives = this.nextLives
     this.nextLives = []
 
+    const { heatLoss, energyHeatConversion } = this.physicsRule
+
     this.terrain.cells.forEach(row => {
-      for (let x = 0; x < row.length; x += 1) {
-        if (row[x].energy >= row[x].energyProduction) { // FixMe: 熱に変換されないので仮実装
-          continue
-        }
-        row[x].energy = row[x].energyProduction
-      }
+      row.forEach(cell => {
+        const energyLoss = Math.floor(cell.energy * energyHeatConversion)
+        cell.energy = cell.energy - energyLoss + cell.energyProduction
+        cell.heat += energyLoss
+      })
+    })
+
+    this.terrain.cells.forEach(row => {
+      row.forEach(cell => {
+        cell.heat = Math.floor(cell.heat * (1 - heatLoss))
+      })
     })
 
     this._t += 1
