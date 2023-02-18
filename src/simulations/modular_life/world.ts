@@ -1,49 +1,50 @@
 import { Result } from "../../classes/result"
-import { Vector } from "../../classes/physics"
+import { guardPositionArgument, Vector } from "../../classes/physics"
 import { Direction, getDirectionVector } from "./primitive/direction"
-import { EnergySource } from "./world_object/energy_source"
 import type { Environment } from "./primitive/environment"
-import type { ComputerApi, LookAroundResult } from "./module/api"
+import type { ComputerApi } from "./module/api"
 import * as Module from "./module"
-import { energyTransaction } from "./primitive/energy_transaction"
-import { isNearTo } from "./primitive/utility"
 import { isAssemble } from "./module"
 import { Logger } from "./logger"
-import { WorldObject } from "./primitive/world_object_interface"
 import { Life } from "./life"
 import { ComputeArgument } from "./module/source_code"
 import { calculateAssembleEnergyConsumption, describeLifeSpec, LifeSpec } from "./module/module_spec"
+import { Terrain, TerrainCell } from "./terrain"
+import { PhysicsRule } from "./physics"
 
 export class World {
   public get t(): number {
     return this._t
   }
-  public get energySources(): EnergySource[] {
-    return this._energySources
+  public get terrain(): Terrain {
+    return this._terrain
   }
   public get lives(): Life[] {
     return this._lives
   }
+  public energyProduction = 3
   
   private _t = 0
   private nextLives: Life[] = []
   private _lives: Life[] = []
-  private _energySources: EnergySource[] = []
+  private _terrain: Terrain
 
   public constructor(
     public readonly size: Vector,
     public readonly logger: Logger,
+    public readonly physicsRule: PhysicsRule,
   ) {
-  }
-
-  public addEnergySource(energySource: EnergySource): void {
-    this.energySources.push(energySource)
+    this._terrain = new Terrain(size)
   }
 
   public addLife(hull: Module.Hull, atPosition: Vector): Result<void, string> {
     this.nextLives.push(new Life(hull, atPosition))
 
     return Result.Succeeded(undefined)
+  }
+
+  public setEnergyProductionAt(x: number, y: number, energyProduction: number): void {
+    this.terrain.cells[y][x].energyProduction = energyProduction
   }
 
   public run(step: number): void {
@@ -53,21 +54,6 @@ export class World {
   }
 
   private step(): void {
-    const objectCache: WorldObject[][][] = []
-    for (let y = 0; y < this.size.y; y += 1) {
-      const row: WorldObject[][] = []
-      objectCache.push(row)
-      for (let x = 0; x < this.size.x; x += 1) {
-        row.push([])
-      }
-    }
-    this.lives.forEach(life => {
-      objectCache[life.position.y][life.position.x].push()
-    })
-    this.energySources.forEach(energySource => {
-      objectCache[energySource.position.y][energySource.position.x].push(energySource)
-    })
-
     const environment: Environment = {
       time: this.t,
     }
@@ -79,7 +65,7 @@ export class World {
       ]
 
       const computerArguments: ComputeArgument = [
-        this.createApiFor(life, modules, objectCache),
+        this.createApiFor(life, modules),
         environment,
       ]
 
@@ -90,33 +76,41 @@ export class World {
         })
     })
 
-    const nextEnergySources: EnergySource[] = []
+    const { heatLoss, energyHeatConversion, heatDamageRatio } = this.physicsRule
+    const baseEnergyConsumption = 1
 
-    this.energySources.forEach(energySource => {
-      if (energySource.production <= 0 && energySource.energyAmount <= 0) {
-        return
-      }
-      energySource.energyAmount = Math.max(Math.min(energySource.energyAmount + energySource.production, energySource.capacity), 0)
-      nextEnergySources.push(energySource)
-    })
-
-    const energyConsumption = 1
     this.lives.forEach(life => {
-      if (life.hull.energyAmount <= energyConsumption) {
+      const cell = this.getTerrainCellAt(life.position)
+      const heatDamage = Math.floor(cell.heat * heatDamageRatio)
+      life.hull.hits -= heatDamage  // TODO: 他のModuleへの影響を入れる
+
+      if (life.hull.energyAmount <= 0 || life.hull.hits <= 0) {
         const energyAmount = 300  // FixMe: 仮で置いた値：算出する
-        const energySource = new EnergySource(life.position, 0, energyAmount, energyAmount)
-        nextEnergySources.push(energySource)
+        cell.energy += energyAmount
         return
       }
 
-      life.hull.withdrawEnergy(energyConsumption)
+      life.hull.withdrawEnergy(baseEnergyConsumption)
+      this.getTerrainCellAt(life.position).heat += baseEnergyConsumption
       this.nextLives.push(life)
     })
 
     this._lives = this.nextLives
     this.nextLives = []
 
-    this._energySources = nextEnergySources
+    this.terrain.cells.forEach(row => {
+      row.forEach(cell => {
+        const energyLoss = Math.floor(cell.energy * energyHeatConversion)
+        cell.energy = cell.energy - energyLoss + cell.energyProduction
+        cell.heat += energyLoss
+      })
+    })
+
+    this.terrain.cells.forEach(row => {
+      row.forEach(cell => {
+        cell.heat = Math.floor(cell.heat * (1 - heatLoss))
+      })
+    })
 
     this._t += 1
   }
@@ -130,24 +124,53 @@ export class World {
   }
 
   private move(life: Life, direction: Direction): Result<void, string> {
+    this.logActiveApiCall(life, `move ${direction}`)
+
     life.position = this.getNewPosition(life.position, direction)
+
+    const requiredEnergy = 10
+    life.hull.withdrawEnergy(requiredEnergy)  // TODO: Fail時の処理
+    this.getTerrainCellAt(life.position).heat += requiredEnergy
+
     return Result.Succeeded(undefined)
   }
 
+  private getTerrainCellAt(position: Vector): TerrainCell
+  private getTerrainCellAt(x: number, y: number): TerrainCell
+  private getTerrainCellAt(...args: [Vector] | [number, number]): TerrainCell {
+    const { x, y } = ((): { x: number, y: number } => {
+      if (guardPositionArgument(args)) {
+        return args[0]
+      }
+
+      return {
+        x: args[0],
+        y: args[1],
+      }
+    })()
+
+    return this.terrain.cells[y][x]
+  }
+
   // ---- API ---- //
-  private createApiFor(life: Life, modules: Module.AnyModule[], objectCache: WorldObject[][][]): ComputerApi {
+  private createApiFor(life: Life, modules: Module.AnyModule[]): ComputerApi {
     return {
+      energyAmount: life.hull.energyAmount,
+      heat: 0,  // TODO:
+      environmentalHeat: () => {
+        return this.environmentalHeatAt(life.position)
+      },
       connectedModules(): Module.ModuleType[] {
         return modules.map(module => module.type) // FixMe: 現在は全モジュールが接続している前提
+      },
+      isAssembling(): boolean {
+        return modules.some(module => isAssemble(module) && module.assembling != null)
       },
       move: (direction: Direction) => {
         return this.move(life, direction)
       },
-      lookAround: () => {
-        return this.lookAround(life, objectCache)
-      },
-      harvest: (energySource: EnergySource) => {
-        return this.harvest(life, energySource)
+      harvest: () => {
+        return this.harvest(life)
       },
       assemble: (spec: LifeSpec) => {
         return this.assemble(life, spec, modules)
@@ -155,6 +178,22 @@ export class World {
       release: () => {
         return this.release(life, modules)
       },
+    }
+  }
+
+  private environmentalHeatAt(position: Vector): { [D in Direction]: number } {
+    const { x, y } = position
+    const top = (y - 1 + this.size.y) % this.size.y
+    const bottom = (y + 1) % this.size.y
+    const left = (x - 1 + this.size.x) % this.size.x
+    const right = (x + 1) % this.size.x
+
+    return {
+      top: this.getTerrainCellAt(x, top).heat,
+      bottom: this.getTerrainCellAt(x, bottom).heat,
+      left: this.getTerrainCellAt(left, y).heat,
+      right: this.getTerrainCellAt(right, y).heat,
+      center: this.getTerrainCellAt(x, y).heat,
     }
   }
 
@@ -177,7 +216,8 @@ export class World {
   private assemble(life: Life, spec: LifeSpec, modules: Module.AnyModule[]): Result<void, string> {
     this.logActiveApiCall(life, `assemble: ${describeLifeSpec(spec)}`)
 
-    const requiredEnergy = calculateAssembleEnergyConsumption(spec)
+    const assembleEnergyConsumption = 100
+    const requiredEnergy = assembleEnergyConsumption + calculateAssembleEnergyConsumption(spec)
     if (life.hull.energyAmount < requiredEnergy) {
       return Result.Failed(`Lack of energy (required: ${requiredEnergy}, current: ${life.hull.energyAmount})`)
     }
@@ -191,34 +231,22 @@ export class World {
     }
 
     life.hull.withdrawEnergy(requiredEnergy)  // TODO: Fail時の処理
+    this.getTerrainCellAt(life.position).heat += assembleEnergyConsumption
 
     return assembler.assemble(spec)
   }
 
-  private lookAround(life: Life, objectCache: WorldObject[][][]): LookAroundResult {
-    const { x, y } = life.position
-    const top = (y - 1 + this.size.y) % this.size.y
-    const bottom = (y + 1) % this.size.y
-    const left = (x - 1 + this.size.x) % this.size.x
-    const right = (x + 1) % this.size.x
+  private harvest(life: Life): Result<number, string> {
+    this.logActiveApiCall(life, `harvest source at ${life.position}`)
 
-    return {
-      top: objectCache[top][x],
-      bottom: objectCache[bottom][x],
-      left: objectCache[y][left],
-      right: objectCache[y][right],
-      center: objectCache[y][x],
-    }
-  }
+    const cell = this.getTerrainCellAt(life.position)
+    const harvestEnergy = Math.floor(cell.energy * this.physicsRule.harvestEnergyConversionRate)
+    const energyLoss = cell.energy - harvestEnergy
+    life.hull.transferEnergy(harvestEnergy) 
+    cell.energy = 0
+    cell.heat += energyLoss
 
-  private harvest(life: Life, energySource: EnergySource): Result<number, string> {
-    this.logActiveApiCall(life, `harvest source at ${energySource.position}`)
-
-    if (isNearTo(life.position, energySource.position) !== true) {
-      return Result.Failed(`EnergySource at ${energySource.position} is not in range from ${life.position}`)
-    }
-
-    return energyTransaction(energySource, life.hull)    
+    return Result.Succeeded(harvestEnergy)
   }
 
   /// 世界に対して働きかけるAPI呼び出しのログ出力

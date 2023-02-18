@@ -18,11 +18,15 @@ export const getShortModuleName = (moduleType: ModuleType): string => {
 }
 
 export abstract class Module<T extends ModuleType> {
-  readonly id: number
-  readonly name: string
-  readonly type: T
+  public readonly id: number
+  
+  public abstract readonly name: string
+  public abstract readonly type: T
 
-  public constructor() {
+  public constructor(
+    public hits: number,
+    public readonly hitsMax: number,
+  ) {
     this.id = createId()
   }
   
