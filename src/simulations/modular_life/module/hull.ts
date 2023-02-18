@@ -22,8 +22,10 @@ export class Hull extends Module<"hull"> implements EnergyTransferable, EnergyWi
   public constructor(
     public readonly internalModules: InternalModule[],
     private _energyAmount: number,
+    hits: number,
+    hitsMax: number,
   ) {
-    super()
+    super(hits, hitsMax)
   }
 
   public transferEnergy(amount: number): Result<void, string> {

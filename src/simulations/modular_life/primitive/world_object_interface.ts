@@ -6,7 +6,7 @@ type WorldObjectInterface<T extends WorldObjectType> = {
 }
 
 export type EnergySourceInterface = {
-  readonly energyAmount: number
+  energyAmount: number
   readonly production: number
   readonly capacity: number
 } & WorldObjectInterface<"energy_source">
@@ -15,4 +15,4 @@ export type LifeInterface = {
   // TODO:
 } & WorldObjectInterface<"life">
 
-export type WorldObject = EnergySourceInterface | LifeInterface
+export type WorldObject = LifeInterface

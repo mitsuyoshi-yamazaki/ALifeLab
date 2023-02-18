@@ -1,7 +1,5 @@
 import { clockwiseDirection, NeighbourDirection } from "../primitive/direction"
-import { isEnergySource } from "../world_object/energy_source"
 import { logFailure } from "../primitive/result"
-import { WorldObject } from "../primitive/world_object_interface"
 import { ComputeArgument, SourceCode } from "../module/source_code"
 import { LifeSpec } from "../module/module_spec"
 
@@ -17,12 +15,7 @@ export const createMoveCode = (direction: NeighbourDirection): SourceCode => {
   return ([api, environment]: ComputeArgument) => {
     if (environment.time % 10 === 0) {
       logFailure(api.move(direction))
-
-      const nearbyObjects: WorldObject[] = Array.from(Object.values(api.lookAround())).flatMap(x => x)
-      const energySource = nearbyObjects.find(isEnergySource)
-      if (energySource != null) {
-        logFailure(api.harvest(energySource))
-      }
+      logFailure(api.harvest())
     }
 
     switch (environment.time % 150) {
@@ -31,14 +24,20 @@ export const createMoveCode = (direction: NeighbourDirection): SourceCode => {
         hullSpec: {
           case: "hull",
           energyAmount: 200,
+          hits: 50,
+          hitsMax: 50,
         },
         internalModuleSpecs: [
           {
             case: "compute",
             code: createMoveCode(clockwiseDirection(direction)),
+            hits: 50,
+            hitsMax: 50,
           },
           {
             case: "assemble",
+            hits: 50,
+            hitsMax: 50,
           }
         ]
       }
@@ -50,6 +49,62 @@ export const createMoveCode = (direction: NeighbourDirection): SourceCode => {
       break
     default:
       break
+    }
+  }
+}
+
+/// エネルギー消費（=移動）を最小に抑え繁殖する
+export const createFloraCode = (direction: NeighbourDirection): SourceCode => {
+  return ([api]: ComputeArgument) => {
+    const harvestResult = api.harvest()
+    const noEnergyGain = ((): boolean => {
+      switch (harvestResult.resultType) {
+      case "succeeded":
+        return harvestResult.value <= 0
+      case "failed":
+        return true
+      }
+    })()
+
+    if (noEnergyGain === true) {
+      if (api.energyAmount > 11) {
+        logFailure(api.move(direction))
+        return
+      }
+    }
+
+    if (api.isAssembling() === true) {
+      if (api.energyAmount >= 20) {
+        logFailure(api.move(direction))
+        logFailure(api.release())
+        return
+      }
+      return
+    }
+
+    if (api.energyAmount > 600) {
+      const spec: LifeSpec = {
+        hullSpec: {
+          case: "hull",
+          energyAmount: 200,
+          hits: 50,
+          hitsMax: 50,
+        },
+        internalModuleSpecs: [
+          {
+            case: "compute",
+            code: createFloraCode(clockwiseDirection(direction)),
+            hits: 50,
+            hitsMax: 50,
+          },
+          {
+            case: "assemble",
+            hits: 50,
+            hitsMax: 50,
+          }
+        ]
+      }
+      logFailure(api.assemble(spec))
     }
   }
 }

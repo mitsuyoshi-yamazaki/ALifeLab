@@ -20,8 +20,10 @@ export class Assemble extends Module<"assemble"> {
   private _assembling: Hull | null = null
 
   public constructor(
+    hits: number,
+    hitsMax: number,
   ) {
-    super()
+    super(hits, hitsMax)
   }
 
   public assemble(spec: LifeSpec): Result<void, string> {
@@ -32,12 +34,12 @@ export class Assemble extends Module<"assemble"> {
     const internalModules: InternalModule[] = spec.internalModuleSpecs.map(moduleSpec => {
       switch (moduleSpec.case) {
       case "assemble":
-        return new Assemble()
+        return new Assemble(moduleSpec.hits, moduleSpec.hitsMax)
       case "compute":
-        return new Compute(moduleSpec.code)
+        return new Compute(moduleSpec.code, moduleSpec.hits, moduleSpec.hitsMax)
       }
     })
-    this._assembling = new Hull(internalModules, spec.hullSpec.energyAmount)
+    this._assembling = new Hull(internalModules, spec.hullSpec.energyAmount, spec.hullSpec.hits, spec.hullSpec.hitsMax)
     return Result.Succeeded(undefined)
   }
 
