@@ -11,6 +11,7 @@ import { ComputeArgument } from "./module/source_code"
 import { calculateAssembleEnergyConsumption, describeLifeSpec, LifeSpec } from "./module/module_spec"
 import { Terrain, TerrainCell } from "./terrain"
 import { PhysicsRule } from "./physics"
+import { LifeStatistics } from "./statistics"
 
 export class World {
   public get t(): number {
@@ -32,13 +33,24 @@ export class World {
   public constructor(
     public readonly size: Vector,
     public readonly logger: Logger,
+    public readonly lifeStatistics: LifeStatistics,
     public readonly physicsRule: PhysicsRule,
   ) {
     this._terrain = new Terrain(size)
   }
 
-  public addLife(hull: Module.Hull, atPosition: Vector): Result<void, string> {
-    this.nextLives.push(new Life(hull, atPosition))
+  public addAncestor(hull: Module.Hull, atPosition: Vector): Result<void, string> {
+    const life = new Life(hull, atPosition)
+    this.lifeStatistics.added(life, this.t)
+    this.nextLives.push(life)
+
+    return Result.Succeeded(undefined)
+  }
+
+  private addLife(hull: Module.Hull, atPosition: Vector, parent: Life): Result<void, string> {
+    const life = new Life(hull, atPosition)
+    this.lifeStatistics.born(life, parent, this.t)
+    this.nextLives.push(life)
 
     return Result.Succeeded(undefined)
   }
@@ -87,6 +99,7 @@ export class World {
       if (life.hull.energyAmount <= 0 || life.hull.hits <= 0) {
         const energyAmount = 300  // FixMe: 仮で置いた値：算出する
         cell.energy += energyAmount
+        this.lifeStatistics.died(life, this.t)
         return
       }
 
@@ -207,7 +220,7 @@ export class World {
         return
       }
 
-      this.addLife(offspring, life.position)
+      this.addLife(offspring, life.position, life)
     })
 
     return Result.Succeeded(undefined)
