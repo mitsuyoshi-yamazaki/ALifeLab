@@ -24,14 +24,20 @@ export const createMoveCode = (direction: NeighbourDirection): SourceCode => {
         hullSpec: {
           case: "hull",
           energyAmount: 200,
+          hits: 50,
+          hitsMax: 50,
         },
         internalModuleSpecs: [
           {
             case: "compute",
             code: createMoveCode(clockwiseDirection(direction)),
+            hits: 50,
+            hitsMax: 50,
           },
           {
             case: "assemble",
+            hits: 50,
+            hitsMax: 50,
           }
         ]
       }
@@ -81,14 +87,20 @@ export const createFloraCode = (direction: NeighbourDirection): SourceCode => {
         hullSpec: {
           case: "hull",
           energyAmount: 200,
+          hits: 50,
+          hitsMax: 50,
         },
         internalModuleSpecs: [
           {
             case: "compute",
             code: createFloraCode(clockwiseDirection(direction)),
+            hits: 50,
+            hitsMax: 50,
           },
           {
             case: "assemble",
+            hits: 50,
+            hitsMax: 50,
           }
         ]
       }

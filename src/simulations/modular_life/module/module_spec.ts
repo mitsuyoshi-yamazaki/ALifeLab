@@ -3,6 +3,8 @@ import { getShortModuleName, ModuleType } from "./types"
 
 type ModuleSpecBase<T extends ModuleType> = {
   readonly case: T
+  readonly hits: number
+  readonly hitsMax: number
 }
 export type AssembleSpec = {
 } & ModuleSpecBase<"assemble">
@@ -36,16 +38,14 @@ export const describeLifeSpec = (spec: LifeSpec): string => {
   return `H(${internalModuleDescriptions.join("")})`
 }
 
-const moduleAssembleEnergyConsumption: { [T in ModuleType]: number } = {
-  hull: 100,
-  assemble: 100,
-  compute: 50,
+const calculateModuleEnergyConsumption = (spec: ModuleSpec): number => {
+  return Math.ceil(spec.hits + spec.hitsMax * 0.3)
 }
 
 export const calculateAssembleEnergyConsumption = (spec: LifeSpec): number => {
-  const hullGeneration = moduleAssembleEnergyConsumption["hull"]
-  const internalModuleGeneration = spec.internalModuleSpecs.reduce((result, module) => {
-    return result + moduleAssembleEnergyConsumption[module.case]
+  const hullGeneration = calculateModuleEnergyConsumption(spec.hullSpec)
+  const internalModuleGeneration = spec.internalModuleSpecs.reduce((result, moduleSpec) => {
+    return result + calculateModuleEnergyConsumption(moduleSpec)
   }, 0)
 
   return spec.hullSpec.energyAmount + hullGeneration + internalModuleGeneration

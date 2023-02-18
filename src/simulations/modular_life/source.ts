@@ -23,6 +23,7 @@ const canvasSize = new Vector(worldDrawSize.x * 2, worldDrawSize.y)
 const physicsRule: PhysicsRule = {
   heatLoss: constants.physics.heatLoss,
   energyHeatConversion: constants.physics.energyHeatConversion,
+  heatDamageRatio: constants.physics.heatDamageRatio,
 }
 
 export const main = (p: p5): void => {

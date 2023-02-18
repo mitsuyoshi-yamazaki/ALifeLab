@@ -12,8 +12,10 @@ export class Compute extends Module<"compute"> {
 
   public constructor(
     public readonly code: SourceCode,
+    hits: number,
+    hitsMax: number,
   ) {
-    super()
+    super(hits, hitsMax)
   }
 
   public run(args: ComputeArgument): void {

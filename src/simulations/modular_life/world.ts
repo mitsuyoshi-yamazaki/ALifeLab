@@ -76,23 +76,27 @@ export class World {
         })
     })
 
-    const energyConsumption = 1
+    const { heatLoss, energyHeatConversion, heatDamageRatio } = this.physicsRule
+    const baseEnergyConsumption = 1
+
     this.lives.forEach(life => {
-      if (life.hull.energyAmount <= energyConsumption) {
+      const cell = this.getTerrainCellAt(life.position)
+      const heatDamage = Math.floor(cell.heat * heatDamageRatio)
+      life.hull.hits -= heatDamage  // TODO: 他のModuleへの影響を入れる
+
+      if (life.hull.energyAmount <= 0 || life.hull.hits <= 0) {
         const energyAmount = 300  // FixMe: 仮で置いた値：算出する
-        this.getTerrainCellAt(life.position).energy += energyAmount
+        cell.energy += energyAmount
         return
       }
 
-      life.hull.withdrawEnergy(energyConsumption)
-      this.getTerrainCellAt(life.position).heat += energyConsumption
+      life.hull.withdrawEnergy(baseEnergyConsumption)
+      this.getTerrainCellAt(life.position).heat += baseEnergyConsumption
       this.nextLives.push(life)
     })
 
     this._lives = this.nextLives
     this.nextLives = []
-
-    const { heatLoss, energyHeatConversion } = this.physicsRule
 
     this.terrain.cells.forEach(row => {
       row.forEach(cell => {
