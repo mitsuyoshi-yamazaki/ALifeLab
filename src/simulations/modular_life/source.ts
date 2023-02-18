@@ -54,6 +54,7 @@ export const main = (p: p5): void => {
 
     if (t % statisticsUpdateInterval === 0) {
       lifeStatisticsStatus = lifeStatisticsDescription(world.t)
+      lifeStatistics.trimExtinctFamilyLines(5)
     }
       
     p.clear()

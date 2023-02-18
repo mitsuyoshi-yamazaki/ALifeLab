@@ -103,4 +103,8 @@ export class LifeStatistics {
       lifetime: longestLifetime,
     }
   }
+
+  public trimExtinctFamilyLines(thresholdGeneration: number): void {
+    // TODO:    
+  }
 }
