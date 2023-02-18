@@ -43,11 +43,10 @@ const moduleAssembleEnergyConsumption: { [T in ModuleType]: number } = {
 }
 
 export const calculateAssembleEnergyConsumption = (spec: LifeSpec): number => {
-  const assemble = 100
   const hullGeneration = moduleAssembleEnergyConsumption["hull"]
   const internalModuleGeneration = spec.internalModuleSpecs.reduce((result, module) => {
     return result + moduleAssembleEnergyConsumption[module.case]
   }, 0)
 
-  return assemble + spec.hullSpec.energyAmount + hullGeneration + internalModuleGeneration
+  return spec.hullSpec.energyAmount + hullGeneration + internalModuleGeneration
 }

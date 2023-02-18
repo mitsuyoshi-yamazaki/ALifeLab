@@ -85,6 +85,7 @@ export class World {
       }
 
       life.hull.withdrawEnergy(energyConsumption)
+      this.getTerrainCellAt(life.position).heat += energyConsumption
       this.nextLives.push(life)
     })
 
@@ -125,6 +126,7 @@ export class World {
 
     const requiredEnergy = 10
     life.hull.withdrawEnergy(requiredEnergy)  // TODO: Fail時の処理
+    this.getTerrainCellAt(life.position).heat += requiredEnergy
 
     return Result.Succeeded(undefined)
   }
@@ -210,7 +212,8 @@ export class World {
   private assemble(life: Life, spec: LifeSpec, modules: Module.AnyModule[]): Result<void, string> {
     this.logActiveApiCall(life, `assemble: ${describeLifeSpec(spec)}`)
 
-    const requiredEnergy = calculateAssembleEnergyConsumption(spec)
+    const assembleEnergyConsumption = 100
+    const requiredEnergy = assembleEnergyConsumption + calculateAssembleEnergyConsumption(spec)
     if (life.hull.energyAmount < requiredEnergy) {
       return Result.Failed(`Lack of energy (required: ${requiredEnergy}, current: ${life.hull.energyAmount})`)
     }
@@ -224,6 +227,7 @@ export class World {
     }
 
     life.hull.withdrawEnergy(requiredEnergy)  // TODO: Fail時の処理
+    this.getTerrainCellAt(life.position).heat += assembleEnergyConsumption
 
     return assembler.assemble(spec)
   }
