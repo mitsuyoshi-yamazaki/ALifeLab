@@ -35,8 +35,8 @@ const moduleColor: { [M in ModuleType]: Color } = {
   hull: new Color(0xFF, 0xFF, 0xFF),
   computer: new Color(0xFF, 0xFF, 0xFF),
   assembler: new Color(0xFF, 0xFF, 0xFF),
-  channel: new Color(0xFF, 0xFF, 0xFF),
-  mover: new Color(0x22, 0x22, 0x22),
+  channel: new Color(0xFF, 0xFF, 0x00),
+  mover: new Color(0x60, 0x60, 0x60),
   materialSynthesizer: new Color(0xFF, 0xFF, 0xFF),
 }
 
@@ -61,7 +61,7 @@ export class P5Drawer {
   }
 
   public drawWorld(p: p5, world: World): void {
-    p.background(0x00)
+    p.background(0x22)
 
     const drawModes = this.drawModes
     const drawTargets: { [Draw in InnerCellDrawModes]: boolean } = {
@@ -99,12 +99,14 @@ export class P5Drawer {
         const centerX = x * cellSize + cellRadius
         const centerY = y * cellSize + cellRadius
 
+        const hullWeight = size / 4
         const hullColor = moduleColor.hull.p5(p)
-        p.stroke(hullColor)
-        p.strokeCap(p.SQUARE)
-        p.strokeWeight(size / 4)
+        p.noStroke()
         p.fill(hullColor)
         p.ellipse(centerX, centerY, size, size)
+
+        p.strokeWeight(hullWeight)
+        p.strokeCap(p.SQUARE)
 
         const moverCount = hull.internalModules.mover.length
         if (moverCount > 0) {
@@ -113,6 +115,17 @@ export class P5Drawer {
           const toAngle = fromAngle + drawSize
 
           p.stroke(moduleColor.mover.p5(p))
+          p.noFill()
+          p.arc(centerX, centerY, size, size, fromAngle, toAngle)
+        }
+
+        const channelCount = hull.internalModules.channel.length
+        if (channelCount > 0) {
+          const drawSize = p.PI * 2 * (channelCount / ((hull.size - 1) * 4))
+          const fromAngle = (p.PI / 2) * 3 - (drawSize / 2)
+          const toAngle = fromAngle + drawSize
+
+          p.stroke(moduleColor.channel.p5(p))
           p.noFill()
           p.arc(centerX, centerY, size, size, fromAngle, toAngle)
         }
