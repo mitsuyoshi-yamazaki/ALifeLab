@@ -5,6 +5,7 @@ import type { ComputerApi } from "./module/api"
 import { Logger } from "./logger"
 import { Terrain, TerrainCell } from "./terrain"
 import { PhysicalConstant } from "./physics/physical_constant"
+import { Engine } from "./engine"
 
 type Life = unknown // FixMe:
 
@@ -18,13 +19,15 @@ export class World {
   
   private _t = 0
   private _terrain: Terrain
+  private engine: Engine
 
   public constructor(
     public readonly size: Vector,
     public readonly logger: Logger,
-    public readonly physicalConstant: PhysicalConstant,
+    physicalConstant: PhysicalConstant,
   ) {
     this._terrain = new Terrain(size)
+    this.engine = new Engine(physicalConstant)
   }
 
   public addAncestor(life: Life, atPosition: Vector): Result<void, string> {
@@ -46,15 +49,9 @@ export class World {
   }
 
   private step(): void {
-    const {energyHeatConversionRate, heatLossRate} = this.physicalConstant
-
     this.terrain.cells.forEach(row => {
       row.forEach(cell => {
-        const energyLoss = Math.floor(cell.energy * energyHeatConversionRate)
-        cell.energy = cell.energy - energyLoss + cell.energyProduction
-        cell.heat += energyLoss
-
-        cell.heat = Math.floor(cell.heat * (1 - heatLossRate))
+        this.engine.calculateCell(cell)
       })
     })
 
