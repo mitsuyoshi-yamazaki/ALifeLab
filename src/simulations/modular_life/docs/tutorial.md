@@ -24,5 +24,5 @@
 目標：自己複製する生命を実装して世界に放つ
 
 # 参考
-- [APIリファレンス](./docs/api_reference.md)
+- [APIリファレンス](./api_reference.md)
   - APIおよびモジュールの仕様
