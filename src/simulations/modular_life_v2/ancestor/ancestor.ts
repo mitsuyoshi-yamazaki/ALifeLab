@@ -4,11 +4,11 @@ import { createScopeData } from "../physics/scope"
 
 export const Ancestor = {
   /// 生命として成立する最小の祖先種
-  minimum(code: SourceCode): Hull {  // TODO:
+  minimum(code: SourceCode): Hull {
     /*
     - 計算機 x 1
     - 外殻 x 1
-    - 推進器 x 1  // TODO:
+    - 推進器 x 1
      */
 
     const computer: Computer = {
@@ -34,6 +34,25 @@ export const Ancestor = {
       ...createScopeData(1000),
     }
   },
+
+  /// 試験用
+  test(code: SourceCode): Hull {
+    return {
+      case: "hull",
+      hits: 0,
+      hitsMax: 1000,
+      size: 3,
+      internalModules: {
+        computer: [],
+        assembler: [],
+        channel: [{ case: "channel" }, { case: "channel" }, { case: "channel" }, { case: "channel" }],
+        mover: [{ case: "mover" }, { case: "mover" }, { case: "mover" }, { case: "mover" }],
+        materialSynthesizer: [],
+      },
+      ...createScopeData(1000),
+    }
+  },
+
 
   /// 自己複製できる最小の祖先種
   minimumSelfReproduction(code: SourceCode): Hull {  // TODO:

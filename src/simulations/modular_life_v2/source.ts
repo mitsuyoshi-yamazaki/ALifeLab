@@ -57,9 +57,6 @@ export const main = (): ReactConnector => {
         const canvas = p.createCanvas(canvasSize.x, canvasSize.y)
         canvas.id("canvas")
         canvas.parent(defaultCanvasParentId)
-
-        p.ellipseMode(p.CORNER)
-        p.rectMode(p.CORNER)
       }
 
       p.draw = () => {
@@ -134,6 +131,6 @@ function initializeEnergySources(world: World): void {
 
 function initializeAncestors(world: World): void {
   world.addAncestor(Ancestor.minimum(AncestorCode.stillCode()), world.size.div(3).floor())
-  world.addAncestor(Ancestor.minimum(AncestorCode.stillCode()), world.size.div(2).floor())
+  world.addAncestor(Ancestor.test(AncestorCode.stillCode()), world.size.div(2).floor())
   world.addAncestor(Ancestor.minimum(AncestorCode.stillCode()), world.size.div(3).mult(2).floor())
 }

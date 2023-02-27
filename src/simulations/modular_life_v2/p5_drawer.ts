@@ -1,6 +1,8 @@
 import p5 from "p5"
+import { Color } from "../../classes/color"
 import { strictEntries } from "../../classes/utilities"
-import { Terrain, TerrainCell } from "./terrain"
+import { ModuleType } from "./module/module"
+import { TerrainCell } from "./terrain"
 import { World } from "./world"
 
 type DrawModeMaterial = {
@@ -29,6 +31,15 @@ type GenericDrawMode<T extends DrawModes> = T extends "material" ? DrawModeMater
   T extends "status" ? DrawModeStatus :
   never
   
+const moduleColor: { [M in ModuleType]: Color } = {
+  hull: new Color(0xFF, 0xFF, 0xFF),
+  computer: new Color(0xFF, 0xFF, 0xFF),
+  assembler: new Color(0xFF, 0xFF, 0xFF),
+  channel: new Color(0xFF, 0xFF, 0xFF),
+  mover: new Color(0x22, 0x22, 0x22),
+  materialSynthesizer: new Color(0xFF, 0xFF, 0xFF),
+}
+
 export class P5Drawer {
   public get drawModes(): DrawModes[] {
     return strictEntries(this.drawMode).map(([key]) => key)
@@ -73,6 +84,10 @@ export class P5Drawer {
 
   private drawTerrainCell(p: p5, cell: TerrainCell, x: number, y: number, drawTargets: { [Draw in InnerCellDrawModes]: boolean }): void {
     const cellSize = this.cellSize
+    const cellRadius = cellSize / 2
+
+    p.ellipseMode(p.CENTER)
+    p.rectMode(p.CORNER)
 
     if (drawTargets.material === true) {
       // TODO:
@@ -80,9 +95,27 @@ export class P5Drawer {
 
     if (drawTargets.life === true) {
       cell.hull.forEach(hull => {
-        p.noStroke()
-        p.fill(0xFF, 0xC0)
-        p.ellipse(x * cellSize, y * cellSize, cellSize, cellSize)
+        const size = (hull.size / 5) * cellSize
+        const centerX = x * cellSize + cellRadius
+        const centerY = y * cellSize + cellRadius
+
+        const hullColor = moduleColor.hull.p5(p)
+        p.stroke(hullColor)
+        p.strokeCap(p.SQUARE)
+        p.strokeWeight(size / 4)
+        p.fill(hullColor)
+        p.ellipse(centerX, centerY, size, size)
+
+        const moverCount = hull.internalModules.mover.length
+        if (moverCount > 0) {
+          const drawSize = p.PI * 2 * (moverCount / ((hull.size - 1) * 4))
+          const fromAngle = (p.PI / 2) - (drawSize / 2)
+          const toAngle = fromAngle + drawSize
+
+          p.stroke(moduleColor.mover.p5(p))
+          p.noFill()
+          p.arc(centerX, centerY, size, size, fromAngle, toAngle)
+        }
       })
     }
 
