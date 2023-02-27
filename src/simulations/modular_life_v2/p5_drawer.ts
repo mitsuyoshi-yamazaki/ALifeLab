@@ -1,5 +1,6 @@
 import p5 from "p5"
 import { strictEntries } from "../../classes/utilities"
+import { Terrain } from "./terrain"
 import { World } from "./world"
 
 type DrawModeMaterial = {
@@ -46,14 +47,14 @@ export class P5Drawer {
   public drawWorld(p: p5, world: World): void {
     p.background(0x00)
 
+    if (this.drawMode["energy"] != null) {
+      this.drawEnergy(p, world.terrain)
+    }
     if (this.drawMode["material"] != null) {
       this.drawMaterial(p, world)
     }
-    if (this.drawMode["energy"] != null) {
-      this.drawEnergy(p, world)
-    }
     if (this.drawMode["heat"] != null) {
-      this.drawHeat(p, world)
+      this.drawHeat(p, world.terrain)
     }
     if (this.drawMode["status"] != null) {
       this.drawStatus(p, world, this.drawMode["status"])
@@ -66,18 +67,30 @@ export class P5Drawer {
     p.circle(100, 100, 100) // TODO:
   }
 
-  private drawEnergy(p: p5, world: World): void {
-    p.strokeWeight(8)
-    p.stroke(0xFF, 0xFF, 0x0, 0x80)
-    p.noFill()
-    p.circle(100, 100, 100) // TODO:
+  private drawEnergy(p: p5, terrain: Terrain): void {
+    const cellSize = this.cellSize
+    const energyMeanAmount = 10 // FixMe:
+
+    terrain.cells.forEach((row, y) => {
+      row.forEach((cell, x) => {
+        const alpha = Math.floor((cell.energy / energyMeanAmount) * 0x80)
+        p.fill(0xFF, 0xFF, 0x00, alpha)
+        p.square(x * cellSize, y * cellSize, cellSize)
+      })
+    })
   }
 
-  private drawHeat(p: p5, world: World): void {
-    p.strokeWeight(4)
-    p.stroke(0xFF, 0x0, 0x0, 0x80)
-    p.noFill()
-    p.circle(100, 100, 100) // TODO:
+  private drawHeat(p: p5, terrain: Terrain): void {
+    const cellSize = this.cellSize
+    const heatMeanAmount = 10 // FixMe: 
+
+    terrain.cells.forEach((row, y) => {
+      row.forEach((cell, x) => {
+        const alpha = Math.floor((cell.heat / heatMeanAmount) * 0x80)
+        p.fill(0xFF, 0x00, 0x00, alpha)
+        p.square(x * cellSize, y * cellSize, cellSize)
+      })
+    })
   }
 
   private drawStatus(p: p5, world: World, status: DrawModeStatus): void {

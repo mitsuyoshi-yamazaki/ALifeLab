@@ -4,6 +4,7 @@ import { Direction, getDirectionVector } from "./physics/direction"
 import type { ComputerApi } from "./module/api"
 import { Logger } from "./logger"
 import { Terrain, TerrainCell } from "./terrain"
+import { PhysicalConstant } from "./physics/physical_constant"
 
 type Life = unknown // FixMe:
 
@@ -21,6 +22,7 @@ export class World {
   public constructor(
     public readonly size: Vector,
     public readonly logger: Logger,
+    public readonly physicalConstant: PhysicalConstant,
   ) {
     this._terrain = new Terrain(size)
   }
@@ -33,6 +35,10 @@ export class World {
     return Result.Failed("not implemented")
   }
 
+  public setEnergyProductionAt(x: number, y: number, energyProduction: number): void {
+    this.terrain.cells[y][x].energyProduction = energyProduction
+  }
+
   public run(step: number): void {
     for (let i = 0; i < step; i += 1) {
       this.step()
@@ -40,7 +46,17 @@ export class World {
   }
 
   private step(): void {
-    // TODO:
+    const {energyHeatConversionRate, heatLossRate} = this.physicalConstant
+
+    this.terrain.cells.forEach(row => {
+      row.forEach(cell => {
+        const energyLoss = Math.floor(cell.energy * energyHeatConversionRate)
+        cell.energy = cell.energy - energyLoss + cell.energyProduction
+        cell.heat += energyLoss
+
+        cell.heat = Math.floor(cell.heat * (1 - heatLossRate))
+      })
+    })
 
     this._t += 1
   }

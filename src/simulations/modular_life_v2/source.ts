@@ -37,7 +37,10 @@ const frameSkip = constants.simulation.frameSkip
 const worldSize = new Vector(constants.simulation.worldSize, constants.simulation.worldSize)
 const cellSize = constants.simulation.cellSize
 const canvasSize = worldSize.mult(cellSize)
-const world = new World(worldSize, logger)
+
+const world = new World(worldSize, logger, constants.physicalConstant)
+initializeEnergySources(world)
+
 const drawer = new P5Drawer(cellSize)
 drawer.setDrawMode({
   case: "material",
@@ -104,4 +107,22 @@ export const main = (): ReactConnector => {
       return t
     }
   }  
+}
+
+function initializeEnergySources(world: World): void {
+  const centerPosition = world.size.div(2).floor()
+  const energyProductionRadius = Math.floor(world.size.x * 0.3)
+  const maxEnergyProduction = 10
+
+  const minimumEnergyProductionPosition = Math.floor(world.size.x / 2 - energyProductionRadius)
+  const maximumEnergyProductionPosition = world.size.x - minimumEnergyProductionPosition
+
+  for (let y = minimumEnergyProductionPosition; y < maximumEnergyProductionPosition; y += 1) {
+    for (let x = minimumEnergyProductionPosition; x < maximumEnergyProductionPosition; x += 1) {
+      const distanceToCenter = (new Vector(x, y)).dist(centerPosition)
+      const closenessToCenter = 1 - (distanceToCenter / energyProductionRadius)
+      const energyProduction = Math.floor(closenessToCenter * maxEnergyProduction)
+      world.setEnergyProductionAt(x, y, energyProduction)
+    }
+  }
 }
