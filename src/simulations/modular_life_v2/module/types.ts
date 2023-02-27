@@ -1,5 +1,3 @@
-import { createId } from "../primitive/world_object_id"
-
 export type ModuleType = "compute" | "assemble" | "hull"
 export const getShortModuleName = (moduleType: ModuleType): string => {
   switch (moduleType) {
@@ -17,9 +15,7 @@ export const getShortModuleName = (moduleType: ModuleType): string => {
   }
 }
 
-export abstract class Module<T extends ModuleType> {
-  public readonly id: number
-  
+export abstract class Module<T extends ModuleType> {  
   public abstract readonly name: string
   public abstract readonly type: T
 
@@ -27,10 +23,9 @@ export abstract class Module<T extends ModuleType> {
     public hits: number,
     public readonly hitsMax: number,
   ) {
-    this.id = createId()
   }
   
   public toString(): string {
-    return `${this.constructor.name}[${this.id}]`
+    return `${this.constructor.name}`
   }
 }

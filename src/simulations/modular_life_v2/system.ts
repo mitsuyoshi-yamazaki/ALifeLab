@@ -1,3 +1,3 @@
 export const System = {
-  version: "0.3.3"
+  version: "2.0.0"
 } as const

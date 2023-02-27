@@ -13,15 +13,11 @@
 
 ### 仕様
 #### モデル
-- 計算
-  - Computorが最初
-- 位置
-  - 現状ではcollisionはない
+
+`TODO:`
 
 #### 実装
-- import順序：
-  - primitive -> world_object, module -> world他
-
-## アイデア
-- 自動でエネルギーを分配する循環系をつくることができる
-- アップデートで抽象度を落としていく
+- import順序
+  - utility
+  - physics
+  - module
