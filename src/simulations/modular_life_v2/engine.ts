@@ -8,8 +8,8 @@ export class Engine {
   }
 
   public calculateCell(cell: TerrainCell): void {
-    const energyLoss = Math.floor(cell.energy * this.physicalConstant.energyHeatConversionRate)
-    cell.energy = cell.energy - energyLoss + cell.energyProduction
+    const energyLoss = Math.floor(cell.amount.energy * this.physicalConstant.energyHeatConversionRate)
+    cell.amount.energy = cell.amount.energy - energyLoss + cell.energyProduction
     cell.heat += energyLoss
 
     cell.heat = Math.floor(cell.heat * (1 - this.physicalConstant.heatLossRate))

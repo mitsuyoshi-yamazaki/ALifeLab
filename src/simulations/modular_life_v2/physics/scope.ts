@@ -10,3 +10,17 @@ export type Scope = {
 
   hull: Hull[]
 }
+
+export const createScopeData = (capacity: number): Scope => {
+  return {
+    amount: {
+      energy: 0,
+      red: 0,
+      green: 0,
+      blue: 0,
+    },
+    capacity,
+    heat: 0,
+    hull: [],
+  }
+}
