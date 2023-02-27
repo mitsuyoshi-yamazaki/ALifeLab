@@ -1,5 +1,5 @@
 import { Result } from "../../../classes/result"
-import { StringConvertible } from "./utility"
+import { StringConvertible } from "../utility/utility"
 
 // TODO: 熱の概念を追加する：消費されたエネルギーは熱になる
 // export type EnergyConsumable = {

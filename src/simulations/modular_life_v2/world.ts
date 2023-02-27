@@ -1,6 +1,6 @@
 import { Result } from "../../classes/result"
 import { guardPositionArgument, Vector } from "../../classes/physics"
-import { Direction, getDirectionVector } from "./primitive/direction"
+import { Direction, getDirectionVector } from "./physics/direction"
 import type { ComputerApi } from "./module/api"
 import { Logger } from "./logger"
 import { Terrain, TerrainCell } from "./terrain"

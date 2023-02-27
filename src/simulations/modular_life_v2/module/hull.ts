@@ -1,5 +1,5 @@
 import { Result } from "../../../classes/result"
-import { EnergyTransferable, EnergyWithdrawable } from "../primitive/energy_transaction"
+import { EnergyTransferable, EnergyWithdrawable } from "../physics/energy_transaction"
 import type { AnyModule } from "./any_module"
 import { Module } from "./types"
 
