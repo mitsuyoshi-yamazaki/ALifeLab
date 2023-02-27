@@ -6,6 +6,7 @@ import { Logger } from "./logger"
 import { Terrain, TerrainCell } from "./terrain"
 import { PhysicalConstant } from "./physics/physical_constant"
 import { Engine } from "./engine"
+import { Hull } from "./module/module"
 
 type Life = unknown // FixMe:
 
@@ -30,12 +31,9 @@ export class World {
     this.engine = new Engine(physicalConstant)
   }
 
-  public addAncestor(life: Life, atPosition: Vector): Result<void, string> {
-    return Result.Failed("not implemented")
-  }
-
-  private addLife(hull: Life, atPosition: Vector, parent: Life): Result<void, string> {
-    return Result.Failed("not implemented")
+  public addAncestor(life: Hull, atPosition: Vector): void {
+    const cell = this.getTerrainCellAt(atPosition)
+    cell.hull.push(life)
   }
 
   public setEnergyProductionAt(x: number, y: number, energyProduction: number): void {
