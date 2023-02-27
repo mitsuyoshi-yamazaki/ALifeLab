@@ -36,7 +36,6 @@ const App = () => {
     }
 
     keyInputStates[event].value = newValue
-    console.log(`${event} => ${newValue}`)
     setCurrentState(event, newValue)
   })
 
