@@ -1,9 +1,12 @@
-export type Scope = {
-  energy: number
-  energyMax: number
+import { Hull } from "../module/module"
+import { MaterialType, Energy } from "../physics/material"
 
+type MaterialStore = { [Material in (MaterialType | Energy)]: number }
+
+export type Scope = {
+  readonly amount: MaterialStore
+  capacity: number
   heat: number
 
-  material: number
-  materialMax: number
+  hull: Hull[]
 }
