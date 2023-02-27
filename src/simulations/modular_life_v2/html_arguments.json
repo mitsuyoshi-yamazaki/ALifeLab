@@ -1,6 +1,6 @@
 {
-  "page_title": "人工生命の箱庭",
-  "og_description": "人工生命の箱庭",
+  "page_title": "人工生命の箱庭 v2",
+  "og_description": "人工生命の箱庭 v1",
   "og_image": "",
-  "script_path": "../dist/modular_life.js"
+  "script_path": "../dist/modular_life_v2.js"
 }
