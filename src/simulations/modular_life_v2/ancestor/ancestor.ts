@@ -1,4 +1,4 @@
-import { Computer, Hull } from "../module/module"
+import { Computer, Hull, Mover } from "../module/module"
 import { SourceCode } from "../module/source_code"
 import { createScopeData } from "../physics/scope"
 
@@ -15,6 +15,9 @@ export const Ancestor = {
       case: "computer",
       code,
     }
+    const mover: Mover = {
+      case: "mover",
+    }
 
     return {
       case: "hull",
@@ -24,6 +27,9 @@ export const Ancestor = {
       internalModules: {
         computer: [computer],
         assembler: [],
+        channel: [],
+        mover: [mover],
+        materialSynthesizer: [],
       },
       ...createScopeData(1000),
     }
