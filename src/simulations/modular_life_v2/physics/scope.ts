@@ -14,10 +14,11 @@ export type Scope = {
 export const createScopeData = (capacity: number): Scope => {
   return {
     amount: {
+      nitrogen: 0,
+      carbon: 0,
+      fuel: 0,
+      substance: 0,
       energy: 0,
-      red: 0,
-      green: 0,
-      blue: 0,
     },
     capacity,
     heat: 0,

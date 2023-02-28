@@ -1,43 +1,54 @@
-export type RedMaterial = "red"
-export type GreenMaterial = "green"
-export type BlueMaterial = "blue"
-export type MaterialType = RedMaterial | GreenMaterial | BlueMaterial
+export type Nitrogen = "nitrogen"
+export type Carbon = "carbon"
+
+/// エネルギーを安定して保存できる
+export type Fuel = "fuel"
+
+/// すべてのModuleの原料
+export type Substance = "substance"
+export type MaterialType = Nitrogen | Carbon | Fuel | Substance
 
 export type Energy = "energy"
 export type Heat = "heat"
 
-export type IngredientType = MaterialType | Energy
+export type SynthesizeType = MaterialType | Energy
 
 type Amount = number
-type ProductionSpec = {
-  readonly amount: Amount
-  /// 生産に必要な1tick当たりの必要量
-  readonly ingredients: {[Ingredient in IngredientType]?: Amount}
+export type ProductionRecipe = {
+  readonly name: string
   readonly time: number
+  readonly heatProduction: number
+  readonly ingredients: { [Ingredient in SynthesizeType]?: Amount }
+  readonly productions: { [Production in SynthesizeType]?: Amount }
 }
 
-export type MaterialProductionSpec = { [Material in MaterialType]: ProductionSpec }
-
-export const defaultMaterialProductionSpec: MaterialProductionSpec = {
-  red: {
-    amount: 100,
-    ingredients: {
-      energy: 100,
-    },
+const recipes: ProductionRecipe[] = [
+  {
+    name: "compose-fuel",
     time: 1,
-  },
-  green: {
-    amount: 50,
+    heatProduction: 1,
     ingredients: {
-      energy: 50,
+      nitrogen: 1,
+      carbon: 1,
+      energy: 12,
     },
-    time: 1,
+    productions: {
+      fuel: 1,
+    },
   },
-  blue: {
-    amount: 10,
+  {
+    name: "decompose-fuel",
+    time: 1,
+    heatProduction: 1,
     ingredients: {
+      fuel: 1,
+    },
+    productions: {
+      nitrogen: 1,
+      carbon: 1,
       energy: 10,
     },
-    time: 1,
   },
-}
+]
+
+export const materialProductionRecipes = new Map<string, ProductionRecipe>(recipes.map(x => [x.name, x]))
