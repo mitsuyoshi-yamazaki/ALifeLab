@@ -49,3 +49,15 @@ export function toggleFullscreen(elementId: string): void {
 export const strictEntries = <T extends Record<string, any>>(object: T): [keyof T, T[keyof T]][] => {
   return Object.entries(object)
 }
+
+export class ValuedArrayMap<Key, Element> extends Map<Key, Array<Element>> {
+  public getValueFor(key: Key): Element[] {
+    const stored = this.get(key)
+    if (stored != null) {
+      return stored
+    }
+    const newArray: Element[] = []
+    this.set(key, newArray)
+    return newArray
+  }
+}
