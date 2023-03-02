@@ -1,3 +1,4 @@
+import type { MaterialRecipeName } from "../physics/material"
 import type { Scope } from "../physics/scope"
 import type { SourceCode } from "./source_code"
 
@@ -28,6 +29,7 @@ export type Mover = {
 
 export type MaterialSynthesizer = {
   readonly case: "materialSynthesizer"
+  readonly recipeName: MaterialRecipeName
 }
 
 export type AnyModule = Assembler | Computer | Hull | Channel | Mover | MaterialSynthesizer

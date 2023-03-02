@@ -1,8 +1,8 @@
-import { ProductionRecipe } from "./material"
+import type { MaterialRecipeName, ProductionRecipe } from "./material"
 
 export type PhysicalConstant = {
   readonly heatLossRate: number
   readonly energyHeatConversionRate: number
 
-  readonly materialProductionRecipe: Map<string, ProductionRecipe>
+  readonly materialProductionRecipe: { [RecipeName in MaterialRecipeName]: ProductionRecipe }
 }

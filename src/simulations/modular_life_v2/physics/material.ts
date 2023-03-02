@@ -11,21 +11,20 @@ export type MaterialType = Nitrogen | Carbon | Fuel | Substance
 export type Energy = "energy"
 export type Heat = "heat"
 
+export type TransferrableMaterialType = MaterialType | Energy
 export type SynthesizeType = MaterialType | Energy
 
 type Amount = number
 export type ProductionRecipe = {
-  readonly name: string
-  readonly time: number
+  // readonly time: number  // 時間がかかると中間状態を保存する必要が出るためこのバージョンでは1tickで完了とする
   readonly heatProduction: number
   readonly ingredients: { [Ingredient in SynthesizeType]?: Amount }
   readonly productions: { [Production in SynthesizeType]?: Amount }
 }
 
-const recipes: ProductionRecipe[] = [
-  {
-    name: "compose-fuel",
-    time: 1,
+export type MaterialRecipeName = "composeFuel" | "decomposeFuel"
+export const materialProductionRecipes: { [RecipeName in MaterialRecipeName]: ProductionRecipe } = {
+  composeFuel: {
     heatProduction: 1,
     ingredients: {
       nitrogen: 1,
@@ -36,9 +35,7 @@ const recipes: ProductionRecipe[] = [
       fuel: 1,
     },
   },
-  {
-    name: "decompose-fuel",
-    time: 1,
+  decomposeFuel: {
     heatProduction: 1,
     ingredients: {
       fuel: 1,
@@ -49,6 +46,4 @@ const recipes: ProductionRecipe[] = [
       energy: 10,
     },
   },
-]
-
-export const materialProductionRecipes = new Map<string, ProductionRecipe>(recipes.map(x => [x.name, x]))
+}
