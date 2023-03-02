@@ -1,9 +1,8 @@
 import { Vector } from "../../classes/physics"
+import { createScopeData, Scope } from "./physics/scope"
 
-export class TerrainCell {
-  energy = 0
-  energyProduction = 0
-  heat = 0
+export type TerrainCell = Scope & {
+  energyProduction: number
 }
 
 export class Terrain {
@@ -16,6 +15,11 @@ export class Terrain {
   public constructor(
     public readonly size: Vector,
   ) {
-    this._cells = (new Array(size.y)).fill(0).map(() => (new Array(size.x)).fill(0).map(() => new TerrainCell()))
+    this._cells = (new Array(size.y)).fill(0).map(() => (new Array(size.x)).fill(0).map((): TerrainCell => {
+      return {
+        energyProduction: 0,
+        ...createScopeData(Infinity)
+      }
+    }))
   }
 }

@@ -1,9 +1,12 @@
 import p5 from "p5"
 import { Vector } from "../../classes/physics"
 import { defaultCanvasParentId } from "../../react-components/common/default_canvas_parent_id"
+import { Ancestor } from "./ancestor/ancestor"
+import { AncestorCode } from "./ancestor/source_code"
 import { constants } from "./constants"
 import { Logger } from "./logger"
 import { P5Drawer } from "./p5_drawer"
+import { NeighbourDirections } from "./physics/direction"
 import { System } from "./system"
 import { World } from "./world"
 
@@ -40,11 +43,11 @@ const canvasSize = worldSize.mult(cellSize)
 
 const world = new World(worldSize, logger, constants.physicalConstant)
 initializeEnergySources(world)
+initializeAncestors(world)
 
 const drawer = new P5Drawer(cellSize)
-drawer.setDrawMode({
-  case: "material",
-})
+drawer.setDrawMode({ case: "material" })
+drawer.setDrawMode({ case: "life" })
 
 export const main = (): ReactConnector => {
   let isRunning = true
@@ -125,4 +128,10 @@ function initializeEnergySources(world: World): void {
       world.setEnergyProductionAt(x, y, energyProduction)
     }
   }
+}
+
+function initializeAncestors(world: World): void {
+  world.addAncestor(Ancestor.minimum(AncestorCode.moveCode(NeighbourDirections.right, 10)), world.size.div(3).floor())
+  world.addAncestor(Ancestor.test(AncestorCode.stillCode()), world.size.div(2).floor())
+  world.addAncestor(Ancestor.minimum(AncestorCode.moveCode(NeighbourDirections.bottom, 11)), world.size.div(3).mult(2).floor())
 }
