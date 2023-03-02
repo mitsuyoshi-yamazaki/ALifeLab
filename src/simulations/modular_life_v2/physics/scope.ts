@@ -4,10 +4,9 @@ import type { MaterialType, Energy } from "../physics/material"
 
 type MaterialStore = { [Material in (MaterialType | Energy)]: number }
 
-export type ScopeId = number
+export type ScopeId = string
 
 export type ScopeUpdate = {
-  readonly scopeId: ScopeId
   readonly amount: MaterialStore
   heat: number
   readonly hullToAdd: Hull[]
@@ -21,11 +20,13 @@ export type Scope = {
   heat: number
 
   readonly hull: Hull[]
+
+  scopeUpdate: ScopeUpdate | null
 }
 
-export const createScopeData = (capacity: number): Scope => {
+export const createScopeData = (scopeType: string, capacity: number): Scope => {
   return {
-    scopeId: createScopeId(),
+    scopeId: createScopeId(scopeType),
     amount: {
       nitrogen: 0,
       carbon: 0,
@@ -36,12 +37,12 @@ export const createScopeData = (capacity: number): Scope => {
     capacity,
     heat: 0,
     hull: [],
+    scopeUpdate: null,
   }
 }
 
-export const createScopeUpdate = (targetScope: Scope): ScopeUpdate => {
+export const createScopeUpdate = (): ScopeUpdate => {
   return {
-    scopeId: targetScope.scopeId,
     amount: {
       nitrogen: 0,
       carbon: 0,
@@ -56,10 +57,10 @@ export const createScopeUpdate = (targetScope: Scope): ScopeUpdate => {
 }
 
 let scopeId = 0
-const createScopeId = (): ScopeId => {
+const createScopeId = (scopeType: string): ScopeId => {
   const id = scopeId
   scopeId += 1
-  return id
+  return `${scopeType}-${id}`
 }
 
 export const updateScope = (scope: Scope, update: ScopeUpdate): void => {

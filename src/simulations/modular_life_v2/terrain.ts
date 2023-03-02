@@ -15,10 +15,10 @@ export class Terrain {
   public constructor(
     public readonly size: Vector,
   ) {
-    this._cells = (new Array(size.y)).fill(0).map(() => (new Array(size.x)).fill(0).map((): TerrainCell => {
+    this._cells = (new Array(size.y)).fill(0).map((_, y) => (new Array(size.x)).fill(0).map((_, x): TerrainCell => {
       return {
         energyProduction: 0,
-        ...createScopeData(Infinity)
+        ...createScopeData(`Cell(${x},${y})`, Infinity)
       }
     }))
   }

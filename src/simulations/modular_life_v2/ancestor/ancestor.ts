@@ -31,7 +31,7 @@ export const Ancestor = {
         mover: [mover],
         materialSynthesizer: [],
       },
-      ...createScopeData(1000),
+      ...createScopeData("Life", 1000),
     }
   },
 
@@ -49,7 +49,7 @@ export const Ancestor = {
         mover: [{ case: "mover" }, { case: "mover" }, { case: "mover" }, { case: "mover" }],
         materialSynthesizer: [],
       },
-      ...createScopeData(1000),
+      ...createScopeData("Life", 1000),
     }
   },
 

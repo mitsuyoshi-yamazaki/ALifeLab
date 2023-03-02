@@ -43,3 +43,10 @@ export type MaterialTransferRequestType = MaterialTransferRequest["case"]
 export type ComputeRequest = ComputeRequestMove
   | MaterialTransferRequest
 export type ComputeRequestType = ComputeRequest["case"]
+
+export type GenericComputeRequest<RequestType extends ComputeRequestType> = RequestType extends "move" ? ComputeRequestMove :
+  RequestType extends "uptake" ? ComputeRequestUptake :
+  RequestType extends "excretion" ? ComputeRequestExcretion :
+  RequestType extends "synthesize" ? ComputeRequestSynthesize :
+  RequestType extends "assemble" ? ComputeRequestAssemble :
+  never

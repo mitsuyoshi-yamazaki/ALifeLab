@@ -14,6 +14,8 @@ export const AncestorCode = {
   /// 一定方向へ移動するのみ
   moveCode(direction: NeighbourDirection, moveInterval: number): SourceCode {
     return ([api, environment]: ComputeArgument) => {
+      api.uptake("energy", 10)
+
       if (environment.time % moveInterval === 0) {
         api.move(direction)
       }
