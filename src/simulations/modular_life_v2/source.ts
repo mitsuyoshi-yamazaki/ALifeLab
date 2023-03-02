@@ -6,6 +6,7 @@ import { AncestorCode } from "./ancestor/source_code"
 import { constants } from "./constants"
 import { Logger } from "./logger"
 import { P5Drawer } from "./p5_drawer"
+import { NeighbourDirections } from "./physics/direction"
 import { System } from "./system"
 import { World } from "./world"
 
@@ -130,7 +131,7 @@ function initializeEnergySources(world: World): void {
 }
 
 function initializeAncestors(world: World): void {
-  world.addAncestor(Ancestor.minimum(AncestorCode.stillCode()), world.size.div(3).floor())
+  world.addAncestor(Ancestor.minimum(AncestorCode.moveCode(NeighbourDirections.right, 10)), world.size.div(3).floor())
   world.addAncestor(Ancestor.test(AncestorCode.stillCode()), world.size.div(2).floor())
-  world.addAncestor(Ancestor.minimum(AncestorCode.stillCode()), world.size.div(3).mult(2).floor())
+  world.addAncestor(Ancestor.minimum(AncestorCode.moveCode(NeighbourDirections.bottom, 11)), world.size.div(3).mult(2).floor())
 }
