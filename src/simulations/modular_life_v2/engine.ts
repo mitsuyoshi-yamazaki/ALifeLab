@@ -1,6 +1,6 @@
-import { Life, MaterialTransferRequest, MaterialTransferRequestType } from "./api_request"
+import { ComputeRequestUptake, Life, MaterialTransferRequest, MaterialTransferRequestType } from "./api_request"
 import { PhysicalConstant } from "./physics/physical_constant"
-import { Scope } from "./physics/scope"
+import { Scope, ScopeUpdate } from "./physics/scope"
 import { TerrainCell } from "./terrain"
 
 export type ScopeOperation = {
@@ -14,16 +14,22 @@ export class Engine {
   ) {
   }
 
+  // FixMe: 実装感を掴むため
+  public temp_calculateUptakeOperations(scope: Scope, operations: { life: Life, request: ComputeRequestUptake[] }): void {
+    
+  }
+
   public celculateScope(scope: Scope, operations: ScopeOperation[]): void {
 
   }
 
-  // TODO: celculateScopeに統合する？
-  public calculateCell(cell: TerrainCell): void {
-    const energyLoss = Math.floor(cell.amount.energy * this.physicalConstant.energyHeatConversionRate)
-    cell.amount.energy = cell.amount.energy - energyLoss + cell.energyProduction
-    cell.heat += energyLoss
+  // TODO: Scope間のMaterialTransfer
 
-    cell.heat = Math.floor(cell.heat * (1 - this.physicalConstant.heatLossRate))
+  public calculateTerrainCell(cell: TerrainCell, scopeUpdate: ScopeUpdate): void {
+    const energyLoss = Math.floor(cell.amount.energy * this.physicalConstant.energyHeatConversionRate)
+    scopeUpdate.amount.energy = - energyLoss + cell.energyProduction
+
+    const heatLoss = Math.floor(cell.heat * this.physicalConstant.heatLossRate)
+    scopeUpdate.heat = energyLoss - heatLoss
   }
 }

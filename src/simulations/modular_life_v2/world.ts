@@ -5,7 +5,7 @@ import { Logger } from "./logger"
 import { Terrain, TerrainCell } from "./terrain"
 import { PhysicalConstant } from "./physics/physical_constant"
 import { Engine, ScopeOperation } from "./engine"
-import { Scope } from "./physics/scope"
+import { createScopeUpdate, Scope, ScopeId, ScopeUpdate, updateScope } from "./physics/scope"
 import type { ComputeRequestMove, Life, MaterialTransferRequest, MaterialTransferRequestType } from "./api_request"
 import type { AnyModule, Computer, ModuleType } from "./module/module"
 import type { MaterialRecipeName, MaterialType, TransferrableMaterialType } from "./physics/material"
@@ -28,6 +28,7 @@ export class World {
   private _t = 0
   private _terrain: Terrain
   private engine: Engine
+  private scopes = new Map<ScopeId, Scope>()
 
   public constructor(
     public readonly size: Vector,
@@ -35,12 +36,18 @@ export class World {
     physicalConstant: PhysicalConstant,
   ) {
     this._terrain = new Terrain(size)
+    this.terrain.cells.forEach(row => {
+      row.forEach(cell => {
+        this.scopes.set(cell.scopeId, cell)
+      })
+    })
     this.engine = new Engine(physicalConstant)
   }
 
   public addAncestor(life: Life, atPosition: Vector): void {
     const cell = this.getTerrainCellAt(atPosition)
     cell.hull.push(life)
+    this.scopes.set(life.scopeId, life)
   }
 
   public setEnergyProductionAt(x: number, y: number, energyProduction: number): void {
@@ -58,23 +65,22 @@ export class World {
       time: this.t,
     }
 
-    const calculateScope = (scope: Scope): { movedLifes: { life: Life, moveRequest: ComputeRequestMove }[] } => {
-      const results: { movedLifes: { life: Life, moveRequest: ComputeRequestMove }[] } = {
-        movedLifes: [],
+    const scopeUpdates: ScopeUpdate[] = []
+
+    const calculateScope = (scope: Scope, scopeUpdate: () => ScopeUpdate): { movedLives: { life: Life, moveRequest: ComputeRequestMove }[] } => {
+      const results: { movedLives: { life: Life, moveRequest: ComputeRequestMove }[] } = {
+        movedLives: [],
       }
       const operations: ScopeOperation[] = []
 
-      const lifeIndicesToRemove: number[] = []
-      const livesToAdd: Life[] = []
-
-      scope.hull.forEach((life, index) => {
+      scope.hull.forEach(life => {
         const computer = life.internalModules.computer[0] // 複数のComputerを実行できるようにはなっていない
         if (computer != null) {
           const requests = this.runLifeCode(computer, life, scope, environment)
 
           if (requests.moveRequest != null) {
-            lifeIndicesToRemove.push(index)
-            results.movedLifes.push({
+            scopeUpdate().hullToRemove.push(life)
+            results.movedLives.push({
               life,
               moveRequest: requests.moveRequest,
             })
@@ -91,42 +97,50 @@ export class World {
           })
         }
 
-        const childResults = calculateScope(life)
-        livesToAdd.push(...childResults.movedLifes.map(x => x.life))
-      })
+        let childUpdate: ScopeUpdate | null = null
+        const getUpdate = (): ScopeUpdate => {
+          if (childUpdate == null) {
+            childUpdate = createScopeUpdate(life)
+            scopeUpdates.push(childUpdate)
+          }
+          return childUpdate
+        }
 
-      lifeIndicesToRemove.reverse()
-      lifeIndicesToRemove.forEach(index => {
-        scope.hull.splice(index, 1)
+        const childResults = calculateScope(life, getUpdate)
+        scopeUpdate().hullToAdd.push(...childResults.movedLives.map(x => x.life))
       })
-
-      scope.hull.push(...livesToAdd)
 
       this.engine.celculateScope(scope, operations)
 
       return results
     }
     
-    const movedLives: {life: Life, destinationPosition: Vector}[] = []
-
     this.terrain.cells.forEach((row, y) => {
       row.forEach((cell, x) => {
-        const result = calculateScope(cell)
+        const scopeUpdate = createScopeUpdate(cell)
+        scopeUpdates.push(scopeUpdate)
 
-        result.movedLifes.forEach(({ life, moveRequest }) => {
+        const result = calculateScope(cell, () => scopeUpdate)
+
+        result.movedLives.forEach(({ life, moveRequest }) => {
           const destinationPosition = this.getNewPosition(new Vector(x, y), moveRequest.direction)
-
-          movedLives.push({
-            life,
-            destinationPosition,
-          })
+          const destinationCell = this.getTerrainCellAt(destinationPosition)
+          const update = createScopeUpdate(destinationCell)
+          update.hullToAdd.push(life)
+          scopeUpdates.push(update)
         })
+
+        this.engine.calculateTerrainCell(cell, scopeUpdate)
       })
     })
 
-    movedLives.forEach(({ life, destinationPosition }) => {
-      const destinationCell = this.getTerrainCellAt(destinationPosition)
-      destinationCell.hull.push(life)
+    scopeUpdates.forEach(update => {
+      const scope = this.scopes.get(update.scopeId)
+      if (scope == null) {
+        throw `Updated scope (${update.scopeId}) does not exist`
+      }
+
+      updateScope(scope, update)
     })
 
     this._t += 1
