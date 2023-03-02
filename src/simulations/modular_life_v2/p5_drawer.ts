@@ -2,6 +2,7 @@ import p5 from "p5"
 import { Color } from "../../classes/color"
 import { strictEntries } from "../../classes/utilities"
 import { ModuleType } from "./module/module"
+import { TransferrableMaterialType } from "./physics/material"
 import { TerrainCell } from "./terrain"
 import { World } from "./world"
 
@@ -38,6 +39,14 @@ const moduleColor: { [M in ModuleType]: Color } = {
   channel: new Color(0xFF, 0xFF, 0x00),
   mover: new Color(0x60, 0x60, 0x60),
   materialSynthesizer: new Color(0xFF, 0xFF, 0xFF),
+}
+
+const materialColor: { [M in TransferrableMaterialType]: Color } = {
+  energy: new Color(0xFF, 0xFF, 0x00),
+  nitrogen: new Color(0xFF, 0xFF, 0xFF),
+  carbon: new Color(0xFF, 0xFF, 0xFF),
+  fuel: new Color(0xFF, 0xFF, 0xFF),
+  substance: new Color(0xFF, 0xFF, 0xFF),
 }
 
 export class P5Drawer {
@@ -104,6 +113,13 @@ export class P5Drawer {
         p.noStroke()
         p.fill(hullColor)
         p.ellipse(centerX, centerY, size, size)
+
+        if (hull.amount.energy > 0) {
+          const drawSize = Math.min(hull.amount.energy / hull.capacity, 1) * size
+
+          p.fill(materialColor.energy.p5(p))
+          p.ellipse(centerX, centerY, drawSize, drawSize)
+        }
 
         p.strokeWeight(hullWeight)
         p.strokeCap(p.SQUARE)
