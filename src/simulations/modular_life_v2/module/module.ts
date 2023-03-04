@@ -1,47 +1,48 @@
-import type { MaterialRecipeName } from "../physics/material"
+import type { MaterialRecipeName, TransferrableMaterialType } from "../physics/material"
 import type { Scope } from "../physics/scope"
 import type { SourceCode } from "./source_code"
 
-export type Hull = Scope & {
+export type HullInterface = Scope & {
   readonly case: "hull"
-  hits: number
+  readonly hits: number
   readonly hitsMax: number
-  readonly internalModules: { [M in InternalModuleType]: Module<M>[] } // HullはScope.hullに入っている
+  // readonly internalModules: { [M in InternalModuleType]: Module<M>[] } // HullはScope.hullに入っている
   readonly size: number
 }
 
-export type Computer = {
+export type ComputerInterface = {
   readonly case: "computer"
   readonly code: SourceCode
 }
 
-export type Assembler = {
+export type AssemblerInterface = {
   readonly case: "assembler"
 }
 
-export type Channel = {
+export type ChannelInterface = {
   readonly case: "channel"
+  readonly materialType: TransferrableMaterialType
 }
 
-export type Mover = {
+export type MoverInterface = {
   readonly case: "mover"
 }
 
-export type MaterialSynthesizer = {
+export type MaterialSynthesizerInterface = {
   readonly case: "materialSynthesizer"
   readonly recipeName: MaterialRecipeName
 }
 
-export type AnyModule = Assembler | Computer | Hull | Channel | Mover | MaterialSynthesizer
-export type Module<T extends ModuleType> = T extends "computer" ? Computer :
-  T extends "assembler" ? Assembler :
-  T extends "hull" ? Hull :
-  T extends "channel" ? Channel :
-  T extends "mover" ? Mover :
-  T extends "materialSynthesizer" ? MaterialSynthesizer :
+export type AnyModuleInterface = AssemblerInterface | ComputerInterface | HullInterface | ChannelInterface | MoverInterface | MaterialSynthesizerInterface
+export type ModuleInterface<T extends ModuleType> = T extends "computer" ? ComputerInterface :
+  T extends "assembler" ? AssemblerInterface :
+  T extends "hull" ? HullInterface :
+  T extends "channel" ? ChannelInterface :
+  T extends "mover" ? MoverInterface :
+  T extends "materialSynthesizer" ? MaterialSynthesizerInterface :
   never
   
-export type ModuleType = AnyModule["case"]
+export type ModuleType = AnyModuleInterface["case"]
 export const getShortModuleName = (moduleType: ModuleType): string => {
   switch (moduleType) {
   case "assembler":
@@ -63,5 +64,3 @@ export const getShortModuleName = (moduleType: ModuleType): string => {
   }
   }
 }
-
-export type InternalModuleType = Exclude<ModuleType, "hull">

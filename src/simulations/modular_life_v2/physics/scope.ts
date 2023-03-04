@@ -1,25 +1,25 @@
 import { strictEntries } from "../../../classes/utilities"
-import type { Hull } from "../module/module"
+import type { HullInterface } from "../module/module"
 import type { MaterialType, Energy } from "../physics/material"
 
-type MaterialStore = { [Material in (MaterialType | Energy)]: number }
+export type MaterialStore = { [Material in (MaterialType | Energy)]: number }
 
 export type ScopeId = string
 
 export type ScopeUpdate = {
   readonly amount: MaterialStore
   heat: number
-  readonly hullToAdd: Hull[]
-  readonly hullToRemove: Hull[]
+  readonly hullToAdd: HullInterface[]
+  readonly hullToRemove: HullInterface[]
 }
 
 export type Scope = {
   readonly scopeId: ScopeId
   readonly amount: MaterialStore
-  capacity: number
+  readonly capacity: number
   heat: number
 
-  readonly hull: Hull[]
+  readonly hull: HullInterface[]
 
   scopeUpdate: ScopeUpdate | null
 }
