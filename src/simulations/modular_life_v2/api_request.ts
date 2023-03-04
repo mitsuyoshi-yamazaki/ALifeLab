@@ -1,6 +1,7 @@
-import type { Hull, ModuleType } from "./module/module"
+import type { ModuleType } from "./module/module"
 import type { MaterialRecipeName, TransferrableMaterialType } from "./physics/material"
 import type { NeighbourDirection } from "./physics/direction"
+import type { Hull } from "./module/module_object/hull"
 
 export type Life = Hull
 
@@ -12,12 +13,12 @@ export type ComputeRequestMove = {
 export type ComputeRequestUptake = {
   readonly case: "uptake"
   readonly materialType: TransferrableMaterialType
-  readonly amount: number
+  readonly numberOfChannels: number
 }
 export type ComputeRequestExcretion = {
   readonly case: "excretion"
   readonly materialType: TransferrableMaterialType
-  readonly amount: number
+  readonly numberOfChannels: number
 }
 export type ComputeRequestSynthesize = {
   readonly case: "synthesize"

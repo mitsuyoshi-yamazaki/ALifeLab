@@ -5,11 +5,12 @@ import { Logger } from "./logger"
 import { Terrain, TerrainCell } from "./terrain"
 import { PhysicalConstant } from "./physics/physical_constant"
 import { Engine } from "./engine"
-import { createScopeUpdate, Scope, ScopeId, ScopeUpdate, updateScope } from "./physics/scope"
+import { createScopeUpdate, Scope, updateScope } from "./physics/scope"
 import type { ComputeRequestMove, ComputeRequestUptake, GenericComputeRequest, Life, MaterialTransferRequestType } from "./api_request"
-import type { AnyModule, Computer, ModuleType } from "./module/module"
+import type { AnyModuleInterface, ComputerInterface, ModuleType } from "./module/module"
 import type { MaterialRecipeName, MaterialType, TransferrableMaterialType } from "./physics/material"
 import type { Environment } from "./physics/environment"
+import { AncestorSpec, Spawner } from "./ancestor/spawner"
 
 type LifeRequests = {
   moveRequest: ComputeRequestMove | null
@@ -27,6 +28,7 @@ export class World {
   private _t = 0
   private _terrain: Terrain
   private engine: Engine
+  private spawner = new Spawner()
 
   public constructor(
     public readonly size: Vector,
@@ -37,7 +39,8 @@ export class World {
     this.engine = new Engine(physicalConstant, logger)
   }
 
-  public addAncestor(life: Life, atPosition: Vector): void {
+  public addAncestor(ancestorSpec: AncestorSpec, atPosition: Vector): void {
+    const life = this.spawner.createLife(ancestorSpec)
     const cell = this.getTerrainCellAt(atPosition)
     cell.hull.push(life)
   }
@@ -57,10 +60,10 @@ export class World {
       time: this.t,
     }
 
-    const scopesToUpdate: Scope[] = []
+    const allScopes: Scope[] = []
 
     const calculateScope = (scope: Scope): { movedLives: { life: Life, moveRequest: ComputeRequestMove }[] } => {
-      scopesToUpdate.push(scope)
+      allScopes.push(scope)
 
       const results: { movedLives: { life: Life, moveRequest: ComputeRequestMove }[] } = {
         movedLives: [],
@@ -75,9 +78,6 @@ export class World {
           const requests = this.runLifeCode(computer, life, scope, environment)
 
           if (requests.moveRequest != null) {
-            if (scope.scopeUpdate == null) {
-              scope.scopeUpdate = createScopeUpdate()
-            }
             scope.scopeUpdate.hullToRemove.push(life)
             results.movedLives.push({
               life,
@@ -92,22 +92,9 @@ export class World {
               requests: uptakeRequests,
             })
           }
-
-          // operations.push({
-          //   life,
-          //   requests: requests.materialTransferRequests,
-          // })
-        } else {
-          // operations.push({
-          //   life,
-          //   requests: new Map(),
-          // })
         }
 
         const childResults = calculateScope(life)
-        if (scope.scopeUpdate == null) {
-          scope.scopeUpdate = createScopeUpdate()
-        }
         scope.scopeUpdate.hullToAdd.push(...childResults.movedLives.map(x => x.life))
       })
 
@@ -118,17 +105,11 @@ export class World {
     
     this.terrain.cells.forEach((row, y) => {
       row.forEach((cell, x) => {
-        if (cell.scopeUpdate == null) {
-          cell.scopeUpdate = createScopeUpdate()  // movedLivesの処理で生成済みの場合がある
-        }
         const result = calculateScope(cell)
 
         result.movedLives.forEach(({ life, moveRequest }) => {
           const destinationPosition = this.getNewPosition(new Vector(x, y), moveRequest.direction)
           const destinationCell = this.getTerrainCellAt(destinationPosition)
-          if (destinationCell.scopeUpdate == null) {
-            destinationCell.scopeUpdate = createScopeUpdate()
-          }
           destinationCell.scopeUpdate.hullToAdd.push(life)
         })
 
@@ -136,13 +117,9 @@ export class World {
       })
     })
 
-    scopesToUpdate.forEach(scope => {
-      if (scope.scopeUpdate == null) {
-        return
-      }
-      
+    allScopes.forEach(scope => {
       updateScope(scope, scope.scopeUpdate)
-      scope.scopeUpdate = null
+      scope.scopeUpdate = createScopeUpdate(scope)
     })
 
     this._t += 1
@@ -174,7 +151,7 @@ export class World {
   }
 
   // ---- API ---- //
-  private runLifeCode(computer: Computer, life: Life, scope: Scope, environment: Environment): LifeRequests {
+  private runLifeCode(computer: ComputerInterface, life: Life, scope: Scope, environment: Environment): LifeRequests {
     const lifeRequests: LifeRequests = {
       moveRequest: null,
       materialTransferRequests: {},
@@ -203,8 +180,8 @@ export class World {
       getHeat(): number {
         return life.heat
       },
-      modules(): AnyModule[] {
-        const internalModules = Array.from(Object.values(life.internalModules)).flatMap((x): AnyModule[] => x)
+      modules(): AnyModuleInterface[] {
+        const internalModules = Array.from(Object.values(life.internalModules)).flatMap((x): AnyModuleInterface[] => x)
 
         return [
           life,
@@ -217,18 +194,18 @@ export class World {
           direction,
         }
       },
-      uptake(materialType: TransferrableMaterialType, amount: number): void {
+      uptake(materialType: TransferrableMaterialType, numberOfChannels: number): void {
         addMaterialTransferRequest({
           case: "uptake",
           materialType,
-          amount,
+          numberOfChannels,
         })
       },
-      excretion(materialType: TransferrableMaterialType, amount: number): void {
+      excretion(materialType: TransferrableMaterialType, numberOfChannels: number): void {
         addMaterialTransferRequest({
           case: "excretion",
           materialType,
-          amount,
+          numberOfChannels,
         })
       },
       synthesize(recipe: MaterialRecipeName): void {

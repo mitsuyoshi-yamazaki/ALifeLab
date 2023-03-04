@@ -3,7 +3,7 @@ import { ComputeRequestUptake, Life, MaterialTransferRequest, MaterialTransferRe
 import { Logger } from "./logger"
 import { TransferrableMaterialType } from "./physics/material"
 import { PhysicalConstant } from "./physics/physical_constant"
-import { createScopeUpdate, Scope, ScopeUpdate } from "./physics/scope"
+import { Scope, ScopeUpdate } from "./physics/scope"
 import { TerrainCell } from "./terrain"
 
 export type ScopeOperation = {
@@ -40,17 +40,10 @@ export class Engine {
     const totalAmount = operations.reduce((result, current) => result + current.amount, 0)
     if (scope.amount[materialType] < totalAmount) {
       if (operations.length <= 1 && operations[0] != null) {
-        if (scope.scopeUpdate == null) {
-          scope.scopeUpdate = createScopeUpdate()
-        }
-
         const amount = scope.amount[materialType]
         scope.scopeUpdate.amount[materialType] -= amount
 
         const life = operations[0].life
-        if (life.scopeUpdate == null) {
-          life.scopeUpdate = createScopeUpdate()
-        }
         life.scopeUpdate.amount[materialType] += amount
 
       } else {
@@ -61,24 +54,18 @@ export class Engine {
     }
 
     const scopeUpdate = ((): ScopeUpdate => {
-      if (scope.scopeUpdate == null) {
-        scope.scopeUpdate = createScopeUpdate()
-      }
       return scope.scopeUpdate
     })()
 
     operations.forEach(({ life, amount }) => {
       scopeUpdate.amount[materialType] -= amount
 
-      if (life.scopeUpdate == null) {
-        life.scopeUpdate = createScopeUpdate()
-      }
       life.scopeUpdate.amount[materialType] += amount
     })
   }
 
   public celculateScope(scope: Scope, operations: ScopeOperation[]): void {
-
+    
   }
 
   // TODO: Scope間のMaterialTransfer
