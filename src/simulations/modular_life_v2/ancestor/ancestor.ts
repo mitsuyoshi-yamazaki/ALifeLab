@@ -1,4 +1,4 @@
-import { ModuleInterface } from "../module/module"
+import { ModuleDefinition, ModuleInterface } from "../module/module"
 import { InternalModuleType } from "../module/module_object/module_object"
 import { SourceCode } from "../module/source_code"
 import { AncestorSpec } from "./spawner"
@@ -39,7 +39,7 @@ export const Ancestor = {
 
   /// 試験用
   test(code: SourceCode): AncestorSpec {
-    const internalModules: ModuleInterface<InternalModuleType>[] = [
+    const internalModules: ModuleDefinition<InternalModuleType>[] = [
       {
         case: "computer",
         code,

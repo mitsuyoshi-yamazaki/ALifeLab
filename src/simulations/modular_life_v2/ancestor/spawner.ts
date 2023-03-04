@@ -1,11 +1,11 @@
 import { Life } from "../api_request"
-import { ModuleInterface } from "../module/module"
+import { ModuleDefinition } from "../module/module"
 import { Hull } from "../module/module_object/hull"
 import { createModule, InternalModuleType } from "../module/module_object/module_object"
 
 export type AncestorSpec = {
   readonly hullSize: number
-  readonly internalModules: ModuleInterface<InternalModuleType>[]
+  readonly internalModules: ModuleDefinition<InternalModuleType>[]
 }
 
 /// 祖先種をSpawnさせる万能Assembler

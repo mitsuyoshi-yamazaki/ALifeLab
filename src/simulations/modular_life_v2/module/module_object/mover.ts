@@ -1,9 +1,11 @@
-import type { MoverInterface } from "../module"
+import { MoverInterface } from "../module"
+import { AbstractModule } from "./abstract_module"
 
-export class Mover implements MoverInterface {
+export class Mover extends AbstractModule<"mover"> implements MoverInterface {
   readonly case: "mover"
 
   public constructor(
   ) {
+    super()
   }
 }

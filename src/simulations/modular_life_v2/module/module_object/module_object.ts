@@ -1,4 +1,4 @@
-import { ModuleInterface, ModuleType } from "../module"
+import { ModuleDefinition, ModuleType } from "../module"
 import { Assembler } from "./assembler"
 import { Channel } from "./channel"
 import { Computer } from "./computer"
@@ -20,7 +20,7 @@ export type Module<T extends ModuleType> = T extends "computer" ? Computer :
 export type InternalModule = Exclude<AnyModule, Hull>
 export type InternalModuleType = InternalModule["case"]
 
-export const createModule = <M extends ModuleType>(moduleDefinition: ModuleInterface<M>): Module<M> => {
+export const createModule = <M extends ModuleType>(moduleDefinition: ModuleDefinition<M>): Module<M> => {
   switch (moduleDefinition.case) {
   case "hull":
     return new Hull(moduleDefinition.size) as Module<M>

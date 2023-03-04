@@ -6,12 +6,17 @@ import { Terrain, TerrainCell } from "./terrain"
 import { PhysicalConstant } from "./physics/physical_constant"
 import { Engine } from "./engine"
 import { createScopeUpdate, Scope, updateScope } from "./physics/scope"
-import type { ComputeRequestMove, ComputeRequestUptake, GenericComputeRequest, Life, MaterialTransferRequestType } from "./api_request"
-import type { AnyModuleInterface, ComputerInterface, ModuleType } from "./module/module"
-import type { MaterialRecipeName, MaterialType, TransferrableMaterialType } from "./physics/material"
+import type { ComputeRequestMove, ComputeRequestUptake, GenericComputeRequest, Life, MaterialTransferRequest, MaterialTransferRequestType } from "./api_request"
+import type { AnyModuleDefinition, ComputerInterface, HullInterface, ModuleId, ModuleInterface, ModuleType } from "./module/module"
+import type { MaterialType, TransferrableMaterialType } from "./physics/material"
 import type { Environment } from "./physics/environment"
 import { AncestorSpec, Spawner } from "./ancestor/spawner"
+import { InternalModuleType } from "./module/module_object/module_object"
 
+type LifeRequestCache = {
+  moveRequest: ComputeRequestMove | null
+  readonly materialTransferRequests: { [Id: string]: MaterialTransferRequest }
+}
 type LifeRequests = {
   moveRequest: ComputeRequestMove | null
   readonly materialTransferRequests: { [RequestType in MaterialTransferRequestType]?: GenericComputeRequest<RequestType>[] }
@@ -152,22 +157,35 @@ export class World {
 
   // ---- API ---- //
   private runLifeCode(computer: ComputerInterface, life: Life, scope: Scope, environment: Environment): LifeRequests {
-    const lifeRequests: LifeRequests = {
+    const requestCache: LifeRequestCache = {
       moveRequest: null,
       materialTransferRequests: {},
     }
-    const api = this.createApiFor(life, scope, lifeRequests)
+    const api = this.createApiFor(life, scope, requestCache)
     computer.code([api, environment])
 
-    return lifeRequests
+    const result: LifeRequests = {
+      moveRequest: requestCache.moveRequest,
+      materialTransferRequests: {},
+    }
+
+    const addRequest = <RequestType extends MaterialTransferRequestType>(request: GenericComputeRequest<RequestType>): void => {
+      if (result.materialTransferRequests[request.case] == null) {
+        result.materialTransferRequests[request.case] = []
+      }
+      (result.materialTransferRequests[request.case] as GenericComputeRequest<RequestType>[]).push(request)
+    }
+
+    Array.from(Object.values(requestCache.materialTransferRequests)).forEach(request => {
+      addRequest(request)
+    })
+
+    return result
   }
 
-  private createApiFor(life: Life, scope: Scope, lifeRequests: LifeRequests): ComputerApi {
-    const addMaterialTransferRequest = <RequestType extends MaterialTransferRequestType>(request: GenericComputeRequest<RequestType>): void => {
-      if (lifeRequests.materialTransferRequests[request.case] == null) {
-        lifeRequests.materialTransferRequests[request.case] = []
-      }
-      (lifeRequests.materialTransferRequests[request.case] as GenericComputeRequest<RequestType>[]).push(request)
+  private createApiFor(life: Life, scope: Scope, requestCache: LifeRequestCache): ComputerApi {
+    const addMaterialTransferRequest = (request: MaterialTransferRequest): void => {
+      requestCache.materialTransferRequests[request.moduleId] = request
     }
 
     return {
@@ -180,44 +198,45 @@ export class World {
       getHeat(): number {
         return life.heat
       },
-      modules(): AnyModuleInterface[] {
-        const internalModules = Array.from(Object.values(life.internalModules)).flatMap((x): AnyModuleInterface[] => x)
+      getModules<M extends ModuleType>(moduleType: M): ModuleInterface<M>[] {
+        if (moduleType === "hull") {
+          return [life as HullInterface as ModuleInterface<M>]
+        }
 
-        return [
-          life,
-          ...internalModules,
-        ]
+        const internalModuleType: InternalModuleType = moduleType
+        return Array.from(Object.values(life.internalModules[internalModuleType]))
       },
       move(direction: NeighbourDirection): void {
-        lifeRequests.moveRequest = {
+        requestCache.moveRequest = {
           case: "move",
           direction,
         }
       },
-      uptake(materialType: TransferrableMaterialType, numberOfChannels: number): void {
+      uptake(materialType: TransferrableMaterialType, moduleId: ModuleId<"channel">): void {
         addMaterialTransferRequest({
           case: "uptake",
           materialType,
-          numberOfChannels,
+          moduleId,
         })
       },
-      excretion(materialType: TransferrableMaterialType, numberOfChannels: number): void {
+      excretion(materialType: TransferrableMaterialType, moduleId: ModuleId<"channel">): void {
         addMaterialTransferRequest({
           case: "excretion",
           materialType,
-          numberOfChannels,
+          moduleId,
         })
       },
-      synthesize(recipe: MaterialRecipeName): void {
+      synthesize(moduleId: ModuleId<"materialSynthesizer">): void {
         addMaterialTransferRequest({
           case: "synthesize",
-          recipe,
+          moduleId,
         })
       },
-      assemble(moduleType: ModuleType): void {
+      assemble(moduleId: ModuleId<"assembler">, moduleDefinition: AnyModuleDefinition): void {
         addMaterialTransferRequest({
           case: "assemble",
-          moduleType,
+          moduleId,
+          moduleDefinition,
         })
       },
     }

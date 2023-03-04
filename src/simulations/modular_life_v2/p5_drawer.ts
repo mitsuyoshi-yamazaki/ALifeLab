@@ -124,7 +124,7 @@ export class P5Drawer {
         p.strokeWeight(hullWeight)
         p.strokeCap(p.SQUARE)
 
-        const moverCount = hull.internalModules.mover.length
+        const moverCount = Object.keys(hull.internalModules.mover).length
         if (moverCount > 0) {
           const drawSize = p.PI * 2 * (moverCount / ((hull.size - 1) * 4))
           const fromAngle = (p.PI / 2) - (drawSize / 2)
@@ -135,7 +135,7 @@ export class P5Drawer {
           p.arc(centerX, centerY, size, size, fromAngle, toAngle)
         }
 
-        const channelCount = hull.internalModules.channel.length
+        const channelCount = Object.keys(hull.internalModules.channel).length
         if (channelCount > 0) {
           const drawSize = p.PI * 2 * (channelCount / ((hull.size - 1) * 4))
           const fromAngle = (p.PI / 2) * 3 - (drawSize / 2)

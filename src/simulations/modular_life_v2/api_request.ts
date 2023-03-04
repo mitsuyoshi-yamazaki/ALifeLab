@@ -1,7 +1,7 @@
-import type { ModuleType } from "./module/module"
-import type { MaterialRecipeName, TransferrableMaterialType } from "./physics/material"
+import type { AnyModuleDefinition, ModuleId } from "./module/module"
 import type { NeighbourDirection } from "./physics/direction"
 import type { Hull } from "./module/module_object/hull"
+import { TransferrableMaterialType } from "./physics/material"
 
 export type Life = Hull
 
@@ -13,20 +13,21 @@ export type ComputeRequestMove = {
 export type ComputeRequestUptake = {
   readonly case: "uptake"
   readonly materialType: TransferrableMaterialType
-  readonly numberOfChannels: number
+  readonly moduleId: ModuleId<"channel">
 }
 export type ComputeRequestExcretion = {
   readonly case: "excretion"
   readonly materialType: TransferrableMaterialType
-  readonly numberOfChannels: number
+  readonly moduleId: ModuleId<"channel">
 }
 export type ComputeRequestSynthesize = {
   readonly case: "synthesize"
-  readonly recipe: MaterialRecipeName
+  readonly moduleId: ModuleId<"materialSynthesizer">
 }
 export type ComputeRequestAssemble = {
   readonly case: "assemble"
-  readonly moduleType: ModuleType
+  readonly moduleId: ModuleId<"assembler">
+  readonly moduleDefinition: AnyModuleDefinition
 }
 
 export type IntraScopeMaterialTransferRequest = ComputeRequestSynthesize

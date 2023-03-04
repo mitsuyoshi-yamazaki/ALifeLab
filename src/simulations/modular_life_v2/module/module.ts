@@ -2,36 +2,73 @@ import type { MaterialRecipeName, TransferrableMaterialType } from "../physics/m
 import type { Scope } from "../physics/scope"
 import type { SourceCode } from "./source_code"
 
-export type HullInterface = Scope & {
-  readonly case: "hull"
-  readonly hits: number
-  readonly hitsMax: number
-  // readonly internalModules: { [M in InternalModuleType]: Module<M>[] } // HullはScope.hullに入っている
+export type ModuleType = "hull" | "computer" | "assembler" | "channel" | "mover" | "materialSynthesizer"
+
+// eslint-disable-next-line @typescript-eslint/no-namespace
+declare namespace Tag {
+  const OpaqueTagSymbol: unique symbol
+
+  class OpaqueTag<T> {
+    private [OpaqueTagSymbol]: T;
+  }
+}
+
+export type ModuleId<M extends ModuleType> = string & Tag.OpaqueTag<M>
+
+type BaseModuleDefinition<M extends ModuleType> = {
+  readonly case: M
+}
+type BaseModuleInterface<M extends ModuleType> = BaseModuleDefinition<M> & {
+  readonly id: ModuleId<M>
+}
+
+type HullDefinition = BaseModuleDefinition<"hull"> & {
   readonly size: number
 }
+export type HullInterface = BaseModuleInterface<"hull"> & Scope & HullDefinition & {
+  readonly hits: number
+  readonly hitsMax: number
+}
 
-export type ComputerInterface = {
-  readonly case: "computer"
+type ComputerDefinition = BaseModuleDefinition<"computer"> & {
   readonly code: SourceCode
 }
-
-export type AssemblerInterface = {
-  readonly case: "assembler"
+export type ComputerInterface = BaseModuleInterface<"computer"> & ComputerDefinition & {
 }
 
-export type ChannelInterface = {
-  readonly case: "channel"
+type AssemblerDefinition = BaseModuleDefinition<"assembler"> & {
+}
+export type AssemblerInterface = BaseModuleInterface<"assembler"> & AssemblerDefinition & {
+  readonly cooldown: number
+}
+
+type ChannelDefinition = BaseModuleDefinition<"channel"> & {
   readonly materialType: TransferrableMaterialType
 }
-
-export type MoverInterface = {
-  readonly case: "mover"
+export type ChannelInterface = BaseModuleInterface<"channel"> & ChannelDefinition & {
 }
 
-export type MaterialSynthesizerInterface = {
-  readonly case: "materialSynthesizer"
+type MoverDefinition = BaseModuleDefinition<"mover"> & {
+}
+export type MoverInterface = BaseModuleInterface<"mover"> & MoverDefinition & {
+}
+
+type MaterialSynthesizerDefinition = BaseModuleDefinition<"materialSynthesizer"> & {
   readonly recipeName: MaterialRecipeName
 }
+export type MaterialSynthesizerInterface = BaseModuleInterface<"materialSynthesizer"> & MaterialSynthesizerDefinition & {
+}
+
+export type AnyModuleDefinition = AssemblerDefinition | ComputerDefinition | HullDefinition | ChannelDefinition | MoverDefinition | MaterialSynthesizerDefinition
+
+// Omit<ModuleInterface<M>, "id"> 等型の再構成を行うと case: M が case: ModuleType へ再構成され、switch-caseが効かなくなってしまうため
+export type ModuleDefinition<T extends ModuleType> = T extends "computer" ? ComputerDefinition :
+  T extends "assembler" ? AssemblerDefinition :
+  T extends "hull" ? HullDefinition :
+  T extends "channel" ? ChannelDefinition :
+  T extends "mover" ? MoverDefinition :
+  T extends "materialSynthesizer" ? MaterialSynthesizerDefinition :
+  never
 
 export type AnyModuleInterface = AssemblerInterface | ComputerInterface | HullInterface | ChannelInterface | MoverInterface | MaterialSynthesizerInterface
 export type ModuleInterface<T extends ModuleType> = T extends "computer" ? ComputerInterface :
@@ -41,8 +78,7 @@ export type ModuleInterface<T extends ModuleType> = T extends "computer" ? Compu
   T extends "mover" ? MoverInterface :
   T extends "materialSynthesizer" ? MaterialSynthesizerInterface :
   never
-  
-export type ModuleType = AnyModuleInterface["case"]
+
 export const getShortModuleName = (moduleType: ModuleType): string => {
   switch (moduleType) {
   case "assembler":
@@ -63,4 +99,11 @@ export const getShortModuleName = (moduleType: ModuleType): string => {
     throw new Error()
   }
   }
+}
+
+let moduleIdIndex = 0
+export const createModuleId = <M extends ModuleType>(): ModuleId<M> => {
+  const index = moduleIdIndex
+  moduleIdIndex += 1
+  return `${index}` as ModuleId<M>
 }

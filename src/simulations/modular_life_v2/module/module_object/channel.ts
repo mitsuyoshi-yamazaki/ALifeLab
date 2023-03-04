@@ -1,11 +1,13 @@
 import type { TransferrableMaterialType } from "../../physics/material"
-import type { ChannelInterface } from "../module"
+import { ChannelInterface } from "../module"
+import { AbstractModule } from "./abstract_module"
 
-export class Channel implements ChannelInterface {
+export class Channel extends AbstractModule<"channel"> implements ChannelInterface {
   public readonly case: "channel"
 
   public constructor(
     public readonly materialType: TransferrableMaterialType,
   ) {
+    super()
   }
 }
