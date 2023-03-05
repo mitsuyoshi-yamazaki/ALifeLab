@@ -4,9 +4,9 @@ import type { ComputerApi } from "./module/api"
 import { Logger } from "./logger"
 import { Terrain, TerrainCell } from "./terrain"
 import { PhysicalConstant } from "./physics/physical_constant"
-import { Engine } from "./engine"
+import { Engine, ScopeOperation } from "./engine"
 import { createScopeUpdate, Scope, updateScope } from "./physics/scope"
-import type { ComputeRequestMove, ComputeRequestUptake, GenericComputeRequest, Life, MaterialTransferRequest, MaterialTransferRequestType } from "./api_request"
+import type { ComputeRequestMove, GenericComputeRequest, Life, MaterialTransferRequest, MaterialTransferRequestType } from "./api_request"
 import type { AnyModuleDefinition, ComputerInterface, HullInterface, ModuleId, ModuleInterface, ModuleType } from "./module/module"
 import type { MaterialType, TransferrableMaterialType } from "./physics/material"
 import type { Environment } from "./physics/environment"
@@ -19,7 +19,7 @@ type LifeRequestCache = {
 }
 type LifeRequests = {
   moveRequest: ComputeRequestMove | null
-  readonly materialTransferRequests: { [RequestType in MaterialTransferRequestType]?: GenericComputeRequest<RequestType>[] }
+  readonly materialTransferRequests: { [RequestType in MaterialTransferRequestType]: GenericComputeRequest<RequestType>[] }
 }
 
 export class World {
@@ -73,12 +73,10 @@ export class World {
       const results: { movedLives: { life: Life, moveRequest: ComputeRequestMove }[] } = {
         movedLives: [],
       }
-      // const operations: ScopeOperation[] = []  // TODO:
-
-      const uptakeOperations: { life: Life, requests: ComputeRequestUptake[] }[] = []
+      const operations: ScopeOperation[] = []
 
       scope.hull.forEach(life => {
-        const computer = life.internalModules.computer[0] // 複数のComputerを実行できるようにはなっていない
+        const computer = Object.values(life.internalModules.computer)[0] // 複数のComputerを実行できるようにはなっていない
         if (computer != null) {
           const requests = this.runLifeCode(computer, life, scope, environment)
 
@@ -89,21 +87,18 @@ export class World {
               moveRequest: requests.moveRequest,
             })
           }
-          
-          const uptakeRequests = requests.materialTransferRequests["uptake"]
-          if (uptakeRequests != null && uptakeRequests.length > 0) {
-            uptakeOperations.push({
-              life, 
-              requests: uptakeRequests,
-            })
-          }
+
+          operations.push({
+            life,
+            requests: requests.materialTransferRequests,
+          })
         }
 
         const childResults = calculateScope(life)
         scope.scopeUpdate.hullToAdd.push(...childResults.movedLives.map(x => x.life))
       })
 
-      this.engine.temp_calculateUptakeOperations(scope, uptakeOperations)      
+      this.engine.celculateScope(scope, operations)
 
       return results
     }
@@ -162,17 +157,24 @@ export class World {
       materialTransferRequests: {},
     }
     const api = this.createApiFor(life, scope, requestCache)
-    computer.code([api, environment])
+
+    try {
+      computer.code([api, environment])
+    } catch (error) {
+      this.logger.error(`[${life.scopeId}] ${error}`)
+    }
 
     const result: LifeRequests = {
       moveRequest: requestCache.moveRequest,
-      materialTransferRequests: {},
+      materialTransferRequests: {
+        uptake: [],
+        excretion: [],
+        assemble: [],
+        synthesize: [],
+      },
     }
 
     const addRequest = <RequestType extends MaterialTransferRequestType>(request: GenericComputeRequest<RequestType>): void => {
-      if (result.materialTransferRequests[request.case] == null) {
-        result.materialTransferRequests[request.case] = []
-      }
       (result.materialTransferRequests[request.case] as GenericComputeRequest<RequestType>[]).push(request)
     }
 
@@ -185,7 +187,7 @@ export class World {
 
   private createApiFor(life: Life, scope: Scope, requestCache: LifeRequestCache): ComputerApi {
     const addMaterialTransferRequest = (request: MaterialTransferRequest): void => {
-      requestCache.materialTransferRequests[request.moduleId] = request
+      requestCache.materialTransferRequests[request.module.id] = request
     }
 
     return {
@@ -207,35 +209,54 @@ export class World {
         return Array.from(Object.values(life.internalModules[internalModuleType]))
       },
       move(direction: NeighbourDirection): void {
+        if (Object.keys(life.internalModules.mover).length <= 0) {
+          throw "no Mover module"
+        }
         requestCache.moveRequest = {
           case: "move",
           direction,
         }
       },
       uptake(materialType: TransferrableMaterialType, moduleId: ModuleId<"channel">): void {
+        const module = life.internalModules.channel[moduleId]
+        if (module == null) {
+          throw `no module with ID ${moduleId}`
+        }
         addMaterialTransferRequest({
           case: "uptake",
           materialType,
-          moduleId,
+          module,
         })
       },
       excretion(materialType: TransferrableMaterialType, moduleId: ModuleId<"channel">): void {
+        const module = life.internalModules.channel[moduleId]
+        if (module == null) {
+          throw `no module with ID ${moduleId}`
+        }
         addMaterialTransferRequest({
           case: "excretion",
           materialType,
-          moduleId,
+          module,
         })
       },
       synthesize(moduleId: ModuleId<"materialSynthesizer">): void {
+        const module = life.internalModules.materialSynthesizer[moduleId]
+        if (module == null) {
+          throw `no module with ID ${moduleId}`
+        }
         addMaterialTransferRequest({
           case: "synthesize",
-          moduleId,
+          module,
         })
       },
       assemble(moduleId: ModuleId<"assembler">, moduleDefinition: AnyModuleDefinition): void {
+        const module = life.internalModules.assembler[moduleId]
+        if (module == null) {
+          throw `no module with ID ${moduleId}`
+        }
         addMaterialTransferRequest({
           case: "assemble",
-          moduleId,
+          module,
           moduleDefinition,
         })
       },

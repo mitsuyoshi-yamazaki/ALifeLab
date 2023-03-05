@@ -1,4 +1,4 @@
-import { ModuleDefinition, ModuleInterface } from "../module/module"
+import { ModuleDefinition } from "../module/module"
 import { InternalModuleType } from "../module/module_object/module_object"
 import { SourceCode } from "../module/source_code"
 import { AncestorSpec } from "./spawner"
@@ -6,35 +6,22 @@ import { AncestorSpec } from "./spawner"
 export const Ancestor = {
   /// 生命として成立する最小の祖先種
   minimum(code: SourceCode): AncestorSpec {
-    throw "not implemented"
-    // /*
-    // - 計算機 x 1
-    // - 外殻 x 1
-    // - 推進器 x 1
-    //  */
+    const internalModules: ModuleDefinition<InternalModuleType>[] = [
+      {
+        case: "computer",
+        code,
+      },
+      {
+        case: "channel",
+        materialType: "energy",
+      },
+      { case: "mover" },
+    ]
 
-    // const computer: ComputerInterface = {
-    //   case: "computer",
-    //   code,
-    // }
-    // const mover: MoverInterface = {
-    //   case: "mover",
-    // }
-
-    // return {
-    //   case: "hull",
-    //   hits: 0,
-    //   hitsMax: 1000,
-    //   size: 4,
-    //   internalModules: {
-    //     computer: [computer],
-    //     assembler: [],
-    //     channel: [],
-    //     mover: [mover],
-    //     materialSynthesizer: [],
-    //   },
-    //   ...createScopeData("Life", 1000),
-    // }
+    return {
+      hullSize: 4,
+      internalModules,
+    }
   },
 
   /// 試験用

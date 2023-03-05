@@ -1,7 +1,10 @@
-import type { AnyModuleDefinition, ModuleId } from "./module/module"
+import type { AnyModuleDefinition } from "./module/module"
 import type { NeighbourDirection } from "./physics/direction"
 import type { Hull } from "./module/module_object/hull"
-import { TransferrableMaterialType } from "./physics/material"
+import type { TransferrableMaterialType } from "./physics/material"
+import type { Assembler } from "./module/module_object/assembler"
+import type { MaterialSynthesizer } from "./module/module_object/material_synthesizer"
+import type { Channel } from "./module/module_object/channel"
 
 export type Life = Hull
 
@@ -13,20 +16,20 @@ export type ComputeRequestMove = {
 export type ComputeRequestUptake = {
   readonly case: "uptake"
   readonly materialType: TransferrableMaterialType
-  readonly moduleId: ModuleId<"channel">
+  readonly module: Channel
 }
 export type ComputeRequestExcretion = {
   readonly case: "excretion"
   readonly materialType: TransferrableMaterialType
-  readonly moduleId: ModuleId<"channel">
+  readonly module: Channel
 }
 export type ComputeRequestSynthesize = {
   readonly case: "synthesize"
-  readonly moduleId: ModuleId<"materialSynthesizer">
+  readonly module: MaterialSynthesizer
 }
 export type ComputeRequestAssemble = {
   readonly case: "assemble"
-  readonly moduleId: ModuleId<"assembler">
+  readonly module: Assembler
   readonly moduleDefinition: AnyModuleDefinition
 }
 

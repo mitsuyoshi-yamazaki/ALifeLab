@@ -4,7 +4,7 @@ import { AbstractModule } from "./abstract_module"
 import type { InternalModuleType, Module } from "./module_object"
 
 export class Hull extends AbstractModule<"hull"> implements HullInterface {
-  public readonly case: "hull"
+  public readonly case = "hull"
 
   public hits = 0
   public readonly hitsMax: number
@@ -38,6 +38,12 @@ export class Hull extends AbstractModule<"hull"> implements HullInterface {
 
   public addInternalModule<M extends InternalModuleType>(module: Module<M>): void {
     this.internalModules[module.case][module.id] = module
-    // (this.internalModules[module.case] as Module<M>[]).push(module)
+  }
+
+  public getWeight(): number {
+    const childrenWeight = this.hull.reduce((result, current) => result + current.getWeight(), 0)
+    const weight = this.capacity  // TODO:
+    
+    return weight + childrenWeight
   }
 }

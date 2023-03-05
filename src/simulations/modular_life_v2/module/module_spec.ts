@@ -9,3 +9,5 @@ export const ModuleSpec = {
   mover: {},
   materialSynthesizer: {},
 }
+
+// TODO: moduleの必要材料

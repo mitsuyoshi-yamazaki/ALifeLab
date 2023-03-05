@@ -131,9 +131,9 @@ function initializeEnergySources(world: World): void {
 }
 
 function initializeAncestors(world: World): void {
-  world.addAncestor(Ancestor.test(AncestorCode.moveCode(NeighbourDirections.right, 10)), world.size.div(2).floor())
+  // world.addAncestor(Ancestor.test(AncestorCode.moveCode(NeighbourDirections.right, 10)), world.size.div(2).floor())
 
-  // world.addAncestor(Ancestor.minimum(AncestorCode.moveCode(NeighbourDirections.right, 10)), world.size.div(3).floor())
-  // world.addAncestor(Ancestor.minimum(AncestorCode.moveCode(NeighbourDirections.right, 9)), world.size.div(2).floor())
-  // world.addAncestor(Ancestor.minimum(AncestorCode.moveCode(NeighbourDirections.bottom, 11)), world.size.div(3).mult(2).floor())
+  world.addAncestor(Ancestor.minimum(AncestorCode.moveCode(NeighbourDirections.right, 10)), world.size.div(3).floor())
+  world.addAncestor(Ancestor.minimum(AncestorCode.moveCode(NeighbourDirections.right, 9)), world.size.div(2).floor())
+  world.addAncestor(Ancestor.minimum(AncestorCode.moveCode(NeighbourDirections.bottom, 11)), world.size.div(3).mult(2).floor())
 }

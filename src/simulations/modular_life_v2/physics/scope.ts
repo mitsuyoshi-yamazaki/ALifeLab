@@ -72,11 +72,12 @@ export const createScopeId = (scopeType: string): ScopeId => {
 }
 
 export const updateScope = (scope: Scope, update: ScopeUpdate): void => {
-  strictEntries(scope.amount).forEach(([materialType, amount]) => {
+  strictEntries(update.amount).forEach(([materialType, amount]) => {
     scope.amount[materialType] = amount
   })
 
   scope.heat = update.heat
+
   update.hullToRemove.forEach(hull => {
     const index = scope.hull.indexOf(hull)
     if (index < 0) {
