@@ -18,11 +18,15 @@ type UserInputEventShowHeat = {
   readonly case: "show heat"
   readonly show: boolean
 }
+type UserInputEventShowSubstance = {
+  readonly case: "show substance"
+  readonly show: boolean
+}
 type UserInputEventRun = {
   readonly case: "run"
   readonly running: boolean
 }
-type UserInputEvent = UserInputEventShowEnergy | UserInputEventShowHeat | UserInputEventRun
+type UserInputEvent = UserInputEventShowEnergy | UserInputEventShowHeat | UserInputEventShowSubstance | UserInputEventRun
 
 type ReactConnector = {
   p: (p: p5) => void
@@ -111,6 +115,20 @@ export const main = (): ReactConnector => {
           drawer.removeDrawMode("heat")
         }
         break
+      case "show substance":
+        if (event.show === true) {
+          drawer.setDrawMode({
+            case: "material",
+          })
+        } else {
+          drawer.removeDrawMode("material")
+        }
+        break
+      default: {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const _: never = event
+        break
+      }
       }
     }),
     getTimestamp: (): number => {

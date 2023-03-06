@@ -53,6 +53,10 @@ const materialColor: { [M in TransferrableMaterialType]: Color } = {
 
 const heatColor = new Color(0xFF, 0x00, 0x00)
 
+const energyMeanAmount = 20 // FixMe:
+const heatMeanAmount = 50 // FixMe: 
+const substanceMeanAmount = 400 // FixMe: 
+
 export class P5Drawer {
   public get drawModes(): DrawModes[] {
     return strictEntries(this.drawMode).map(([key]) => key)
@@ -95,7 +99,13 @@ export class P5Drawer {
     p.rectMode(p.CORNER)
 
     if (this.drawMode.material != null) {
-      // TODO:
+      // TODO: 他のMaterialも
+
+      const alpha = Math.floor((cell.amount.substance / substanceMeanAmount) * 0x80)
+
+      p.noStroke()
+      p.fill(materialColor.substance.p5(p, alpha))
+      p.rect(x * cellSize, y * cellSize, cellSize, cellSize)
     }
 
     if (this.drawMode.life != null) {
@@ -179,8 +189,6 @@ export class P5Drawer {
     }
 
     if (this.drawMode.energy != null) {
-      const energyMeanAmount = 10 // FixMe:
-
       p.noStroke()
       const alpha = Math.floor((cell.amount.energy / energyMeanAmount) * 0x80)
       p.fill(0xFF, 0xFF, 0x00, alpha)
@@ -188,8 +196,6 @@ export class P5Drawer {
     }
 
     if (this.drawMode.heat != null) {
-      const heatMeanAmount = 10 // FixMe: 
-
       p.noStroke()
       const alpha = Math.floor((cell.heat / heatMeanAmount) * 0x80)
       p.fill(heatColor.p5(p, alpha))
