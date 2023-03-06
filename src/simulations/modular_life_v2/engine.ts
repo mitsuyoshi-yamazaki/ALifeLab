@@ -152,11 +152,13 @@ export class Engine {
   }
 
   public calculateTerrainCell(cell: TerrainCell): void {
+    cell.scopeUpdate.amount.energy += cell.energyProduction
     const energyLoss = Math.floor(cell.scopeUpdate.amount.energy * this.physicalConstant.energyHeatConversionRate)
-    cell.scopeUpdate.amount.energy += Math.max(cell.energyProduction - energyLoss, 0)
+    cell.scopeUpdate.amount.energy -= energyLoss
 
+    cell.scopeUpdate.heat += energyLoss
     const heatLoss = Math.floor(cell.scopeUpdate.heat * this.physicalConstant.heatLossRate)
-    cell.scopeUpdate.heat += Math.max(energyLoss - heatLoss, 0)
+    cell.scopeUpdate.heat -= heatLoss
   }
 
   public calculateLifeScope(life: Life): void {
