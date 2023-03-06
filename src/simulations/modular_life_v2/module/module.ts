@@ -22,7 +22,7 @@ type BaseModuleInterface<M extends ModuleType> = BaseModuleDefinition<M> & {
   readonly id: ModuleId<M>
 }
 
-type HullDefinition = BaseModuleDefinition<"hull"> & {
+export type HullDefinition = BaseModuleDefinition<"hull"> & {
   readonly size: number
 }
 export type HullInterface = BaseModuleInterface<"hull"> & Scope & HullDefinition & {
@@ -30,30 +30,30 @@ export type HullInterface = BaseModuleInterface<"hull"> & Scope & HullDefinition
   readonly hitsMax: number
 }
 
-type ComputerDefinition = BaseModuleDefinition<"computer"> & {
+export type ComputerDefinition = BaseModuleDefinition<"computer"> & {
   readonly code: SourceCode
 }
 export type ComputerInterface = BaseModuleInterface<"computer"> & ComputerDefinition & {
 }
 
-type AssemblerDefinition = BaseModuleDefinition<"assembler"> & {
+export type AssemblerDefinition = BaseModuleDefinition<"assembler"> & {
 }
 export type AssemblerInterface = BaseModuleInterface<"assembler"> & AssemblerDefinition & {
   readonly cooldown: number
 }
 
-type ChannelDefinition = BaseModuleDefinition<"channel"> & {
+export type ChannelDefinition = BaseModuleDefinition<"channel"> & {
   readonly materialType: TransferrableMaterialType
 }
 export type ChannelInterface = BaseModuleInterface<"channel"> & ChannelDefinition & {
 }
 
-type MoverDefinition = BaseModuleDefinition<"mover"> & {
+export type MoverDefinition = BaseModuleDefinition<"mover"> & {
 }
 export type MoverInterface = BaseModuleInterface<"mover"> & MoverDefinition & {
 }
 
-type MaterialSynthesizerDefinition = BaseModuleDefinition<"materialSynthesizer"> & {
+export type MaterialSynthesizerDefinition = BaseModuleDefinition<"materialSynthesizer"> & {
   readonly recipeName: MaterialRecipeName
 }
 export type MaterialSynthesizerInterface = BaseModuleInterface<"materialSynthesizer"> & MaterialSynthesizerDefinition & {

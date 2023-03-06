@@ -48,3 +48,23 @@ export const materialProductionRecipes: { [RecipeName in MaterialRecipeName]: Pr
     },
   },
 }
+
+export const getShortMaterialName = (materialType: TransferrableMaterialType): string => {
+  switch (materialType) {
+  case "energy":
+    return "E"
+  case "carbon":
+    return "C"
+  case "nitrogen":
+    return "N"
+  case "fuel":
+    return "F"
+  case "substance":
+    return "S"
+  default: {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const _: never = materialType
+    throw new Error()
+  }
+  }
+}

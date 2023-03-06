@@ -2,6 +2,7 @@ import { Result } from "../../classes/result"
 import { strictEntries } from "../../classes/utilities"
 import { ComputeRequestAssemble, ComputeRequestExcretion, ComputeRequestSynthesize, ComputeRequestUptake, GenericComputeRequest, Life, MaterialTransferRequestType } from "./api_request"
 import { Logger } from "./logger"
+import { AnyModuleDefinition } from "./module/module"
 import { Hull } from "./module/module_object/hull"
 import { AnyModule, createModule, InternalModuleType } from "./module/module_object/module_object"
 import { ModuleSpec } from "./module/module_spec"
@@ -59,13 +60,34 @@ export class Engine {
 
   private assemble(materialStore: Scope, hull: Hull, requests: ComputeRequestAssemble[]): void {
     requests.forEach(request => {
-      const ingredients = ModuleSpec.moduleIngredients[request.moduleDefinition.case]
+      const ingredients = this.getAssembleIngredientsFor(request.moduleDefinition)
       if (this.hasEnoughIngredients(materialStore, ingredients) !== true) {
         return
       }
       this.consumeMaterials(materialStore, ingredients)
-      hull.addInternalModule(createModule<InternalModuleType>(request.moduleDefinition))
+
+      switch (request.moduleDefinition.case) {
+      case "hull":
+        hull.hull.push(createModule<"hull">(request.moduleDefinition))
+        break
+      case "assembler":
+      case "computer":
+      case "channel":
+      case "mover":
+      case "materialSynthesizer":
+        hull.addInternalModule(createModule<InternalModuleType>(request.moduleDefinition))
+        break
+      default: {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const _: never = request.moduleDefinition
+        break
+      }
+      }
     })
+  }
+
+  public getAssembleIngredientsFor(moduleDefinition: AnyModuleDefinition): MaterialAmountMap {
+    return ModuleSpec.moduleIngredients[moduleDefinition.case]
   }
 
   private runSynthesize(life: Life, requests: ComputeRequestSynthesize[]): void {
@@ -83,25 +105,27 @@ export class Engine {
 
   private runUptake(scope: Scope, life: Life, requests: ComputeRequestUptake[]): void {
     requests.forEach(request => {
-      const amount = Math.min(scope.scopeUpdate.amount[request.materialType], ModuleSpec.modules.channel.maxTransferAmount)
+      const materialType = request.module.materialType
+      const amount = Math.min(scope.scopeUpdate.amount[materialType], ModuleSpec.modules.channel.maxTransferAmount)
       if (amount <= 0) {
         return
       }
 
-      scope.scopeUpdate.amount[request.materialType] -= amount
-      life.scopeUpdate.amount[request.materialType] += amount
+      scope.scopeUpdate.amount[materialType] -= amount
+      life.scopeUpdate.amount[materialType] += amount
     })
   }
 
   private runExcretion(scope: Scope, life: Life, requests: ComputeRequestExcretion[]): void {
     requests.forEach(request => {
-      const amount = Math.min(life.scopeUpdate.amount[request.materialType], ModuleSpec.modules.channel.maxTransferAmount)
+      const materialType = request.module.materialType
+      const amount = Math.min(life.scopeUpdate.amount[materialType], ModuleSpec.modules.channel.maxTransferAmount)
       if (amount <= 0) {
         return
       }
 
-      life.scopeUpdate.amount[request.materialType] -= amount
-      scope.scopeUpdate.amount[request.materialType] += amount
+      life.scopeUpdate.amount[materialType] -= amount
+      scope.scopeUpdate.amount[materialType] += amount
     })
   }
 
@@ -141,7 +165,7 @@ export class Engine {
   }
 
   public move(life: Life, inScope: Scope): Result<number, string> {
-    const energyConsumption = Math.ceil(ModuleSpec.modules.mover.energyConsumption * life.getWeight())
+    const energyConsumption = this.calculateMoveEnergyConsumption(life)
     if (life.scopeUpdate.amount.energy < energyConsumption) {
       return Result.Failed(`lack of energy (${life.scopeUpdate.amount.energy} < ${energyConsumption})`)
     }
@@ -172,5 +196,9 @@ export class Engine {
 
     addModuleIngredients(life)
     life.allInternalModules().forEach(module => addModuleIngredients(module))
+  }
+
+  public calculateMoveEnergyConsumption(life: Life): number {
+    return Math.ceil(ModuleSpec.modules.mover.energyConsumption * life.getWeight())
   }
 }

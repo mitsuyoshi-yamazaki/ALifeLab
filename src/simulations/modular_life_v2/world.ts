@@ -7,9 +7,8 @@ import { PhysicalConstant } from "./physics/physical_constant"
 import { Engine, ScopeOperation } from "./engine"
 import { createScopeUpdate, Scope, updateScope } from "./physics/scope"
 import type { ComputeRequestMove, GenericComputeRequest, Life, MaterialTransferRequest, MaterialTransferRequestType } from "./api_request"
-import type { ComputerInterface, HullInterface, ModuleDefinition, ModuleId, ModuleInterface, ModuleType } from "./module/module"
-import type { MaterialType, TransferrableMaterialType } from "./physics/material"
-import type { Environment } from "./physics/environment"
+import type { AnyModuleDefinition, ComputerInterface, HullInterface, ModuleId, ModuleInterface, ModuleType } from "./module/module"
+import type { MaterialAmountMap, MaterialType } from "./physics/material"
 import { AncestorSpec, Spawner } from "./ancestor/spawner"
 import { InternalModuleType } from "./module/module_object/module_object"
 
@@ -54,6 +53,18 @@ export class World {
     this.terrain.cells[y][x].energyProduction = energyProduction
   }
 
+  public addMaterial(materialType: MaterialType, amount: number, x: number, y: number): void {
+    this.terrain.cells[y][x].amount[materialType] += amount
+  }
+
+  public initialize(): void {
+    this.terrain.cells.forEach(row => {
+      row.forEach(cell => {
+        cell.scopeUpdate = createScopeUpdate(cell)
+      })
+    })
+  }
+
   public run(step: number): void {
     for (let i = 0; i < step; i += 1) {
       this.step()
@@ -61,10 +72,6 @@ export class World {
   }
 
   private step(): void {
-    const environment: Environment = {
-      time: this.t,
-    }
-
     const allScopes: Scope[] = []
 
     const calculateScope = (scope: Scope): { movedLives: { life: Life, moveRequest: ComputeRequestMove }[] } => {
@@ -78,7 +85,7 @@ export class World {
       scope.hull.forEach(life => {
         const computer = Object.values(life.internalModules.computer)[0] // 複数のComputerを実行できるようにはなっていない
         if (computer != null) {
-          const requests = this.runLifeCode(computer, life, scope, environment)
+          const requests = this.runLifeCode(computer, life, scope)
 
           if (requests.moveRequest != null) {
             if (this.engine.move(life, scope).resultType === "succeeded") {
@@ -155,7 +162,7 @@ export class World {
   }
 
   // ---- API ---- //
-  private runLifeCode(computer: ComputerInterface, life: Life, scope: Scope, environment: Environment): LifeRequests {
+  private runLifeCode(computer: ComputerInterface, life: Life, scope: Scope): LifeRequests {
     const requestCache: LifeRequestCache = {
       moveRequest: null,
       materialTransferRequests: {},
@@ -163,7 +170,7 @@ export class World {
     const api = this.createApiFor(life, scope, requestCache)
 
     try {
-      computer.code([api, environment])
+      computer.code(api)
     } catch (error) {
       this.logger.error(`[${life.scopeId}] ${error}`)
     }
@@ -195,75 +202,99 @@ export class World {
     }
 
     return {
-      getStoredAmount(materialType: MaterialType): number {
-        return life.amount[materialType]
+      physics: {
+        getAssembleIngredientsFor: (moduleDefinition: AnyModuleDefinition): MaterialAmountMap => {
+          return this.engine.getAssembleIngredientsFor(moduleDefinition)
+        },
       },
-      getEnergyAmount(): number {
-        return life.amount.energy
+      environment: {
+        getEnvironmentalHeat(): number {
+          return scope.heat
+        },
+        getWeight(): number {
+          return scope.hull.reduce((result, current) => result + current.getWeight(), 0)
+        },
       },
-      getHeat(): number {
-        return life.heat
-      },
-      getModules<M extends ModuleType>(moduleType: M): ModuleInterface<M>[] {
-        if (moduleType === "hull") {
-          return [life as HullInterface as ModuleInterface<M>]
-        }
+      status: {
+        getStoredAmount(materialType: MaterialType): number {
+          return life.amount[materialType]
+        },
+        getEnergyAmount(): number {
+          return life.amount.energy
+        },
+        getHeat(): number {
+          return life.heat
+        },
+        getModules<M extends ModuleType>(moduleType: M): ModuleInterface<M>[] {
+          if (moduleType === "hull") {
+            return [life as HullInterface as ModuleInterface<M>]
+          }
 
-        const internalModuleType: InternalModuleType = moduleType
-        return Array.from(Object.values(life.internalModules[internalModuleType]))
+          const internalModuleType: InternalModuleType = moduleType
+          return Array.from(Object.values(life.internalModules[internalModuleType]))
+        },
+        getWeight(): number {
+          return life.getWeight()
+        },
+        getMoveEnergyConsumption: (): number => {
+          return this.engine.calculateMoveEnergyConsumption(life)
+        },
       },
-      move(direction: NeighbourDirection): void {
-        if (Object.keys(life.internalModules.mover).length <= 0) {
-          throw "no Mover module"
-        }
-        requestCache.moveRequest = {
-          case: "move",
-          direction,
-        }
-      },
-      uptake(materialType: TransferrableMaterialType, moduleId: ModuleId<"channel">): void {
-        const module = life.internalModules.channel[moduleId]
-        if (module == null) {
-          throw `no module with ID ${moduleId}`
-        }
-        addMaterialTransferRequest({
-          case: "uptake",
-          materialType,
-          module,
-        })
-      },
-      excretion(materialType: TransferrableMaterialType, moduleId: ModuleId<"channel">): void {
-        const module = life.internalModules.channel[moduleId]
-        if (module == null) {
-          throw `no module with ID ${moduleId}`
-        }
-        addMaterialTransferRequest({
-          case: "excretion",
-          materialType,
-          module,
-        })
-      },
-      synthesize(moduleId: ModuleId<"materialSynthesizer">): void {
-        const module = life.internalModules.materialSynthesizer[moduleId]
-        if (module == null) {
-          throw `no module with ID ${moduleId}`
-        }
-        addMaterialTransferRequest({
-          case: "synthesize",
-          module,
-        })
-      },
-      assemble(moduleId: ModuleId<"assembler">, moduleDefinition: ModuleDefinition<InternalModuleType>): void {
-        const module = life.internalModules.assembler[moduleId]
-        if (module == null) {
-          throw `no module with ID ${moduleId}`
-        }
-        addMaterialTransferRequest({
-          case: "assemble",
-          module,
-          moduleDefinition,
-        })
-      },
+      action: {
+        say(message: string): void {
+          life.saying = message
+        },
+        move(direction: NeighbourDirection): void {
+          if (Object.keys(life.internalModules.mover).length <= 0) {
+            throw "no Mover module"
+          }
+          requestCache.moveRequest = {
+            case: "move",
+            direction,
+          }
+        },
+        uptake(moduleId: ModuleId<"channel">): void {
+          const module = life.internalModules.channel[moduleId]
+          if (module == null) {
+            throw `no module with ID ${moduleId}`
+          }
+          addMaterialTransferRequest({
+            case: "uptake",
+            module,
+          })
+        },
+        excretion(moduleId: ModuleId<"channel">): void {
+          const module = life.internalModules.channel[moduleId]
+          if (module == null) {
+            throw `no module with ID ${moduleId}`
+          }
+          addMaterialTransferRequest({
+            case: "excretion",
+            module,
+          })
+        },
+        synthesize(moduleId: ModuleId<"materialSynthesizer">): void {
+          const module = life.internalModules.materialSynthesizer[moduleId]
+          if (module == null) {
+            throw `no module with ID ${moduleId}`
+          }
+          addMaterialTransferRequest({
+            case: "synthesize",
+            module,
+          })
+        },
+        assemble(moduleId: ModuleId<"assembler">, moduleDefinition: AnyModuleDefinition): void {
+          const module = life.internalModules.assembler[moduleId]
+          if (module == null) {
+            throw `no module with ID ${moduleId}`
+          }
+          addMaterialTransferRequest({
+            case: "assemble",
+            module,
+            moduleDefinition,
+          })
+        },
+      }
     }
   }
 }

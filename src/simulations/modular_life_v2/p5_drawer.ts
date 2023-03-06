@@ -13,6 +13,7 @@ type DrawModeLife = {
   readonly case: "life"
   readonly hits: boolean
   readonly heat: boolean
+  readonly saying: boolean
 }
 type DrawModeEnergy = {
   readonly case: "energy"
@@ -44,7 +45,7 @@ const moduleColor: { [M in ModuleType]: Color } = {
 
 const materialColor: { [M in TransferrableMaterialType]: Color } = {
   energy: new Color(0xFF, 0xFF, 0x00),
-  nitrogen: new Color(0xFF, 0xFF, 0xFF),
+  nitrogen: new Color(0xD5, 0x92, 0x73),
   carbon: new Color(0xFF, 0xFF, 0xFF),
   fuel: new Color(0xFF, 0xFF, 0xFF),
   substance: new Color(0xFF, 0xFF, 0xFF),
@@ -164,6 +165,15 @@ export class P5Drawer {
           p.textSize(cellSize * 0.3)
 
           p.text(`${hull.heat}`, centerX, (y + 1.2) * cellSize)
+        }
+
+        if (lifeDrawMode.saying === true && hull.saying != null) {
+          p.noStroke()
+          p.fill(0xFF, 0xFF)
+          p.textAlign(p.CENTER, p.BOTTOM)
+          p.textSize(cellSize * 0.5)
+
+          p.text(hull.saying, centerX, (y - 0.05) * cellSize)
         }
       })
     }

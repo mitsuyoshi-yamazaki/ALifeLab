@@ -43,14 +43,17 @@ const canvasSize = worldSize.mult(cellSize)
 
 const world = new World(worldSize, logger, constants.physicalConstant)
 initializeEnergySources(world)
+initializeMaterials(world)
 initializeAncestors(world)
+world.initialize()
 
 const drawer = new P5Drawer(cellSize)
 drawer.setDrawMode({ case: "material" })
 drawer.setDrawMode({
   case: "life",
   hits: true,
-  heat: true,
+  heat: false,
+  saying: true,
 })
 
 export const main = (): ReactConnector => {
@@ -134,10 +137,16 @@ function initializeEnergySources(world: World): void {
   }
 }
 
-function initializeAncestors(world: World): void {
-  // world.addAncestor(Ancestor.test(AncestorCode.moveCode(NeighbourDirections.right, 10)), world.size.div(2).floor())
+function initializeMaterials(world: World): void {
+  for (let y = 0; y < world.size.y; y += 1) {
+    for (let x = 0; x < world.size.x; x += 1) {
+      world.addMaterial("substance", 500, x, y)
+    }
+  }
+}
 
-  world.addAncestor(Ancestor.minimum(AncestorCode.moveCode(NeighbourDirections.right, 10)), world.size.div(3).floor())
-  world.addAncestor(Ancestor.minimum(AncestorCode.moveCode(NeighbourDirections.right, 9)), world.size.div(2).floor())
-  world.addAncestor(Ancestor.minimum(AncestorCode.moveCode(NeighbourDirections.bottom, 11)), world.size.div(3).mult(2).floor())
+function initializeAncestors(world: World): void {
+  world.addAncestor(Ancestor.minimumSelfReproduction(AncestorCode.selfReproduction(NeighbourDirections.bottom)), world.size.div(3).floor())
+  world.addAncestor(Ancestor.minimumSelfReproduction(AncestorCode.selfReproduction(NeighbourDirections.right)), world.size.div(2).floor())
+  world.addAncestor(Ancestor.minimumSelfReproduction(AncestorCode.selfReproduction(NeighbourDirections.top)), world.size.div(3).mult(2).floor())
 }
