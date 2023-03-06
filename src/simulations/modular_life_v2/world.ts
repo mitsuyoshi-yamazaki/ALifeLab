@@ -7,7 +7,7 @@ import { PhysicalConstant } from "./physics/physical_constant"
 import { Engine, ScopeOperation } from "./engine"
 import { createScopeUpdate, Scope, updateScope } from "./physics/scope"
 import type { ComputeRequestMove, GenericComputeRequest, Life, MaterialTransferRequest, MaterialTransferRequestType } from "./api_request"
-import type { AnyModuleDefinition, ComputerInterface, HullInterface, ModuleId, ModuleInterface, ModuleType } from "./module/module"
+import type { ComputerInterface, HullInterface, ModuleDefinition, ModuleId, ModuleInterface, ModuleType } from "./module/module"
 import type { MaterialType, TransferrableMaterialType } from "./physics/material"
 import type { Environment } from "./physics/environment"
 import { AncestorSpec, Spawner } from "./ancestor/spawner"
@@ -249,7 +249,7 @@ export class World {
           module,
         })
       },
-      assemble(moduleId: ModuleId<"assembler">, moduleDefinition: AnyModuleDefinition): void {
+      assemble(moduleId: ModuleId<"assembler">, moduleDefinition: ModuleDefinition<InternalModuleType>): void {
         const module = life.internalModules.assembler[moduleId]
         if (module == null) {
           throw `no module with ID ${moduleId}`

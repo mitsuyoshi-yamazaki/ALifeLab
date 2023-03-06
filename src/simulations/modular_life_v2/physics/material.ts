@@ -15,11 +15,12 @@ export type TransferrableMaterialType = MaterialType | Energy
 export type SynthesizeType = MaterialType | Energy
 
 type Amount = number
+export type MaterialAmountMap = { [Ingredient in SynthesizeType]?: Amount }
 export type ProductionRecipe = {
   // readonly time: number  // 時間がかかると中間状態を保存する必要が出るためこのバージョンでは1tickで完了とする
   readonly heatProduction: number
-  readonly ingredients: { [Ingredient in SynthesizeType]?: Amount }
-  readonly productions: { [Production in SynthesizeType]?: Amount }
+  readonly ingredients: MaterialAmountMap
+  readonly productions: MaterialAmountMap
 }
 
 export type MaterialRecipeName = "composeFuel" | "decomposeFuel"

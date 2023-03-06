@@ -1,10 +1,11 @@
-import type { AnyModuleDefinition } from "./module/module"
+import type { ModuleDefinition } from "./module/module"
 import type { NeighbourDirection } from "./physics/direction"
 import type { Hull } from "./module/module_object/hull"
 import type { TransferrableMaterialType } from "./physics/material"
 import type { Assembler } from "./module/module_object/assembler"
 import type { MaterialSynthesizer } from "./module/module_object/material_synthesizer"
 import type { Channel } from "./module/module_object/channel"
+import { InternalModuleType } from "./module/module_object/module_object"
 
 export type Life = Hull
 
@@ -30,7 +31,7 @@ export type ComputeRequestSynthesize = {
 export type ComputeRequestAssemble = {
   readonly case: "assemble"
   readonly module: Assembler
-  readonly moduleDefinition: AnyModuleDefinition
+  readonly moduleDefinition: ModuleDefinition<InternalModuleType>
 }
 
 export type IntraScopeMaterialTransferRequest = ComputeRequestSynthesize
