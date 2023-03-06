@@ -47,7 +47,11 @@ initializeAncestors(world)
 
 const drawer = new P5Drawer(cellSize)
 drawer.setDrawMode({ case: "material" })
-drawer.setDrawMode({ case: "life" })
+drawer.setDrawMode({
+  case: "life",
+  hits: true,
+  heat: true,
+})
 
 export const main = (): ReactConnector => {
   let isRunning = true
