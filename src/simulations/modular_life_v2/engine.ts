@@ -3,7 +3,7 @@ import { strictEntries } from "../../classes/utilities"
 import { ComputeRequestAssemble, ComputeRequestExcretion, ComputeRequestSynthesize, ComputeRequestUptake, GenericComputeRequest, Life, MaterialTransferRequestType } from "./api_request"
 import { Logger } from "./logger"
 import { Hull } from "./module/module_object/hull"
-import { createModule, InternalModuleType } from "./module/module_object/module_object"
+import { AnyModule, createModule, InternalModuleType } from "./module/module_object/module_object"
 import { ModuleSpec } from "./module/module_spec"
 import { MaterialAmountMap, materialProductionRecipes } from "./physics/material"
 import { PhysicalConstant } from "./physics/physical_constant"
@@ -118,8 +118,8 @@ export class Engine {
     })
   }
 
-  private addMaterials(scope: Scope, productions: MaterialAmountMap): void {
-    strictEntries(productions).forEach(([material, amount]) => {
+  private addMaterials(scope: Scope, materials: MaterialAmountMap): void {
+    strictEntries(materials).forEach(([material, amount]) => {
       if (amount == null) {
         return
       }
@@ -141,7 +141,7 @@ export class Engine {
   }
 
   public move(life: Life, inScope: Scope): Result<number, string> {
-    const energyConsumption = ModuleSpec.modules.mover.energyConsumption * life.getWeight()
+    const energyConsumption = Math.ceil(ModuleSpec.modules.mover.energyConsumption * life.getWeight())
     if (life.scopeUpdate.amount.energy < energyConsumption) {
       return Result.Failed(`lack of energy (${life.scopeUpdate.amount.energy} < ${energyConsumption})`)
     }
@@ -150,5 +150,27 @@ export class Engine {
     inScope.scopeUpdate.heat += energyConsumption
 
     return Result.Succeeded(energyConsumption)
+  }
+
+  public calculateHeatDamage(life: Life, inScope: Scope): void {
+    life.hits -= Math.ceil(inScope.scopeUpdate.heat * this.physicalConstant.heatDamage)
+
+    if (life.hits > 0) {
+      return
+    }
+
+    inScope.scopeUpdate.hullToRemove.push(life)
+    inScope.scopeUpdate.hullToAdd.push(...life.hull)
+
+    this.addMaterials(inScope, life.scopeUpdate.amount)
+    inScope.scopeUpdate.heat += life.scopeUpdate.heat
+
+    const addModuleIngredients = (module: AnyModule): void => {
+      const ingredients = ModuleSpec.moduleIngredients[module.case]
+      this.addMaterials(inScope, ingredients)
+    }
+
+    addModuleIngredients(life)
+    life.allInternalModules().forEach(module => addModuleIngredients(module))
   }
 }

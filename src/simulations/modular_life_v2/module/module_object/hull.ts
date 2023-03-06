@@ -1,7 +1,7 @@
 import { createMaterialStore, createScopeId, createScopeUpdate, MaterialStore, ScopeUpdate } from "../../physics/scope"
 import { HullInterface } from "../module"
 import { AbstractModule } from "./abstract_module"
-import type { InternalModuleType, Module } from "./module_object"
+import type { AnyModule, InternalModuleType, Module } from "./module_object"
 
 export class Hull extends AbstractModule<"hull"> implements HullInterface {
   public readonly case = "hull"
@@ -38,6 +38,11 @@ export class Hull extends AbstractModule<"hull"> implements HullInterface {
 
   public addInternalModule<M extends InternalModuleType>(module: Module<M>): void {
     this.internalModules[module.case][module.id] = module
+  }
+
+  public allInternalModules(): AnyModule[] {
+    const modules: { [Id: string]: AnyModule }[] = Array.from(Object.values(this.internalModules))
+    return modules.reduce((result, current) => [...result, ...Array.from(Object.values(current))], [])
   }
 
   public getWeight(): number {

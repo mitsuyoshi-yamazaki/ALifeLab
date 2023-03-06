@@ -98,6 +98,8 @@ export class World {
 
         const childResults = calculateScope(life)
         scope.scopeUpdate.hullToAdd.push(...childResults.movedLives.map(x => x.life))
+
+        this.engine.calculateHeatDamage(life, scope)
       })
 
       this.engine.celculateScope(scope, operations)

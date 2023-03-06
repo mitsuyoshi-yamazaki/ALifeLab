@@ -1,9 +1,7 @@
-import type { SynthesizeType } from "../physics/material"
-import { ModuleType } from "./module"
+import type { MaterialAmountMap } from "../physics/material"
+import type { ModuleType } from "./module"
 
-type ModuleIngredients = { [M in SynthesizeType]?: number }
-
-const moduleIngredients: { [M in ModuleType]: ModuleIngredients } = {
+const moduleIngredients: { [M in ModuleType]: MaterialAmountMap } = {
   hull: { substance: 10 },  // 1単位あたり
   computer: { substance: 5 },
   assembler: { substance: 200 },
@@ -24,7 +22,7 @@ export const ModuleSpec = {
     },
     mover: {
       /// 重さあたり重量: 排熱量は消費エネルギーから求める
-      energyConsumption: 1,
+      energyConsumption: 0.01,
     },
     materialSynthesizer: {},
   },

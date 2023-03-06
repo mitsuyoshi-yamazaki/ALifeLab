@@ -10,6 +10,7 @@ const logLevel: LogLevel = parameters.parseTypedString("log_level", "LogLevel", 
 const physicalConstant: PhysicalConstant = {
   heatLossRate: parameters.parseFloat("heat_loss", { alternativeKey: "ph.h", min: 0 }) ?? 0.25,
   energyHeatConversionRate: parameters.parseFloat("energy_heat_conversion", { alternativeKey: "ph.e", min: 0 }) ?? 0.5,
+  heatDamage: parameters.parseFloat("heat_damage", { alternativeKey: "ph.d", min: 0 }) ?? 0.1,
 
   materialProductionRecipe: materialProductionRecipes,
 }

@@ -19,6 +19,7 @@ export class Spawner {
   public createLife(spec: AncestorSpec): Life {
     const hull = new Hull(spec.hullSize)
     hull.amount.energy += 500
+    hull.hits = hull.hitsMax
 
     spec.internalModules.forEach(moduleDefinition => {
       hull.addInternalModule(createModule<InternalModuleType>(moduleDefinition))
