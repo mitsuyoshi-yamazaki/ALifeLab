@@ -1,36 +1,42 @@
 import { ComputerApi } from "../module/api"
 import type { SourceCode } from "../module/source_code"
 import { NeighbourDirection } from "../physics/direction"
-import { minimumSelfReproduction } from "./ancestor_source_code/minimum_self_reproduction"
+import { MinimumSelfReproductionCode } from "./ancestor_source_code/minimum_self_reproduction"
 
 export const AncestorCode = {
   /// ゲーム世界上で何も行わない
-  stillCode(): SourceCode {
-    let t = 0
-    return (api: ComputerApi) => {
-      api.action.say(`t: ${t}`)
-      t += 1
-    }
+  stillCode(): SourceCode { 
+    return {
+      t: 0,
+      run(api: ComputerApi): void {
+        api.action.say(`t: ${this.t}`)
+        this.t += 1
+      },
+    } as { t: number, run(api: ComputerApi): void }
   },
 
   /// 一定方向へ移動するのみ
   moveCode(direction: NeighbourDirection, moveInterval: number): SourceCode {
-    let t = 0
-    return (api: ComputerApi) => {
-      api.action.say(`t: ${t}`)
+    return {
+      t: 0,
+      run(api: ComputerApi): void {
+        api.action.say(`t: ${this.t}`)
 
-      api.status.getModules("channel").forEach(channel => {
-        api.action.uptake(channel.id)
-      })
+        api.status.getModules("channel").forEach(channel => {
+          api.action.uptake(channel.id)
+        })
 
-      if (t % moveInterval === 0) {
-        api.action.move(direction)
-      }
+        if (this.t % moveInterval === 0) {
+          api.action.move(direction)
+        }
 
-      t += 1
-    }
+        this.t += 1
+      },
+    } as { t: number, run(api: ComputerApi): void }
   },
 
   /// 自己複製を行う
-  minimumSelfReproduction: minimumSelfReproduction,
+  minimumSelfReproduction(direction: NeighbourDirection): SourceCode {
+    return new MinimumSelfReproductionCode(direction)
+  },
 }

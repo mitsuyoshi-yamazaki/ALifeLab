@@ -26,7 +26,7 @@ export type ComputerApi = {
   }
 
   readonly action: {
-    say(message: string): void
+    say(message: string | null): void
 
     move(direction: NeighbourDirection): void
     uptake(moduleId: ModuleId<"channel">): void

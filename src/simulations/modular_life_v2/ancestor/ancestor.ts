@@ -5,11 +5,11 @@ import { AncestorSpec } from "./spawner"
 
 export const Ancestor = {
   /// 試験用
-  test(code: SourceCode): AncestorSpec {
+  test(codeBase: () => SourceCode): AncestorSpec {
     const internalModules: ModuleDefinition<InternalModuleType>[] = [
       {
         case: "computer",
-        code,
+        codeBase,
       },
       { case: "mover" },
       { case: "mover" },
@@ -23,11 +23,11 @@ export const Ancestor = {
   },
 
   /// 生命として成立する最小の祖先種
-  minimum(code: SourceCode): AncestorSpec {
+  minimum(codeBase: () => SourceCode): AncestorSpec {
     const internalModules: ModuleDefinition<InternalModuleType>[] = [
       {
         case: "computer",
-        code,
+        codeBase,
       },
       {
         case: "channel",
@@ -43,11 +43,11 @@ export const Ancestor = {
   },
 
   /// 自己複製できる最小の祖先種
-  minimumSelfReproduction(code: SourceCode): AncestorSpec {
+  minimumSelfReproduction(codeBase: () => SourceCode): AncestorSpec {
     const internalModules: ModuleDefinition<InternalModuleType>[] = [
       {
         case: "computer",
-        code,
+        codeBase,
       },
       { case: "assembler" },
       {
@@ -72,7 +72,7 @@ export const Ancestor = {
   },
 
   /// 自身より複雑な子孫を組み立てられる祖先種
-  generalAssembler(code: SourceCode): AncestorSpec {
+  generalAssembler(codeBase: () => SourceCode): AncestorSpec {
     throw "not implemented"  // TODO:
   },
 }

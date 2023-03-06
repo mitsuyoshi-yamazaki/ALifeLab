@@ -7,10 +7,11 @@ import { PhysicalConstant } from "./physics/physical_constant"
 import { Engine, ScopeOperation } from "./engine"
 import { createScopeUpdate, Scope, updateScope } from "./physics/scope"
 import type { ComputeRequestMove, GenericComputeRequest, Life, MaterialTransferRequest, MaterialTransferRequestType } from "./api_request"
-import type { AnyModuleDefinition, ComputerInterface, HullInterface, ModuleId, ModuleInterface, ModuleType } from "./module/module"
+import type { AnyModuleDefinition, HullInterface, ModuleId, ModuleInterface, ModuleType } from "./module/module"
 import type { MaterialAmountMap, MaterialType } from "./physics/material"
 import { AncestorSpec, Spawner } from "./ancestor/spawner"
 import { InternalModuleType } from "./module/module_object/module_object"
+import { Computer } from "./module/module_object/computer"
 
 type LifeRequestCache = {
   moveRequest: ComputeRequestMove | null
@@ -89,7 +90,7 @@ export class World {
 
           if (requests.moveRequest != null) {
             if (this.engine.move(life, scope).resultType === "succeeded") {
-              scope.scopeUpdate.hullToRemove.push(life)
+              scope.scopeUpdate.hullToRemove.add(life)
               results.movedLives.push({
                 life,
                 moveRequest: requests.moveRequest,
@@ -104,7 +105,7 @@ export class World {
         }
 
         const childResults = calculateScope(life)
-        scope.scopeUpdate.hullToAdd.push(...childResults.movedLives.map(x => x.life))
+        childResults.movedLives.map(childResult => scope.scopeUpdate.hullToAdd.add(childResult.life))
 
         this.engine.calculateHeatDamage(life, scope)
       })
@@ -121,7 +122,7 @@ export class World {
         result.movedLives.forEach(({ life, moveRequest }) => {
           const destinationPosition = this.getNewPosition(new Vector(x, y), moveRequest.direction)
           const destinationCell = this.getTerrainCellAt(destinationPosition)
-          destinationCell.scopeUpdate.hullToAdd.push(life)
+          destinationCell.scopeUpdate.hullToAdd.add(life)
         })
 
         this.engine.calculateTerrainCell(cell)
@@ -162,7 +163,7 @@ export class World {
   }
 
   // ---- API ---- //
-  private runLifeCode(computer: ComputerInterface, life: Life, scope: Scope): LifeRequests {
+  private runLifeCode(computer: Computer, life: Life, scope: Scope): LifeRequests {
     const requestCache: LifeRequestCache = {
       moveRequest: null,
       materialTransferRequests: {},
@@ -170,7 +171,7 @@ export class World {
     const api = this.createApiFor(life, scope, requestCache)
 
     try {
-      computer.code(api)
+      computer.code.run(api)
     } catch (error) {
       this.logger.error(`[${life.scopeId}] ${error}`)
     }

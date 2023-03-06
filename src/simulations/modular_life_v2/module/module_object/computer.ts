@@ -5,9 +5,12 @@ import { AbstractModule } from "./abstract_module"
 export class Computer extends AbstractModule<"computer"> implements ComputerInterface {
   public readonly case = "computer"
 
+  public readonly code: SourceCode
+
   public constructor(
-    public readonly code: SourceCode
+    public readonly codeBase: () => SourceCode
   ) {
     super()
+    this.code = codeBase()
   }
 }

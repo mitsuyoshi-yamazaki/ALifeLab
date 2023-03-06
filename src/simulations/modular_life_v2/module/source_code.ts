@@ -1,3 +1,5 @@
 import type { ComputerApi } from "./api"
 
-export type SourceCode = (api: ComputerApi) => void
+export type SourceCode = {
+  run(api: ComputerApi): void
+}

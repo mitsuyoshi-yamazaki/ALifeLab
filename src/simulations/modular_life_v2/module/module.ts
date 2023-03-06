@@ -31,7 +31,7 @@ export type HullInterface = BaseModuleInterface<"hull"> & Scope & HullDefinition
 }
 
 export type ComputerDefinition = BaseModuleDefinition<"computer"> & {
-  readonly code: SourceCode
+  readonly codeBase: () => SourceCode
 }
 export type ComputerInterface = BaseModuleInterface<"computer"> & ComputerDefinition & {
 }

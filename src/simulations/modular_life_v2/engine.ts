@@ -185,8 +185,8 @@ export class Engine {
       return
     }
 
-    inScope.scopeUpdate.hullToRemove.push(life)
-    inScope.scopeUpdate.hullToAdd.push(...life.hull)
+    inScope.scopeUpdate.hullToRemove.add(life)
+    life.hull.forEach(hull => inScope.scopeUpdate.hullToAdd.add(hull))
 
     this.addMaterials(inScope, life.scopeUpdate.amount)
     inScope.scopeUpdate.heat += life.scopeUpdate.heat

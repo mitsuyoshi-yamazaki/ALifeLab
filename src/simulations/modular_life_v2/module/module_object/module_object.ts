@@ -25,7 +25,7 @@ export const createModule = <M extends ModuleType>(moduleDefinition: ModuleDefin
   case "hull":
     return new Hull(moduleDefinition.size) as Module<M>
   case "computer":
-    return new Computer(moduleDefinition.code) as Module<M>
+    return new Computer(moduleDefinition.codeBase) as Module<M>
   case "assembler":
     return new Assembler() as Module<M>
   case "channel":

@@ -23,9 +23,9 @@ export type ScopeUpdate = {
   heat: number
 
   /// 差分
-  readonly hullToAdd: Hull[]
+  readonly hullToAdd: Set<Hull>
   /// 差分
-  readonly hullToRemove: Hull[]
+  readonly hullToRemove: Set<Hull>
 }
 
 export type Scope = {
@@ -49,8 +49,8 @@ export const createScopeData = (scopeType: string, capacity: number): Scope => {
     scopeUpdate: {
       amount: createMaterialStore(),
       heat: 0,
-      hullToAdd: [],
-      hullToRemove: [],
+      hullToAdd: new Set(),
+      hullToRemove: new Set(),
     },
   }
 }
@@ -59,8 +59,8 @@ export const createScopeUpdate = (originalScope: Scope): ScopeUpdate => {
   return {
     amount: {...originalScope.amount},
     heat: originalScope.heat,
-    hullToAdd: [],
-    hullToRemove: [],
+    hullToAdd: new Set(),
+    hullToRemove: new Set(),
   }
 }
 
