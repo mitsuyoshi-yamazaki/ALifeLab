@@ -2,6 +2,7 @@ import p5 from "p5"
 import { Color } from "../../classes/color"
 import { strictEntries } from "../../classes/utilities"
 import { ModuleType } from "./module/module"
+import { TransferrableMaterialType } from "./physics/material"
 import { TerrainCell } from "./terrain"
 import { World } from "./world"
 
@@ -10,6 +11,9 @@ type DrawModeMaterial = {
 }
 type DrawModeLife = {
   readonly case: "life"
+  readonly hits: boolean
+  readonly heat: boolean
+  readonly saying: boolean
 }
 type DrawModeEnergy = {
   readonly case: "energy"
@@ -23,7 +27,6 @@ type DrawModeStatus = {
 }
 type DrawMode = DrawModeMaterial | DrawModeLife | DrawModeEnergy | DrawModeHeat | DrawModeStatus
 type DrawModes = DrawMode["case"]
-type InnerCellDrawModes = DrawModeMaterial["case"] | DrawModeLife["case"] | DrawModeEnergy["case"] | DrawModeHeat["case"]
 type GenericDrawMode<T extends DrawModes> = T extends "material" ? DrawModeMaterial :
   T extends "energy" ? DrawModeEnergy :
   T extends "life" ? DrawModeLife :
@@ -39,6 +42,20 @@ const moduleColor: { [M in ModuleType]: Color } = {
   mover: new Color(0x60, 0x60, 0x60),
   materialSynthesizer: new Color(0xFF, 0xFF, 0xFF),
 }
+
+const materialColor: { [M in TransferrableMaterialType]: Color } = {
+  energy: new Color(0xFF, 0xFF, 0x00),
+  nitrogen: new Color(0xD5, 0x92, 0x73),
+  carbon: new Color(0xFF, 0xFF, 0xFF),
+  fuel: new Color(0xFF, 0xFF, 0xFF),
+  substance: new Color(0xFF, 0xFF, 0xFF),
+}
+
+const heatColor = new Color(0xFF, 0x00, 0x00)
+
+const energyMeanAmount = 20 // FixMe:
+const heatMeanAmount = 50 // FixMe: 
+const substanceMeanAmount = 400 // FixMe: 
 
 export class P5Drawer {
   public get drawModes(): DrawModes[] {
@@ -63,17 +80,9 @@ export class P5Drawer {
   public drawWorld(p: p5, world: World): void {
     p.background(0x22)
 
-    const drawModes = this.drawModes
-    const drawTargets: { [Draw in InnerCellDrawModes]: boolean } = {
-      material: drawModes.includes("material"),
-      life: drawModes.includes("life"),
-      energy: drawModes.includes("energy"),
-      heat: drawModes.includes("heat"),
-    }
-
     world.terrain.cells.forEach((row, y) => {
       row.forEach((cell, x) => {
-        this.drawTerrainCell(p, cell, x, y, drawTargets)
+        this.drawTerrainCell(p, cell, x, y)
       })
     })
 
@@ -82,18 +91,26 @@ export class P5Drawer {
     }
   }
 
-  private drawTerrainCell(p: p5, cell: TerrainCell, x: number, y: number, drawTargets: { [Draw in InnerCellDrawModes]: boolean }): void {
+  private drawTerrainCell(p: p5, cell: TerrainCell, x: number, y: number): void {
     const cellSize = this.cellSize
     const cellRadius = cellSize / 2
 
     p.ellipseMode(p.CENTER)
     p.rectMode(p.CORNER)
 
-    if (drawTargets.material === true) {
-      // TODO:
+    if (this.drawMode.material != null) {
+      // TODO: 他のMaterialも
+
+      const alpha = Math.floor((cell.amount.substance / substanceMeanAmount) * 0x80)
+
+      p.noStroke()
+      p.fill(materialColor.substance.p5(p, alpha))
+      p.rect(x * cellSize, y * cellSize, cellSize, cellSize)
     }
 
-    if (drawTargets.life === true) {
+    if (this.drawMode.life != null) {
+      const lifeDrawMode = this.drawMode.life
+
       cell.hull.forEach(hull => {
         const size = (hull.size / 5) * cellSize
         const centerX = x * cellSize + cellRadius
@@ -105,10 +122,17 @@ export class P5Drawer {
         p.fill(hullColor)
         p.ellipse(centerX, centerY, size, size)
 
+        if (hull.amount.energy > 0) {
+          const drawSize = Math.min(hull.amount.energy / hull.capacity, 1) * size
+
+          p.fill(materialColor.energy.p5(p))
+          p.ellipse(centerX, centerY, drawSize, drawSize)
+        }
+
         p.strokeWeight(hullWeight)
         p.strokeCap(p.SQUARE)
 
-        const moverCount = hull.internalModules.mover.length
+        const moverCount = Object.keys(hull.internalModules.mover).length
         if (moverCount > 0) {
           const drawSize = p.PI * 2 * (moverCount / ((hull.size - 1) * 4))
           const fromAngle = (p.PI / 2) - (drawSize / 2)
@@ -119,7 +143,7 @@ export class P5Drawer {
           p.arc(centerX, centerY, size, size, fromAngle, toAngle)
         }
 
-        const channelCount = hull.internalModules.channel.length
+        const channelCount = Object.keys(hull.internalModules.channel).length
         if (channelCount > 0) {
           const drawSize = p.PI * 2 * (channelCount / ((hull.size - 1) * 4))
           const fromAngle = (p.PI / 2) * 3 - (drawSize / 2)
@@ -129,24 +153,52 @@ export class P5Drawer {
           p.noFill()
           p.arc(centerX, centerY, size, size, fromAngle, toAngle)
         }
+
+        if (lifeDrawMode.hits === true) {
+          const hitsXPosition = x * cellSize
+          const hitsYPosition = (y + 1) * cellSize
+
+          p.noStroke()
+          p.fill(0x00, 0xFF, 0x00, 0xFF)
+          p.rect(hitsXPosition, hitsYPosition, cellSize * (hull.hits / hull.hitsMax), cellSize * 0.2)
+
+          // p.stroke(0x22, 0xFF)
+          // p.strokeWeight(2)
+          // p.noFill()
+          // p.rect(hitsXPosition, hitsYPosition, cellSize, cellSize * 0.2)
+        }
+
+        if (lifeDrawMode.heat === true) {
+          p.noStroke()
+          p.fill(heatColor.p5(p))
+          p.textAlign(p.CENTER, p.TOP)
+          p.textSize(cellSize * 0.3)
+
+          p.text(`${hull.heat}`, centerX, (y + 1.2) * cellSize)
+        }
+
+        if (lifeDrawMode.saying === true && hull.saying != null) {
+          p.noStroke()
+          p.fill(0xFF, 0xFF)
+          p.textAlign(p.CENTER, p.BOTTOM)
+          p.textSize(cellSize * 0.5)
+
+          p.text(hull.saying, centerX, (y - 0.05) * cellSize)
+        }
       })
     }
 
-    if (drawTargets.energy === true) {
-      const energyMeanAmount = 10 // FixMe:
-
+    if (this.drawMode.energy != null) {
       p.noStroke()
       const alpha = Math.floor((cell.amount.energy / energyMeanAmount) * 0x80)
       p.fill(0xFF, 0xFF, 0x00, alpha)
       p.rect(x * cellSize, y * cellSize, cellSize, cellSize)
     }
 
-    if (drawTargets.heat === true) {
-      const heatMeanAmount = 10 // FixMe: 
-
+    if (this.drawMode.heat != null) {
       p.noStroke()
       const alpha = Math.floor((cell.heat / heatMeanAmount) * 0x80)
-      p.fill(0xFF, 0x00, 0x00, alpha)
+      p.fill(heatColor.p5(p, alpha))
       p.rect(x * cellSize, y * cellSize, cellSize, cellSize)
     }
   }

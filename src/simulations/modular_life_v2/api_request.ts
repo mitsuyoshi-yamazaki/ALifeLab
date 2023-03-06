@@ -1,6 +1,9 @@
-import type { Hull, ModuleType } from "./module/module"
-import type { MaterialRecipeName, TransferrableMaterialType } from "./physics/material"
+import type { ModuleDefinition, ModuleType } from "./module/module"
 import type { NeighbourDirection } from "./physics/direction"
+import type { Hull } from "./module/module_object/hull"
+import type { Assembler } from "./module/module_object/assembler"
+import type { MaterialSynthesizer } from "./module/module_object/material_synthesizer"
+import type { Channel } from "./module/module_object/channel"
 
 export type Life = Hull
 
@@ -11,21 +14,20 @@ export type ComputeRequestMove = {
 }
 export type ComputeRequestUptake = {
   readonly case: "uptake"
-  readonly materialType: TransferrableMaterialType
-  readonly amount: number
+  readonly module: Channel
 }
 export type ComputeRequestExcretion = {
   readonly case: "excretion"
-  readonly materialType: TransferrableMaterialType
-  readonly amount: number
+  readonly module: Channel
 }
 export type ComputeRequestSynthesize = {
   readonly case: "synthesize"
-  readonly recipe: MaterialRecipeName
+  readonly module: MaterialSynthesizer
 }
 export type ComputeRequestAssemble = {
   readonly case: "assemble"
-  readonly moduleType: ModuleType
+  readonly module: Assembler
+  readonly moduleDefinition: ModuleDefinition<ModuleType>
 }
 
 export type IntraScopeMaterialTransferRequest = ComputeRequestSynthesize
@@ -43,3 +45,10 @@ export type MaterialTransferRequestType = MaterialTransferRequest["case"]
 export type ComputeRequest = ComputeRequestMove
   | MaterialTransferRequest
 export type ComputeRequestType = ComputeRequest["case"]
+
+export type GenericComputeRequest<RequestType extends ComputeRequestType> = RequestType extends "move" ? ComputeRequestMove :
+  RequestType extends "uptake" ? ComputeRequestUptake :
+  RequestType extends "excretion" ? ComputeRequestExcretion :
+  RequestType extends "synthesize" ? ComputeRequestSynthesize :
+  RequestType extends "assemble" ? ComputeRequestAssemble :
+  never

@@ -1,27 +1,91 @@
-import { Hull } from "../module/module"
-import { MaterialType, Energy } from "../physics/material"
+import { strictEntries } from "../../../classes/utilities"
+import type { Hull } from "../module/module_object/hull"
+import type { MaterialType, Energy } from "../physics/material"
 
-type MaterialStore = { [Material in (MaterialType | Energy)]: number }
-
-export type Scope = {
-  readonly amount: MaterialStore
-  capacity: number
-  heat: number
-
-  hull: Hull[]
+export type MaterialStore = { [Material in (MaterialType | Energy)]: number }
+export const createMaterialStore = (): MaterialStore => {
+  return {
+    nitrogen: 0,
+    carbon: 0,
+    fuel: 0,
+    substance: 0,
+    energy: 0,
+  }
 }
 
-export const createScopeData = (capacity: number): Scope => {
+export type ScopeId = string
+
+export type ScopeUpdate = {
+  /// 差分ではなく更新後の値
+  readonly amount: MaterialStore
+
+  /// 差分ではなく更新後の値
+  heat: number
+
+  /// 差分
+  readonly hullToAdd: Set<Hull>
+  /// 差分
+  readonly hullToRemove: Set<Hull>
+}
+
+export type Scope = {
+  readonly scopeId: ScopeId
+  readonly amount: MaterialStore
+  readonly capacity: number
+  heat: number
+
+  readonly hull: Hull[]
+
+  scopeUpdate: ScopeUpdate
+}
+
+export const createScopeData = (scopeType: string, capacity: number): Scope => {
   return {
-    amount: {
-      nitrogen: 0,
-      carbon: 0,
-      fuel: 0,
-      substance: 0,
-      energy: 0,
-    },
+    scopeId: createScopeId(scopeType),
+    amount: createMaterialStore(),
     capacity,
     heat: 0,
     hull: [],
+    scopeUpdate: {
+      amount: createMaterialStore(),
+      heat: 0,
+      hullToAdd: new Set(),
+      hullToRemove: new Set(),
+    },
   }
+}
+
+export const createScopeUpdate = (originalScope: Scope): ScopeUpdate => {
+  return {
+    amount: {...originalScope.amount},
+    heat: originalScope.heat,
+    hullToAdd: new Set(),
+    hullToRemove: new Set(),
+  }
+}
+
+let scopeId = 0
+export const createScopeId = (scopeType: string): ScopeId => {
+  const id = scopeId
+  scopeId += 1
+  return `${scopeType}-${id}`
+}
+
+export const updateScope = (scope: Scope, update: ScopeUpdate): void => {
+  strictEntries(update.amount).forEach(([materialType, amount]) => {
+    scope.amount[materialType] = amount
+  })
+
+  scope.heat = update.heat
+
+  update.hullToRemove.forEach(hull => {
+    const index = scope.hull.indexOf(hull)
+    if (index < 0) {
+      throw `Hull ${hull} is not in scope (${scope.scopeId})`
+    }
+
+    scope.hull.splice(index, 1)
+  })
+
+  scope.hull.push(...update.hullToAdd)
 }
