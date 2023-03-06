@@ -18,11 +18,15 @@ type UserInputEventShowHeat = {
   readonly case: "show heat"
   readonly show: boolean
 }
+type UserInputEventShowSubstance = {
+  readonly case: "show substance"
+  readonly show: boolean
+}
 type UserInputEventRun = {
   readonly case: "run"
   readonly running: boolean
 }
-type UserInputEvent = UserInputEventShowEnergy | UserInputEventShowHeat | UserInputEventRun
+type UserInputEvent = UserInputEventShowEnergy | UserInputEventShowHeat | UserInputEventShowSubstance | UserInputEventRun
 
 type ReactConnector = {
   p: (p: p5) => void
@@ -43,11 +47,18 @@ const canvasSize = worldSize.mult(cellSize)
 
 const world = new World(worldSize, logger, constants.physicalConstant)
 initializeEnergySources(world)
+initializeMaterials(world)
 initializeAncestors(world)
+world.initialize()
 
 const drawer = new P5Drawer(cellSize)
 drawer.setDrawMode({ case: "material" })
-drawer.setDrawMode({ case: "life" })
+drawer.setDrawMode({
+  case: "life",
+  hits: true,
+  heat: false,
+  saying: true,
+})
 
 export const main = (): ReactConnector => {
   let isRunning = true
@@ -104,6 +115,20 @@ export const main = (): ReactConnector => {
           drawer.removeDrawMode("heat")
         }
         break
+      case "show substance":
+        if (event.show === true) {
+          drawer.setDrawMode({
+            case: "material",
+          })
+        } else {
+          drawer.removeDrawMode("material")
+        }
+        break
+      default: {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const _: never = event
+        break
+      }
       }
     }),
     getTimestamp: (): number => {
@@ -130,8 +155,16 @@ function initializeEnergySources(world: World): void {
   }
 }
 
+function initializeMaterials(world: World): void {
+  for (let y = 0; y < world.size.y; y += 1) {
+    for (let x = 0; x < world.size.x; x += 1) {
+      world.addMaterial("substance", 500, x, y)
+    }
+  }
+}
+
 function initializeAncestors(world: World): void {
-  world.addAncestor(Ancestor.minimum(AncestorCode.moveCode(NeighbourDirections.right, 10)), world.size.div(3).floor())
-  world.addAncestor(Ancestor.test(AncestorCode.stillCode()), world.size.div(2).floor())
-  world.addAncestor(Ancestor.minimum(AncestorCode.moveCode(NeighbourDirections.bottom, 11)), world.size.div(3).mult(2).floor())
+  world.addAncestor(Ancestor.minimumSelfReproduction(() => AncestorCode.minimumSelfReproduction(NeighbourDirections.bottom)), world.size.div(3).floor())
+  world.addAncestor(Ancestor.minimumSelfReproduction(() => AncestorCode.minimumSelfReproduction(NeighbourDirections.right)), world.size.div(2).floor())
+  world.addAncestor(Ancestor.minimumSelfReproduction(() => AncestorCode.minimumSelfReproduction(NeighbourDirections.top)), world.size.div(3).mult(2).floor())
 }

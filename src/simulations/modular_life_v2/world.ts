@@ -5,16 +5,21 @@ import { Logger } from "./logger"
 import { Terrain, TerrainCell } from "./terrain"
 import { PhysicalConstant } from "./physics/physical_constant"
 import { Engine, ScopeOperation } from "./engine"
-import { Scope } from "./physics/scope"
-import type { ComputeRequestMove, Life, MaterialTransferRequest, MaterialTransferRequestType } from "./api_request"
-import type { AnyModule, Computer, ModuleType } from "./module/module"
-import type { MaterialRecipeName, MaterialType, TransferrableMaterialType } from "./physics/material"
-import { ValuedArrayMap } from "../../classes/utilities"
-import { Environment } from "./physics/environment"
+import { createScopeUpdate, Scope, updateScope } from "./physics/scope"
+import type { ComputeRequestMove, GenericComputeRequest, Life, MaterialTransferRequest, MaterialTransferRequestType } from "./api_request"
+import type { AnyModuleDefinition, HullInterface, ModuleId, ModuleInterface, ModuleType } from "./module/module"
+import type { MaterialAmountMap, MaterialType } from "./physics/material"
+import { AncestorSpec, Spawner } from "./ancestor/spawner"
+import { InternalModuleType } from "./module/module_object/module_object"
+import { Computer } from "./module/module_object/computer"
 
+type LifeRequestCache = {
+  moveRequest: ComputeRequestMove | null
+  readonly materialTransferRequests: { [Id: string]: MaterialTransferRequest }
+}
 type LifeRequests = {
   moveRequest: ComputeRequestMove | null
-  readonly materialTransferRequests: ValuedArrayMap<MaterialTransferRequestType, MaterialTransferRequest>
+  readonly materialTransferRequests: { [RequestType in MaterialTransferRequestType]: GenericComputeRequest<RequestType>[] }
 }
 
 export class World {
@@ -28,6 +33,7 @@ export class World {
   private _t = 0
   private _terrain: Terrain
   private engine: Engine
+  private spawner = new Spawner()
 
   public constructor(
     public readonly size: Vector,
@@ -35,16 +41,29 @@ export class World {
     physicalConstant: PhysicalConstant,
   ) {
     this._terrain = new Terrain(size)
-    this.engine = new Engine(physicalConstant)
+    this.engine = new Engine(physicalConstant, logger)
   }
 
-  public addAncestor(life: Life, atPosition: Vector): void {
+  public addAncestor(ancestorSpec: AncestorSpec, atPosition: Vector): void {
+    const life = this.spawner.createLife(ancestorSpec)
     const cell = this.getTerrainCellAt(atPosition)
     cell.hull.push(life)
   }
 
   public setEnergyProductionAt(x: number, y: number, energyProduction: number): void {
     this.terrain.cells[y][x].energyProduction = energyProduction
+  }
+
+  public addMaterial(materialType: MaterialType, amount: number, x: number, y: number): void {
+    this.terrain.cells[y][x].amount[materialType] += amount
+  }
+
+  public initialize(): void {
+    this.terrain.cells.forEach(row => {
+      row.forEach(cell => {
+        cell.scopeUpdate = createScopeUpdate(cell)
+      })
+    })
   }
 
   public run(step: number): void {
@@ -54,79 +73,65 @@ export class World {
   }
 
   private step(): void {
-    const environment: Environment = {
-      time: this.t,
-    }
+    const allScopes: Scope[] = []
 
-    const calculateScope = (scope: Scope): { movedLifes: { life: Life, moveRequest: ComputeRequestMove }[] } => {
-      const results: { movedLifes: { life: Life, moveRequest: ComputeRequestMove }[] } = {
-        movedLifes: [],
+    const calculateScope = (scope: Scope): { movedLives: { life: Life, moveRequest: ComputeRequestMove }[] } => {
+      allScopes.push(scope)
+
+      const results: { movedLives: { life: Life, moveRequest: ComputeRequestMove }[] } = {
+        movedLives: [],
       }
       const operations: ScopeOperation[] = []
 
-      const lifeIndicesToRemove: number[] = []
-      const livesToAdd: Life[] = []
-
-      scope.hull.forEach((life, index) => {
-        const computer = life.internalModules.computer[0] // 複数のComputerを実行できるようにはなっていない
+      scope.hull.forEach(life => {
+        const computer = Object.values(life.internalModules.computer)[0] // 複数のComputerを実行できるようにはなっていない
         if (computer != null) {
-          const requests = this.runLifeCode(computer, life, scope, environment)
+          const requests = this.runLifeCode(computer, life, scope)
 
           if (requests.moveRequest != null) {
-            lifeIndicesToRemove.push(index)
-            results.movedLifes.push({
-              life,
-              moveRequest: requests.moveRequest,
-            })
+            if (this.engine.move(life, scope).resultType === "succeeded") {
+              scope.scopeUpdate.hullToRemove.add(life)
+              results.movedLives.push({
+                life,
+                moveRequest: requests.moveRequest,
+              }) 
+            }
           }
-          
+
           operations.push({
             life,
             requests: requests.materialTransferRequests,
           })
-        } else {
-          operations.push({
-            life,
-            requests: new Map(),
-          })
         }
 
         const childResults = calculateScope(life)
-        livesToAdd.push(...childResults.movedLifes.map(x => x.life))
-      })
+        childResults.movedLives.map(childResult => scope.scopeUpdate.hullToAdd.add(childResult.life))
 
-      lifeIndicesToRemove.reverse()
-      lifeIndicesToRemove.forEach(index => {
-        scope.hull.splice(index, 1)
+        this.engine.calculateHeatDamage(life, scope)
       })
-
-      scope.hull.push(...livesToAdd)
 
       this.engine.celculateScope(scope, operations)
 
       return results
     }
     
-    const movedLives: {life: Life, destinationPosition: Vector}[] = []
-
     this.terrain.cells.forEach((row, y) => {
       row.forEach((cell, x) => {
         const result = calculateScope(cell)
 
-        result.movedLifes.forEach(({ life, moveRequest }) => {
+        result.movedLives.forEach(({ life, moveRequest }) => {
           const destinationPosition = this.getNewPosition(new Vector(x, y), moveRequest.direction)
-
-          movedLives.push({
-            life,
-            destinationPosition,
-          })
+          const destinationCell = this.getTerrainCellAt(destinationPosition)
+          destinationCell.scopeUpdate.hullToAdd.add(life)
         })
+
+        this.engine.calculateTerrainCell(cell)
       })
     })
 
-    movedLives.forEach(({ life, destinationPosition }) => {
-      const destinationCell = this.getTerrainCellAt(destinationPosition)
-      destinationCell.hull.push(life)
+    allScopes.forEach(scope => {
+      updateScope(scope, scope.scopeUpdate)
+      scope.scopeUpdate = createScopeUpdate(scope)
     })
 
     this._t += 1
@@ -158,72 +163,139 @@ export class World {
   }
 
   // ---- API ---- //
-  private runLifeCode(computer: Computer, life: Life, scope: Scope, environment: Environment): LifeRequests {
-    const lifeRequests: LifeRequests = {
+  private runLifeCode(computer: Computer, life: Life, scope: Scope): LifeRequests {
+    const requestCache: LifeRequestCache = {
       moveRequest: null,
-      materialTransferRequests: new ValuedArrayMap<MaterialTransferRequestType, MaterialTransferRequest>(),
+      materialTransferRequests: {},
     }
-    const api = this.createApiFor(life, scope, lifeRequests)
-    computer.code([api, environment])
+    const api = this.createApiFor(life, scope, requestCache)
 
-    return lifeRequests
+    try {
+      computer.code.run(api)
+    } catch (error) {
+      this.logger.error(`[${life.scopeId}] ${error}`)
+    }
+
+    const result: LifeRequests = {
+      moveRequest: requestCache.moveRequest,
+      materialTransferRequests: {
+        uptake: [],
+        excretion: [],
+        assemble: [],
+        synthesize: [],
+      },
+    }
+
+    const addRequest = <RequestType extends MaterialTransferRequestType>(request: GenericComputeRequest<RequestType>): void => {
+      (result.materialTransferRequests[request.case] as GenericComputeRequest<RequestType>[]).push(request)
+    }
+
+    Array.from(Object.values(requestCache.materialTransferRequests)).forEach(request => {
+      addRequest(request)
+    })
+
+    return result
   }
 
-  private createApiFor(life: Life, scope: Scope, requests: LifeRequests): ComputerApi {
+  private createApiFor(life: Life, scope: Scope, requestCache: LifeRequestCache): ComputerApi {
     const addMaterialTransferRequest = (request: MaterialTransferRequest): void => {
-      requests.materialTransferRequests.getValueFor(request.case).push(request)
+      requestCache.materialTransferRequests[request.module.id] = request
     }
 
     return {
-      getStoredAmount(materialType: MaterialType): number {
-        return life.amount[materialType]
+      physics: {
+        getAssembleIngredientsFor: (moduleDefinition: AnyModuleDefinition): MaterialAmountMap => {
+          return this.engine.getAssembleIngredientsFor(moduleDefinition)
+        },
       },
-      getEnergyAmount(): number {
-        return life.amount.energy
+      environment: {
+        getEnvironmentalHeat(): number {
+          return scope.heat
+        },
+        getWeight(): number {
+          return scope.hull.reduce((result, current) => result + current.getWeight(), 0)
+        },
       },
-      getHeat(): number {
-        return life.heat
-      },
-      modules(): AnyModule[] {
-        const internalModules = Array.from(Object.values(life.internalModules)).flatMap((x): AnyModule[] => x)
+      status: {
+        getStoredAmount(materialType: MaterialType): number {
+          return life.amount[materialType]
+        },
+        getEnergyAmount(): number {
+          return life.amount.energy
+        },
+        getHeat(): number {
+          return life.heat
+        },
+        getModules<M extends ModuleType>(moduleType: M): ModuleInterface<M>[] {
+          if (moduleType === "hull") {
+            return [life as HullInterface as ModuleInterface<M>]
+          }
 
-        return [
-          life,
-          ...internalModules,
-        ]
+          const internalModuleType: InternalModuleType = moduleType
+          return Array.from(Object.values(life.internalModules[internalModuleType]))
+        },
+        getWeight(): number {
+          return life.getWeight()
+        },
+        getMoveEnergyConsumption: (): number => {
+          return this.engine.calculateMoveEnergyConsumption(life)
+        },
       },
-      move(direction: NeighbourDirection): void {
-        requests.moveRequest = {
-          case: "move",
-          direction,
-        }
-      },
-      uptake(materialType: TransferrableMaterialType, amount: number): void {
-        addMaterialTransferRequest({
-          case: "uptake",
-          materialType,
-          amount,
-        })
-      },
-      excretion(materialType: TransferrableMaterialType, amount: number): void {
-        addMaterialTransferRequest({
-          case: "excretion",
-          materialType,
-          amount,
-        })
-      },
-      synthesize(recipe: MaterialRecipeName): void {
-        addMaterialTransferRequest({
-          case: "synthesize",
-          recipe,
-        })
-      },
-      assemble(moduleType: ModuleType): void {
-        addMaterialTransferRequest({
-          case: "assemble",
-          moduleType,
-        })
-      },
+      action: {
+        say(message: string): void {
+          life.saying = message
+        },
+        move(direction: NeighbourDirection): void {
+          if (Object.keys(life.internalModules.mover).length <= 0) {
+            throw "no Mover module"
+          }
+          requestCache.moveRequest = {
+            case: "move",
+            direction,
+          }
+        },
+        uptake(moduleId: ModuleId<"channel">): void {
+          const module = life.internalModules.channel[moduleId]
+          if (module == null) {
+            throw `no module with ID ${moduleId}`
+          }
+          addMaterialTransferRequest({
+            case: "uptake",
+            module,
+          })
+        },
+        excretion(moduleId: ModuleId<"channel">): void {
+          const module = life.internalModules.channel[moduleId]
+          if (module == null) {
+            throw `no module with ID ${moduleId}`
+          }
+          addMaterialTransferRequest({
+            case: "excretion",
+            module,
+          })
+        },
+        synthesize(moduleId: ModuleId<"materialSynthesizer">): void {
+          const module = life.internalModules.materialSynthesizer[moduleId]
+          if (module == null) {
+            throw `no module with ID ${moduleId}`
+          }
+          addMaterialTransferRequest({
+            case: "synthesize",
+            module,
+          })
+        },
+        assemble(moduleId: ModuleId<"assembler">, moduleDefinition: AnyModuleDefinition): void {
+          const module = life.internalModules.assembler[moduleId]
+          if (module == null) {
+            throw `no module with ID ${moduleId}`
+          }
+          addMaterialTransferRequest({
+            case: "assemble",
+            module,
+            moduleDefinition,
+          })
+        },
+      }
     }
   }
 }

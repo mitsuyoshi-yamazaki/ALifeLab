@@ -1,17 +1,37 @@
 import type { NeighbourDirection } from "../physics/direction"
-import type { MaterialRecipeName, MaterialType, TransferrableMaterialType } from "../physics/material"
-import type { AnyModule, ModuleType } from "./module"
+import type { MaterialAmountMap, MaterialType } from "../physics/material"
+import type { AnyModuleDefinition, ModuleId, ModuleInterface, ModuleType } from "./module"
 
 export type ComputerApi = {
-  getStoredAmount(materialType: MaterialType): number
-  getEnergyAmount(): number
-  getHeat(): number
+  readonly physics: {
+    getAssembleIngredientsFor(moduleDefinition: AnyModuleDefinition): MaterialAmountMap
+  }
 
-  modules(): AnyModule[]
+  readonly environment: {
+    getEnvironmentalHeat(): number
 
-  move(direction: NeighbourDirection): void
-  uptake(materialType: TransferrableMaterialType, amount: number): void
-  excretion(materialType: TransferrableMaterialType, amount: number): void
-  synthesize(recipe: MaterialRecipeName): void
-  assemble(moduleType: ModuleType): void
+    /// そのScopeに存在するModuleの総重量
+    getWeight(): number
+  }
+
+  readonly status: {
+    getStoredAmount(materialType: MaterialType): number
+    getEnergyAmount(): number
+    getHeat(): number
+
+    getModules<M extends ModuleType>(moduleType: M): ModuleInterface<M>[]
+
+    getWeight(): number
+    getMoveEnergyConsumption(): number
+  }
+
+  readonly action: {
+    say(message: string | null): void
+
+    move(direction: NeighbourDirection): void
+    uptake(moduleId: ModuleId<"channel">): void
+    excretion(moduleId: ModuleId<"channel">): void
+    synthesize(moduleId: ModuleId<"materialSynthesizer">): void
+    assemble(moduleId: ModuleId<"assembler">, moduleDefinition: AnyModuleDefinition): void
+  }
 }

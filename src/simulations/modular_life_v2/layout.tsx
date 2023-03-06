@@ -14,8 +14,9 @@ type KeyInputState = {
 const makeInputState = (key: string, value: boolean): KeyInputState => ({key, value})
 const keyInputStates = {
   running: makeInputState("0", true),
-  showEnergy: makeInputState("1", false),
+  showEnergy: makeInputState("1", true),
   showHeat: makeInputState("2", false),
+  showSubstance: makeInputState("3", false),
 }
 
 strictEntries(keyInputStates).forEach(([event, inputState]) => {
@@ -62,6 +63,12 @@ function setCurrentState(event: keyof typeof keyInputStates, value: boolean): vo
   case "showHeat":
     processing.eventHandler({
       case: "show heat",
+      show: value,
+    })
+    break
+  case "showSubstance":
+    processing.eventHandler({
+      case: "show substance",
       show: value,
     })
     break
