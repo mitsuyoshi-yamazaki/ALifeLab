@@ -81,11 +81,13 @@ export class World {
           const requests = this.runLifeCode(computer, life, scope, environment)
 
           if (requests.moveRequest != null) {
-            scope.scopeUpdate.hullToRemove.push(life)
-            results.movedLives.push({
-              life,
-              moveRequest: requests.moveRequest,
-            })
+            if (this.engine.move(life, scope).resultType === "succeeded") {
+              scope.scopeUpdate.hullToRemove.push(life)
+              results.movedLives.push({
+                life,
+                moveRequest: requests.moveRequest,
+              }) 
+            }
           }
 
           operations.push({
@@ -113,7 +115,7 @@ export class World {
           destinationCell.scopeUpdate.hullToAdd.push(life)
         })
 
-        this.engine.calculateTerrainCell(cell, cell.scopeUpdate)
+        this.engine.calculateTerrainCell(cell)
       })
     })
 

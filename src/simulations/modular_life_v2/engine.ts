@@ -1,3 +1,4 @@
+import { Result } from "../../classes/result"
 import { strictEntries } from "../../classes/utilities"
 import { ComputeRequestAssemble, ComputeRequestExcretion, ComputeRequestSynthesize, ComputeRequestUptake, GenericComputeRequest, Life, MaterialTransferRequestType } from "./api_request"
 import { Logger } from "./logger"
@@ -6,7 +7,7 @@ import { createModule, InternalModuleType } from "./module/module_object/module_
 import { ModuleSpec } from "./module/module_spec"
 import { MaterialAmountMap, materialProductionRecipes } from "./physics/material"
 import { PhysicalConstant } from "./physics/physical_constant"
-import { Scope, ScopeUpdate } from "./physics/scope"
+import { Scope } from "./physics/scope"
 import { TerrainCell } from "./terrain"
 
 export type ScopeOperation = {
@@ -126,11 +127,28 @@ export class Engine {
     })
   }
 
-  public calculateTerrainCell(cell: TerrainCell, scopeUpdate: ScopeUpdate): void {
+  public calculateTerrainCell(cell: TerrainCell): void {
     const energyLoss = Math.floor(cell.scopeUpdate.amount.energy * this.physicalConstant.energyHeatConversionRate)
-    scopeUpdate.amount.energy += Math.max(cell.energyProduction - energyLoss, 0)
+    cell.scopeUpdate.amount.energy += Math.max(cell.energyProduction - energyLoss, 0)
 
     const heatLoss = Math.floor(cell.scopeUpdate.heat * this.physicalConstant.heatLossRate)
-    scopeUpdate.heat += Math.max(energyLoss - heatLoss, 0)
+    cell.scopeUpdate.heat += Math.max(energyLoss - heatLoss, 0)
+  }
+
+  public calculateLifeScope(life: Life): void {
+    const heatLoss = Math.floor(life.scopeUpdate.heat * this.physicalConstant.heatLossRate)
+    life.scopeUpdate.heat -= heatLoss
+  }
+
+  public move(life: Life, inScope: Scope): Result<number, string> {
+    const energyConsumption = ModuleSpec.modules.mover.energyConsumption * life.getWeight()
+    if (life.scopeUpdate.amount.energy < energyConsumption) {
+      return Result.Failed(`lack of energy (${life.scopeUpdate.amount.energy} < ${energyConsumption})`)
+    }
+
+    life.scopeUpdate.amount.energy -= energyConsumption
+    inScope.scopeUpdate.heat += energyConsumption
+
+    return Result.Succeeded(energyConsumption)
   }
 }

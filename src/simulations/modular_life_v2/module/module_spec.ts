@@ -22,7 +22,10 @@ export const ModuleSpec = {
       /// 1tickあたり移動できる最大量
       maxTransferAmount: 10,
     },
-    mover: {},
+    mover: {
+      /// 重さあたり重量: 排熱量は消費エネルギーから求める
+      energyConsumption: 1,
+    },
     materialSynthesizer: {},
   },
 }
