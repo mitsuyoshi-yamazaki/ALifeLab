@@ -166,7 +166,9 @@ function initializeMaterials(world: World): void {
 }
 
 function initializeAncestors(world: World): void {
-  world.addAncestor(Ancestor.minimumSelfReproduction(() => AncestorCode.minimumSelfReproduction(NeighbourDirections.bottom)), world.size.div(3).floor())
-  world.addAncestor(Ancestor.minimumSelfReproduction(() => AncestorCode.minimumSelfReproduction(NeighbourDirections.right)), world.size.div(2).floor())
-  world.addAncestor(Ancestor.minimumSelfReproduction(() => AncestorCode.minimumSelfReproduction(NeighbourDirections.top)), world.size.div(3).mult(2).floor())
+  world.addAncestor(Ancestor.minimumSelfReproduction(() => AncestorCode.energyCollection(NeighbourDirections.bottom)), world.size.div(3).floor())
+  world.addAncestor(Ancestor.minimumSelfReproduction(() => AncestorCode.energyCollection(NeighbourDirections.right)), world.size.div(2).floor())
+  world.addAncestor(Ancestor.minimumSelfReproduction(() => AncestorCode.energyCollection(NeighbourDirections.top)), world.size.div(3).mult(2).floor())
+
+  // world.addAncestor(Ancestor.minimumSelfReproduction(() => AncestorCode.energyCollection(NeighbourDirections.bottom)), world.size.div(5).mult(2).floor())
 }
