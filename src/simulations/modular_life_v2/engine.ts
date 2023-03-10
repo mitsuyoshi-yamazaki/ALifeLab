@@ -104,13 +104,16 @@ export class Engine {
   }
 
   private runUptake(scope: Scope, life: Life, requests: ComputeRequestUptake[]): void {
+    let remainingCapacity = life.capacity - Array.from(Object.values(life.amount)).reduce((result, current) => result + current, 0)
+
     requests.forEach(request => {
       const materialType = request.module.materialType
-      const amount = Math.min(scope.scopeUpdate.amount[materialType], ModuleSpec.modules.channel.maxTransferAmount)
+      const amount = Math.min(scope.scopeUpdate.amount[materialType], ModuleSpec.modules.channel.maxTransferAmount, remainingCapacity)
       if (amount <= 0) {
         return
       }
 
+      remainingCapacity -= amount
       scope.scopeUpdate.amount[materialType] -= amount
       life.scopeUpdate.amount[materialType] += amount
     })
