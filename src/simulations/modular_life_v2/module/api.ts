@@ -1,7 +1,6 @@
 import type { NeighbourDirection } from "../physics/direction"
 import type { MaterialAmountMap, MaterialType } from "../physics/material"
-import type { AnyModuleDefinition, ModuleId, ModuleInterface } from "./module"
-import type { Hull } from "./module_object/hull"
+import type { AnyModuleDefinition, HullInterface, ModuleId, ModuleInterface } from "./module"
 import type { InternalModuleType } from "./module_object/module_object"
 
 export type ComputerApi = {
@@ -25,8 +24,8 @@ export type ComputerApi = {
     getHeat(): number
 
     getInternalModules<M extends InternalModuleType>(moduleType: M): ModuleInterface<M>[]
-    getHull(): Hull
-    getNestedHull(): Hull[]
+    getHull(): HullInterface
+    getNestedHull(): HullInterface[]
 
     getWeight(): number
     getMoveEnergyConsumption(): number

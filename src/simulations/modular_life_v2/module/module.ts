@@ -28,6 +28,7 @@ export type HullDefinition = BaseModuleDefinition<"hull"> & {
 export type HullInterface = BaseModuleInterface<"hull"> & Scope & HullDefinition & {
   readonly hits: number
   readonly hitsMax: number
+  readonly capacity: number
 }
 
 export type ComputerDefinition = BaseModuleDefinition<"computer"> & {
