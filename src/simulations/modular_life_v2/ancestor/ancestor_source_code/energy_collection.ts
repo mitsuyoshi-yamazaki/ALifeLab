@@ -226,10 +226,9 @@ export class EnergyCollection implements SourceCode {
       const modules = api.status.getInternalModules(moduleType)
 
       if (moduleType === "computer") {
-        const newRetainRatio = this.createNewRetainRatio(this.t)
         internalModuleDefinitions.push({
           case: "computer",
-          codeBase: (() => new EnergyCollection(clockwiseDirection(this.direction), newRetainRatio)),
+          codeBase: (() => new EnergyCollection(clockwiseDirection(this.direction), this.createNewRetainRatio(this.t))),  // TODO: thisがゾンビ化していないか確認する
         })
       } else {
         internalModuleDefinitions.push(...modules)
@@ -276,7 +275,7 @@ export class EnergyCollection implements SourceCode {
   }
 
   private createNewRetainRatio(n: number): number {
-    const newRetainRatio = (((n % 3) - 1) / 100)
+    const newRetainRatio = (((Math.floor(n / 10) % 3) - 1) / 100)
     return Math.max(0, Math.min(1, this.retainRatio + newRetainRatio))
   }
 }
