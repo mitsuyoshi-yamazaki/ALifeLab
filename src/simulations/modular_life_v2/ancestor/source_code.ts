@@ -22,7 +22,7 @@ export const AncestorCode = {
       run(api: ComputerApi): void {
         api.action.say(`t: ${this.t}`)
 
-        api.status.getModules("channel").forEach(channel => {
+        api.status.getInternalModules("channel").forEach(channel => {
           api.action.uptake(channel.id)
         })
 

@@ -1,6 +1,6 @@
 import { strictEntries } from "../../../../classes/utilities"
 import { ComputerApi } from "../../module/api"
-import { AnyModuleDefinition, HullDefinition, ModuleDefinition } from "../../module/module"
+import { AnyModuleDefinition, HullDefinition, ModuleDefinition, ModuleId } from "../../module/module"
 import { InternalModuleType } from "../../module/module_object/module_object"
 import type { SourceCode } from "../../module/source_code"
 import { clockwiseDirection, NeighbourDirection } from "../../physics/direction"
@@ -16,18 +16,23 @@ type LifeStateCollectResource = {
 }
 type LifeStateReproduction = {
   readonly case: "reproduction"
+}
+type LifeStateConstructChild = {
+  readonly case: "construct"
+  readonly childHullId: ModuleId<"hull">
   readonly assemblingModules: AnyModuleDefinition[]
 }
 type LifeStatePregnant = {
   readonly case: "pregnant"
 }
-type LifeState = LifeStateBorn | LifeStateCollectResource | LifeStateReproduction | LifeStatePregnant
+type LifeState = LifeStateBorn | LifeStateCollectResource | LifeStateReproduction | LifeStateConstructChild | LifeStatePregnant
 
 type StaticParameters = {
   readonly moveEnergyConsumption: number
   readonly assembleIngredients: MaterialAmountMap
   readonly lifeSpec: AncestorSpec
   readonly defaultWeight: number
+  readonly hullId: ModuleId<"hull">
 }
 
 export class MinimumSelfReproductionCode implements SourceCode {
@@ -48,7 +53,7 @@ export class MinimumSelfReproductionCode implements SourceCode {
       this.staticParameters = this.getStaticParameters(api)
     }
 
-    api.status.getModules("channel").forEach(channel => {
+    api.status.getInternalModules("channel").forEach(channel => {
       api.action.uptake(channel.id)
     })
 
@@ -75,30 +80,45 @@ export class MinimumSelfReproductionCode implements SourceCode {
         this.state.substanceAmount = substanceAmount
 
         if (this.hasEnoughResourceToReproduce(api, this.staticParameters.assembleIngredients) === true) {
-          const hullDefinition: HullDefinition = {
-            case: "hull",
-            size: this.staticParameters.lifeSpec.hullSize,
-          }
-
           this.state = {
             case: "reproduction",
-            assemblingModules: [
-              hullDefinition,
-              ...this.staticParameters.lifeSpec.internalModules,
-            ],
+          }
+        }
+      }
+      break
+      
+    case "reproduction":
+      if (this.t % 10 === 0) {
+        const children = api.status.getNestedHull()
+        if (children[0] != null) {
+          this.state = {
+            case: "construct",
+            assemblingModules: [...this.staticParameters.lifeSpec.internalModules],
+            childHullId: children[0].id,
+          }
+
+        } else {
+          const assembler = api.status.getInternalModules("assembler")[0]
+          if (assembler != null) {
+            api.action.say("Assembling Hull")
+            const hullDefinition: HullDefinition = {
+              case: "hull",
+              size: this.staticParameters.lifeSpec.hullSize,
+            }
+            api.action.assemble(assembler.id, this.staticParameters.hullId, hullDefinition)
           }
         }
       }
       break
 
-    case "reproduction":
+    case "construct":
       if (this.t % 10 === 0) {
         const moduleDefinition = this.state.assemblingModules.shift()
         if (moduleDefinition != null) {
-          const assembler = api.status.getModules("assembler")[0]
+          const assembler = api.status.getInternalModules("assembler")[0]
           if (assembler != null) {
             api.action.say(`Assembling ${moduleDefinition.case}`)
-            api.action.assemble(assembler.id, moduleDefinition)
+            api.action.assemble(assembler.id, this.state.childHullId, moduleDefinition)
           }
         } else {
           api.action.say("pregnant")
@@ -139,7 +159,7 @@ export class MinimumSelfReproductionCode implements SourceCode {
       "computer",
     ]
 
-    const hullDefinition = api.status.getModules("hull")[0]
+    const hullDefinition = api.status.getHull()
     const internalModuleDefinitions: ModuleDefinition<InternalModuleType>[] = []
 
     const addIngredients = (moduleDefinition: AnyModuleDefinition): void => {
@@ -154,7 +174,7 @@ export class MinimumSelfReproductionCode implements SourceCode {
     }
 
     internalModuleTypesToAssemble.forEach(moduleType => {
-      const modules = api.status.getModules(moduleType)
+      const modules = api.status.getInternalModules(moduleType)
 
       if (moduleType === "computer") {
         internalModuleDefinitions.push({
@@ -174,10 +194,11 @@ export class MinimumSelfReproductionCode implements SourceCode {
       moveEnergyConsumption: api.status.getMoveEnergyConsumption(),
       assembleIngredients,
       lifeSpec: {
-        hullSize: api.status.getModules("hull")[0]?.size ?? 5,
+        hullSize: hullDefinition.size,
         internalModules: internalModuleDefinitions,
       },
       defaultWeight: api.status.getWeight(),
+      hullId: hullDefinition.id,
     }
   }
 

@@ -3,7 +3,6 @@ import { strictEntries } from "../../classes/utilities"
 import { ComputeRequestAssemble, ComputeRequestExcretion, ComputeRequestSynthesize, ComputeRequestUptake, GenericComputeRequest, Life, MaterialTransferRequestType } from "./api_request"
 import { Logger } from "./logger"
 import { AnyModuleDefinition } from "./module/module"
-import { Hull } from "./module/module_object/hull"
 import { AnyModule, createModule, InternalModuleType } from "./module/module_object/module_object"
 import { ModuleSpec } from "./module/module_spec"
 import { MaterialAmountMap, materialProductionRecipes } from "./physics/material"
@@ -50,15 +49,7 @@ export class Engine {
     })
   }
 
-  private runAssemble(life: Life, requests: ComputeRequestAssemble[]): void {
-    if (life.hull[0] != null) {
-      this.assemble(life, life.hull[0], requests)
-    } else {
-      this.assemble(life, life, requests)
-    }
-  }
-
-  private assemble(materialStore: Scope, hull: Hull, requests: ComputeRequestAssemble[]): void {
+  private runAssemble(materialStore: Scope, requests: ComputeRequestAssemble[]): void {
     requests.forEach(request => {
       const ingredients = this.getAssembleIngredientsFor(request.moduleDefinition)
       if (this.hasEnoughIngredients(materialStore, ingredients) !== true) {
@@ -68,14 +59,14 @@ export class Engine {
 
       switch (request.moduleDefinition.case) {
       case "hull":
-        hull.hull.push(createModule<"hull">(request.moduleDefinition))
+        request.targetHull.hull.push(createModule<"hull">(request.moduleDefinition))
         break
       case "assembler":
       case "computer":
       case "channel":
       case "mover":
       case "materialSynthesizer":
-        hull.addInternalModule(createModule<InternalModuleType>(request.moduleDefinition))
+        request.targetHull.addInternalModule(createModule<InternalModuleType>(request.moduleDefinition))
         break
       default: {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
