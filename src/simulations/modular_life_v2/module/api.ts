@@ -8,7 +8,10 @@ export type ComputerApi = {
   }
 
   readonly environment: {
-    getEnvironmentalHeat(): number
+    /// 空（単一Scope内にいる）なら移動はできない：親の体内にいるかどうかを判別するのに使用できる
+    movableDirections(): NeighbourDirection[]
+
+    getHeat(): number
 
     /// そのScopeに存在するModuleの総重量
     getWeight(): number

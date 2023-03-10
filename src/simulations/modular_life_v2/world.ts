@@ -1,5 +1,5 @@
 import { guardPositionArgument, Vector } from "../../classes/physics"
-import { Direction, getDirectionVector, NeighbourDirection } from "./physics/direction"
+import { Direction, getDirectionVector, NeighbourDirection, NeighbourDirections } from "./physics/direction"
 import type { ComputerApi } from "./module/api"
 import { Logger } from "./logger"
 import { Terrain, TerrainCell } from "./terrain"
@@ -12,6 +12,7 @@ import type { MaterialAmountMap, MaterialType } from "./physics/material"
 import { AncestorSpec, Spawner } from "./ancestor/spawner"
 import { InternalModuleType } from "./module/module_object/module_object"
 import { Computer } from "./module/module_object/computer"
+import { isHull } from "./module/module_object/hull"
 
 type LifeRequestCache = {
   moveRequest: ComputeRequestMove | null
@@ -210,7 +211,13 @@ export class World {
         },
       },
       environment: {
-        getEnvironmentalHeat(): number {
+        movableDirections(): NeighbourDirection[] {
+          if (isHull(scope)) {
+            return []
+          }
+          return Array.from(Object.values(NeighbourDirections))
+        },
+        getHeat(): number {
           return scope.heat
         },
         getWeight(): number {

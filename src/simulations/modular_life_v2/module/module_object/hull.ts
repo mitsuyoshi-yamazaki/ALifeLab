@@ -1,7 +1,11 @@
-import { createMaterialStore, createScopeId, createScopeUpdate, MaterialStore, ScopeUpdate } from "../../physics/scope"
+import { createMaterialStore, createScopeId, createScopeUpdate, MaterialStore, Scope, ScopeUpdate } from "../../physics/scope"
 import { HullInterface } from "../module"
 import { AbstractModule } from "./abstract_module"
 import type { AnyModule, InternalModuleType, Module } from "./module_object"
+
+export const isHull = (scope: Scope): scope is Hull => {
+  return (scope as Partial<Hull>).case === "hull"
+}
 
 export class Hull extends AbstractModule<"hull"> implements HullInterface {
   public readonly case = "hull"
