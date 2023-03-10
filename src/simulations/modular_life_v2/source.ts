@@ -138,21 +138,31 @@ export const main = (): ReactConnector => {
 }
 
 function initializeEnergySources(world: World): void {
-  const centerPosition = world.size.div(2).floor()
-  const energyProductionRadius = Math.floor(world.size.x * 0.3)
-  const maxEnergyProduction = 10
-
-  const minimumEnergyProductionPosition = Math.floor(world.size.x / 2 - energyProductionRadius)
-  const maximumEnergyProductionPosition = world.size.x - minimumEnergyProductionPosition
-
-  for (let y = minimumEnergyProductionPosition; y < maximumEnergyProductionPosition; y += 1) {
-    for (let x = minimumEnergyProductionPosition; x < maximumEnergyProductionPosition; x += 1) {
-      const distanceToCenter = (new Vector(x, y)).dist(centerPosition)
-      const closenessToCenter = 1 - (distanceToCenter / energyProductionRadius)
-      const energyProduction = Math.floor(closenessToCenter * maxEnergyProduction)
-      world.setEnergyProductionAt(x, y, energyProduction)
-    }
+  const setEnergyProduction = (position: Vector): void => {
+    world.setEnergyProductionAt(position.x, position.y, constants.simulation.energyProduction)
   }
+
+  const centerPosition = world.size.div(2).floor()
+  setEnergyProduction(centerPosition.div(2).floor())
+  setEnergyProduction(centerPosition)
+  setEnergyProduction(centerPosition.div(2).mult(3).floor())
+  
+
+  // const centerPosition = world.size.div(2).floor()
+  // const energyProductionRadius = Math.floor(world.size.x * 0.3)
+  // const maxEnergyProduction = 10
+
+  // const minimumEnergyProductionPosition = Math.floor(world.size.x / 2 - energyProductionRadius)
+  // const maximumEnergyProductionPosition = world.size.x - minimumEnergyProductionPosition
+
+  // for (let y = minimumEnergyProductionPosition; y < maximumEnergyProductionPosition; y += 1) {
+  //   for (let x = minimumEnergyProductionPosition; x < maximumEnergyProductionPosition; x += 1) {
+  //     const distanceToCenter = (new Vector(x, y)).dist(centerPosition)
+  //     const closenessToCenter = 1 - (distanceToCenter / energyProductionRadius)
+  //     const energyProduction = Math.floor(closenessToCenter * maxEnergyProduction)
+  //     world.setEnergyProductionAt(x, y, energyProduction)
+  //   }
+  // }
 }
 
 function initializeMaterials(world: World): void {

@@ -1,3 +1,4 @@
+import { Vector } from "../../classes/physics"
 import { Result } from "../../classes/result"
 import { strictEntries } from "../../classes/utilities"
 import { ComputeRequestAssemble, ComputeRequestExcretion, ComputeRequestSynthesize, ComputeRequestUptake, GenericComputeRequest, Life, MaterialTransferRequestType } from "./api_request"
@@ -13,6 +14,11 @@ import { TerrainCell } from "./terrain"
 export type ScopeOperation = {
   readonly life: Life
   readonly requests: { [T in MaterialTransferRequestType]: GenericComputeRequest<T>[]}  
+}
+
+type MassTransfer = {
+  readonly top: number
+  readonly left: number
 }
 
 export class Engine {
@@ -145,7 +151,57 @@ export class Engine {
     })
   }
 
-  public calculateTerrainCell(cell: TerrainCell): void {
+  public calculateCellEnergyTransfer(size: Vector, cells: TerrainCell[][]): void {
+    const energyTransferResistance = this.physicalConstant.energyTransferResistance
+
+    const massTransfer: MassTransfer[][] = []
+    const getAllTransfer = (x: number, y: number): number => {
+      let result = 0
+      const transfer = massTransfer[y][x]
+      result += transfer.top
+      result += transfer.left
+
+      const bottomY = (y + 1) % size.y
+      const bottomTransfer = massTransfer[bottomY][x]
+      result -= bottomTransfer.top
+
+      const rightX = (x + 1) % size.x
+      const rightTransfer = massTransfer[y][rightX]
+      result -= rightTransfer.left
+
+      return result
+    }
+
+    cells.forEach((row, y) => {
+      const transferRow: MassTransfer[] = []
+      massTransfer.push(transferRow)
+
+      row.forEach((cell, x) => {
+        const topY = (y - 1 + size.y) % size.y
+        const topCell = cells[topY][x]
+        const top = Math.floor((topCell.scopeUpdate.amount.energy - cell.scopeUpdate.amount.energy) / energyTransferResistance)
+
+        const leftX = (x - 1 + size.x) % size.x
+        const leftCell = cells[y][leftX]
+        const left = Math.floor((leftCell.scopeUpdate.amount.energy - cell.scopeUpdate.amount.energy) / energyTransferResistance)
+
+        transferRow.push({
+          top,
+          left,
+        })
+      })
+    })
+
+    cells.forEach((row, y) => {
+      row.forEach((cell, x) => {
+        cell.scopeUpdate.amount.energy += getAllTransfer(x, y)
+
+        this.calculateTerrainCell(cell)
+      })
+    })
+  }
+
+  private calculateTerrainCell(cell: TerrainCell): void {
     cell.scopeUpdate.amount.energy += cell.energyProduction
     const energyLoss = Math.floor(cell.scopeUpdate.amount.energy * this.physicalConstant.energyHeatConversionRate)
     cell.scopeUpdate.amount.energy -= energyLoss

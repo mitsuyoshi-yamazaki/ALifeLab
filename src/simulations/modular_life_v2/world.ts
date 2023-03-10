@@ -126,10 +126,10 @@ export class World {
           const destinationCell = this.getTerrainCellAt(destinationPosition)
           destinationCell.scopeUpdate.hullToAdd.add(life)
         })
-
-        this.engine.calculateTerrainCell(cell)
       })
     })
+
+    this.engine.calculateCellEnergyTransfer(this.size, this.terrain.cells)
 
     allScopes.forEach(scope => {
       updateScope(scope, scope.scopeUpdate)
