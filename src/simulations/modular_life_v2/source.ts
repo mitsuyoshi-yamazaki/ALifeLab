@@ -156,9 +156,11 @@ function initializeEnergySources(world: World): void {
 }
 
 function initializeMaterials(world: World): void {
+  const amount = constants.simulation.substanceAmount
+
   for (let y = 0; y < world.size.y; y += 1) {
     for (let x = 0; x < world.size.x; x += 1) {
-      world.addMaterial("substance", 500, x, y)
+      world.addMaterial("substance", amount, x, y)
     }
   }
 }

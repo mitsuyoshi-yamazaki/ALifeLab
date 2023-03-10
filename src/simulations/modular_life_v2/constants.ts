@@ -24,6 +24,7 @@ export const constants = {
     cellSize: parameters.parseInt("cell_size", { alternativeKey: "si.c", min: 1 }) ?? 16,
     worldSize: parameters.parseInt("world_size", { alternativeKey: "si.w", min: 4 }) ?? 40,
     frameSkip: parameters.parseInt("frame_skip", { alternativeKey: "si.f", min: 1 }) ?? 2,
+    substanceAmount: parameters.parseInt("substance_amount", { min: 1 }) ?? 500
   },
   physicalConstant,
 }
