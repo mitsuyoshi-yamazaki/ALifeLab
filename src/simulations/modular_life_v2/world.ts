@@ -257,8 +257,8 @@ export class World {
           life.saying = message
         },
         retain(energyAmount: number): void {
-          if (energyAmount < life.scopeUpdate.amount.energy) {
-            throw `not enough retain energy ${life.id} (${energyAmount} < ${life.scopeUpdate.amount.energy})`
+          if (energyAmount > life.scopeUpdate.amount.energy) {
+            throw `not enough retain energy (${energyAmount} > ${life.scopeUpdate.amount.energy})`
           }
           life.scopeUpdate.amount.energy -= energyAmount
           life.retainEnergyBank += energyAmount

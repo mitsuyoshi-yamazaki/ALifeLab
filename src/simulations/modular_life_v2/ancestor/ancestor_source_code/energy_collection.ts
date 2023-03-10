@@ -54,6 +54,7 @@ export class EnergyCollection implements SourceCode {
 
   public constructor(
     private direction: NeighbourDirection,
+    private readonly retainRatio: number,
   ) {
   }
 
@@ -70,14 +71,22 @@ export class EnergyCollection implements SourceCode {
       this.direction = counterClockwiseDirection(this.direction)
     }
 
+    const energyAmount = api.status.getEnergyAmount()
+    if (energyAmount > 100) {
+      const retainEnergy = Math.ceil(api.status.getRetainEnergyConsumption() * this.retainRatio)
+      if (retainEnergy > 0 && energyAmount > retainEnergy) {
+        api.action.retain(retainEnergy)
+      }
+    }
+
     switch (this.state.case) {
     case "born":
       if (this.t % 10 === 0) {
-        if (api.status.getEnergyAmount() >= api.status.getMoveEnergyConsumption()) {
+        if (energyAmount >= api.status.getMoveEnergyConsumption()) {
           api.action.move(this.direction)
           this.state = {
             case: "collectEnergy",
-            energyAmount: api.status.getEnergyAmount(),
+            energyAmount: energyAmount,
           }
         }
       }
@@ -85,7 +94,6 @@ export class EnergyCollection implements SourceCode {
       
     case "collectEnergy": {
       if (this.t % 10 === 0) {
-        const energyAmount = api.status.getEnergyAmount()
         if (energyAmount > 400) {
           this.state = {
             case: "collectResource",
@@ -104,14 +112,14 @@ export class EnergyCollection implements SourceCode {
 
     case "collectResource":
       if (this.t % 10 === 0) {
-        if (api.status.getEnergyAmount() < 100) {
+        if (energyAmount < 100) {
           this.state = {
             case: "collectEnergy",
-            energyAmount: api.status.getEnergyAmount(),
+            energyAmount: energyAmount,
           }
         } else {
           const substanceAmount = api.status.getStoredAmount("substance")
-          if (substanceAmount <= this.state.substanceAmount && api.status.getEnergyAmount() >= api.status.getMoveEnergyConsumption()) {
+          if (substanceAmount <= this.state.substanceAmount && energyAmount >= api.status.getMoveEnergyConsumption()) {
             api.action.move(this.direction)
           }
 
@@ -186,7 +194,7 @@ export class EnergyCollection implements SourceCode {
     }
     }
 
-    api.action.say("E")
+    api.action.say(`${this.retainRatio.toFixed(2)}E`)
 
     this.t += 1
   }
@@ -218,9 +226,10 @@ export class EnergyCollection implements SourceCode {
       const modules = api.status.getInternalModules(moduleType)
 
       if (moduleType === "computer") {
+        const newRetainRatio = this.createNewRetainRatio(this.t)
         internalModuleDefinitions.push({
           case: "computer",
-          codeBase: (() => new EnergyCollection(clockwiseDirection(this.direction))),
+          codeBase: (() => new EnergyCollection(clockwiseDirection(this.direction), newRetainRatio)),
         })
       } else {
         internalModuleDefinitions.push(...modules)
@@ -264,5 +273,10 @@ export class EnergyCollection implements SourceCode {
       }
     }
     return true
+  }
+
+  private createNewRetainRatio(n: number): number {
+    const newRetainRatio = (((n % 3) - 1) / 100)
+    return Math.max(0, Math.min(1, this.retainRatio + newRetainRatio))
   }
 }

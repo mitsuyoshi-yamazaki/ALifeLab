@@ -2,7 +2,7 @@ import p5 from "p5"
 import { Vector } from "../../classes/physics"
 import { defaultCanvasParentId } from "../../react-components/common/default_canvas_parent_id"
 import { Ancestor } from "./ancestor/ancestor"
-import { AncestorCode } from "./ancestor/source_code"
+import { EnergyCollection } from "./ancestor/ancestor_source_code/energy_collection"
 import { constants } from "./constants"
 import { Logger } from "./logger"
 import { P5Drawer } from "./p5_drawer"
@@ -176,9 +176,12 @@ function initializeMaterials(world: World): void {
 }
 
 function initializeAncestors(world: World): void {
-  world.addAncestor(Ancestor.minimumSelfReproduction(() => AncestorCode.energyCollection(NeighbourDirections.bottom)), world.size.div(3).floor())
-  world.addAncestor(Ancestor.minimumSelfReproduction(() => AncestorCode.energyCollection(NeighbourDirections.right)), world.size.div(2).floor())
-  world.addAncestor(Ancestor.minimumSelfReproduction(() => AncestorCode.energyCollection(NeighbourDirections.top)), world.size.div(3).mult(2).floor())
+  world.addAncestor(Ancestor.minimumSelfReproduction(() => (new EnergyCollection(NeighbourDirections.bottom, 1.0))), world.size.div(3).floor())
+  world.addAncestor(Ancestor.minimumSelfReproduction(() => (new EnergyCollection(NeighbourDirections.top, 1.0))), world.size.div(3).floor())
+  world.addAncestor(Ancestor.minimumSelfReproduction(() => (new EnergyCollection(NeighbourDirections.bottom, 0.5))), world.size.div(2).floor())
+  world.addAncestor(Ancestor.minimumSelfReproduction(() => (new EnergyCollection(NeighbourDirections.top, 0.5))), world.size.div(2).floor())
+  world.addAncestor(Ancestor.minimumSelfReproduction(() => (new EnergyCollection(NeighbourDirections.bottom, 0.0))), world.size.div(3).mult(2).floor())
+  world.addAncestor(Ancestor.minimumSelfReproduction(() => (new EnergyCollection(NeighbourDirections.top, 0.0))), world.size.div(3).mult(2).floor())
 
   // world.addAncestor(Ancestor.minimumSelfReproduction(() => AncestorCode.energyCollection(NeighbourDirections.bottom)), world.size.div(5).mult(2).floor())
 }
