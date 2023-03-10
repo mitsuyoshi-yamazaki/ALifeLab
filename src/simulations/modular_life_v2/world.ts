@@ -61,6 +61,7 @@ export class World {
   public initialize(): void {
     this.terrain.cells.forEach(row => {
       row.forEach(cell => {
+        cell.heat = 1
         cell.scopeUpdate = createScopeUpdate(cell)
       })
     })
