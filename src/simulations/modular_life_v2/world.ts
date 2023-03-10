@@ -62,7 +62,6 @@ export class World {
   public initialize(): void {
     this.terrain.cells.forEach(row => {
       row.forEach(cell => {
-        cell.heat = 1
         cell.scopeUpdate = createScopeUpdate(cell)
       })
     })
@@ -249,10 +248,20 @@ export class World {
         getMoveEnergyConsumption: (): number => {
           return this.engine.calculateMoveEnergyConsumption(life)
         },
+        getRetainEnergyConsumption: (): number => {
+          return this.engine.getRetainEnergyConsumption(life, scope.heat)
+        },
       },
       action: {
         say(message: string): void {
           life.saying = message
+        },
+        retain(energyAmount: number): void {
+          if (energyAmount < life.scopeUpdate.amount.energy) {
+            throw `not enough retain energy ${life.id} (${energyAmount} < ${life.scopeUpdate.amount.energy})`
+          }
+          life.scopeUpdate.amount.energy -= energyAmount
+          life.retainEnergyBank += energyAmount
         },
         move(direction: NeighbourDirection): void {
           if (Object.keys(life.internalModules.mover).length <= 0) {

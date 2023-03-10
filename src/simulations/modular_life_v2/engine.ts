@@ -228,8 +228,20 @@ export class Engine {
     return Result.Succeeded(energyConsumption)
   }
 
+  private getHeatDamate(heat: number): number {
+    return Math.ceil((heat + 1) * this.physicalConstant.heatDamage)
+  }
+
+  public getRetainEnergyConsumption(life: Life, heat: number): number {
+    return Math.ceil(Math.pow(life.size, 2) * this.getHeatDamate(heat) * this.physicalConstant.retainEnergyConsumptionRate)
+  }
+
   public calculateHeatDamage(life: Life, inScope: Scope): void {
-    life.hits -= Math.ceil(inScope.scopeUpdate.heat * this.physicalConstant.heatDamage)
+    const retainPower = life.retainEnergyBank / this.getRetainEnergyConsumption(life, inScope.heat)
+    const heatDamage = Math.ceil(this.getHeatDamate(inScope.heat) * (1 - retainPower))
+
+    life.hits -= heatDamage
+    life.retainEnergyBank = 0
 
     if (life.hits > 0) {
       return

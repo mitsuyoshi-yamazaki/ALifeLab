@@ -25,6 +25,7 @@ export class Hull extends AbstractModule<"hull"> implements HullInterface {
   public readonly capacity: number
   public heat = 0
   public saying: string | null = null
+  public retainEnergyBank = 0
 
   public readonly hull: Hull[] = []
 

@@ -11,6 +11,7 @@ const physicalConstant: PhysicalConstant = {
   heatLossRate: parameters.parseFloat("heat_loss", { alternativeKey: "ph.h", min: 0 }) ?? 0.25,
   energyHeatConversionRate: parameters.parseFloat("energy_heat_conversion", { alternativeKey: "ph.e", min: 0 }) ?? 0.5,
   heatDamage: parameters.parseFloat("heat_damage", { alternativeKey: "ph.d", min: 0 }) ?? 0.1,
+  retainEnergyConsumptionRate: parameters.parseFloat("retain_energy_consumption_rate", { min: 1 }) ?? 0.01,
   energyTransferResistance: parameters.parseInt("energy_transfer_resistance", { min: 1 }) ?? 50,
 
   materialProductionRecipe: materialProductionRecipes,

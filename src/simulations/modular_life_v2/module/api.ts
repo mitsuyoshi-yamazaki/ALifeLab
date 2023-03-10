@@ -29,11 +29,14 @@ export type ComputerApi = {
 
     getWeight(): number
     getMoveEnergyConsumption(): number
+    getRetainEnergyConsumption(): number
   }
 
   readonly action: {
     say(message: string | null): void
 
+    /// Hull.hitsの減少を抑制する
+    retain(energyAmount: number): void
     move(direction: NeighbourDirection): void
     uptake(moduleId: ModuleId<"channel">): void
     excretion(moduleId: ModuleId<"channel">): void
