@@ -40,7 +40,7 @@ export class Engine {
 
       const synthesizeRequests = operation.requests.synthesize
       if (synthesizeRequests.length > 0) {
-        this.runSynthesize(operation.life, synthesizeRequests)
+        this.runSynthesize(operation.life, scope, synthesizeRequests)
       }
 
       const uptakeRequests = operation.requests.uptake
@@ -87,7 +87,7 @@ export class Engine {
     return ModuleSpec.moduleIngredients[moduleDefinition.case]
   }
 
-  private runSynthesize(life: Life, requests: ComputeRequestSynthesize[]): void {
+  private runSynthesize(life: Life, inScope: Scope, requests: ComputeRequestSynthesize[]): void {
     requests.forEach(request => {
       const recipe = materialProductionRecipes[request.module.recipeName]
       if (this.hasEnoughIngredients(life, recipe.ingredients) !== true) {
@@ -96,7 +96,7 @@ export class Engine {
       this.consumeMaterials(life, recipe.ingredients)
       this.addMaterials(life, recipe.productions)
 
-      life.scopeUpdate.heat += recipe.heatProduction
+      inScope.scopeUpdate.heat += recipe.heatProduction
     })
   }
 
