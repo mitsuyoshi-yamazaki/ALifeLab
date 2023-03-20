@@ -27,6 +27,7 @@ export type ComputeRequestSynthesize = {
 export type ComputeRequestAssemble = {
   readonly case: "assemble"
   readonly module: Assembler
+  readonly targetHull: Hull
   readonly moduleDefinition: ModuleDefinition<ModuleType>
 }
 

@@ -1,9 +1,9 @@
+import { Vector } from "../../classes/physics"
 import { Result } from "../../classes/result"
 import { strictEntries } from "../../classes/utilities"
 import { ComputeRequestAssemble, ComputeRequestExcretion, ComputeRequestSynthesize, ComputeRequestUptake, GenericComputeRequest, Life, MaterialTransferRequestType } from "./api_request"
 import { Logger } from "./logger"
 import { AnyModuleDefinition } from "./module/module"
-import { Hull } from "./module/module_object/hull"
 import { AnyModule, createModule, InternalModuleType } from "./module/module_object/module_object"
 import { ModuleSpec } from "./module/module_spec"
 import { MaterialAmountMap, materialProductionRecipes } from "./physics/material"
@@ -14,6 +14,11 @@ import { TerrainCell } from "./terrain"
 export type ScopeOperation = {
   readonly life: Life
   readonly requests: { [T in MaterialTransferRequestType]: GenericComputeRequest<T>[]}  
+}
+
+type MassTransfer = {
+  readonly top: number
+  readonly left: number
 }
 
 export class Engine {
@@ -35,7 +40,7 @@ export class Engine {
 
       const synthesizeRequests = operation.requests.synthesize
       if (synthesizeRequests.length > 0) {
-        this.runSynthesize(operation.life, synthesizeRequests)
+        this.runSynthesize(operation.life, scope, synthesizeRequests)
       }
 
       const uptakeRequests = operation.requests.uptake
@@ -50,15 +55,7 @@ export class Engine {
     })
   }
 
-  private runAssemble(life: Life, requests: ComputeRequestAssemble[]): void {
-    if (life.hull[0] != null) {
-      this.assemble(life, life.hull[0], requests)
-    } else {
-      this.assemble(life, life, requests)
-    }
-  }
-
-  private assemble(materialStore: Scope, hull: Hull, requests: ComputeRequestAssemble[]): void {
+  private runAssemble(materialStore: Scope, requests: ComputeRequestAssemble[]): void {
     requests.forEach(request => {
       const ingredients = this.getAssembleIngredientsFor(request.moduleDefinition)
       if (this.hasEnoughIngredients(materialStore, ingredients) !== true) {
@@ -68,14 +65,14 @@ export class Engine {
 
       switch (request.moduleDefinition.case) {
       case "hull":
-        hull.hull.push(createModule<"hull">(request.moduleDefinition))
+        request.targetHull.hull.push(createModule<"hull">(request.moduleDefinition))
         break
       case "assembler":
       case "computer":
       case "channel":
       case "mover":
       case "materialSynthesizer":
-        hull.addInternalModule(createModule<InternalModuleType>(request.moduleDefinition))
+        request.targetHull.addInternalModule(createModule<InternalModuleType>(request.moduleDefinition))
         break
       default: {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -90,7 +87,7 @@ export class Engine {
     return ModuleSpec.moduleIngredients[moduleDefinition.case]
   }
 
-  private runSynthesize(life: Life, requests: ComputeRequestSynthesize[]): void {
+  private runSynthesize(life: Life, inScope: Scope, requests: ComputeRequestSynthesize[]): void {
     requests.forEach(request => {
       const recipe = materialProductionRecipes[request.module.recipeName]
       if (this.hasEnoughIngredients(life, recipe.ingredients) !== true) {
@@ -99,18 +96,21 @@ export class Engine {
       this.consumeMaterials(life, recipe.ingredients)
       this.addMaterials(life, recipe.productions)
 
-      life.scopeUpdate.heat += recipe.heatProduction
+      inScope.scopeUpdate.heat += recipe.heatProduction
     })
   }
 
   private runUptake(scope: Scope, life: Life, requests: ComputeRequestUptake[]): void {
+    let remainingCapacity = life.capacity - Array.from(Object.values(life.amount)).reduce((result, current) => result + current, 0)
+
     requests.forEach(request => {
       const materialType = request.module.materialType
-      const amount = Math.min(scope.scopeUpdate.amount[materialType], ModuleSpec.modules.channel.maxTransferAmount)
+      const amount = Math.min(scope.scopeUpdate.amount[materialType], ModuleSpec.modules.channel.maxTransferAmount, remainingCapacity)
       if (amount <= 0) {
         return
       }
 
+      remainingCapacity -= amount
       scope.scopeUpdate.amount[materialType] -= amount
       life.scopeUpdate.amount[materialType] += amount
     })
@@ -151,7 +151,57 @@ export class Engine {
     })
   }
 
-  public calculateTerrainCell(cell: TerrainCell): void {
+  public calculateCellEnergyTransfer(size: Vector, cells: TerrainCell[][]): void {
+    const energyTransferResistance = this.physicalConstant.energyTransferResistance
+
+    const massTransfer: MassTransfer[][] = []
+    const getAllTransfer = (x: number, y: number): number => {
+      let result = 0
+      const transfer = massTransfer[y][x]
+      result += transfer.top
+      result += transfer.left
+
+      const bottomY = (y + 1) % size.y
+      const bottomTransfer = massTransfer[bottomY][x]
+      result -= bottomTransfer.top
+
+      const rightX = (x + 1) % size.x
+      const rightTransfer = massTransfer[y][rightX]
+      result -= rightTransfer.left
+
+      return result
+    }
+
+    cells.forEach((row, y) => {
+      const transferRow: MassTransfer[] = []
+      massTransfer.push(transferRow)
+
+      row.forEach((cell, x) => {
+        const topY = (y - 1 + size.y) % size.y
+        const topCell = cells[topY][x]
+        const top = Math.floor((topCell.scopeUpdate.amount.energy - cell.scopeUpdate.amount.energy) / energyTransferResistance)
+
+        const leftX = (x - 1 + size.x) % size.x
+        const leftCell = cells[y][leftX]
+        const left = Math.floor((leftCell.scopeUpdate.amount.energy - cell.scopeUpdate.amount.energy) / energyTransferResistance)
+
+        transferRow.push({
+          top,
+          left,
+        })
+      })
+    })
+
+    cells.forEach((row, y) => {
+      row.forEach((cell, x) => {
+        cell.scopeUpdate.amount.energy += getAllTransfer(x, y)
+
+        this.calculateTerrainCell(cell)
+      })
+    })
+  }
+
+  private calculateTerrainCell(cell: TerrainCell): void {
     cell.scopeUpdate.amount.energy += cell.energyProduction
     const energyLoss = Math.floor(cell.scopeUpdate.amount.energy * this.physicalConstant.energyHeatConversionRate)
     cell.scopeUpdate.amount.energy -= energyLoss
@@ -178,8 +228,20 @@ export class Engine {
     return Result.Succeeded(energyConsumption)
   }
 
+  private getHeatDamate(heat: number): number {
+    return Math.ceil((heat + 1) * this.physicalConstant.heatDamage)
+  }
+
+  public getRetainEnergyConsumption(life: Life, heat: number): number {
+    return Math.ceil(Math.pow(life.size, 2) * this.getHeatDamate(heat) * this.physicalConstant.retainEnergyConsumptionRate)
+  }
+
   public calculateHeatDamage(life: Life, inScope: Scope): void {
-    life.hits -= Math.ceil(inScope.scopeUpdate.heat * this.physicalConstant.heatDamage)
+    const retainPower = life.retainEnergyBank / this.getRetainEnergyConsumption(life, inScope.heat)
+    const heatDamage = Math.ceil(this.getHeatDamate(inScope.heat) * (1 - retainPower))
+
+    life.hits -= heatDamage
+    life.retainEnergyBank = 0
 
     if (life.hits > 0) {
       return

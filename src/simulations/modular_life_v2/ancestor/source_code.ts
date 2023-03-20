@@ -1,7 +1,6 @@
 import { ComputerApi } from "../module/api"
 import type { SourceCode } from "../module/source_code"
 import { NeighbourDirection } from "../physics/direction"
-import { MinimumSelfReproductionCode } from "./ancestor_source_code/minimum_self_reproduction"
 
 export const AncestorCode = {
   /// ゲーム世界上で何も行わない
@@ -22,7 +21,7 @@ export const AncestorCode = {
       run(api: ComputerApi): void {
         api.action.say(`t: ${this.t}`)
 
-        api.status.getModules("channel").forEach(channel => {
+        api.status.getInternalModules("channel").forEach(channel => {
           api.action.uptake(channel.id)
         })
 
@@ -33,10 +32,5 @@ export const AncestorCode = {
         this.t += 1
       },
     } as { t: number, run(api: ComputerApi): void }
-  },
-
-  /// 自己複製を行う
-  minimumSelfReproduction(direction: NeighbourDirection): SourceCode {
-    return new MinimumSelfReproductionCode(direction)
   },
 }
