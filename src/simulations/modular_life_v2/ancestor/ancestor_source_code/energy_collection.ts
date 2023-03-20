@@ -3,12 +3,16 @@ import { ComputerApi } from "../../module/api"
 import { AnyModuleDefinition, HullDefinition, ModuleDefinition, ModuleId } from "../../module/module"
 import { InternalModuleType } from "../../module/module_object/module_object"
 import type { SourceCode } from "../../module/source_code"
-import { clockwiseDirection, NeighbourDirection } from "../../physics/direction"
+import { clockwiseDirection, counterClockwiseDirection, NeighbourDirection } from "../../physics/direction"
 import { getShortMaterialName, MaterialAmountMap } from "../../physics/material"
 import { AncestorSpec } from "../spawner"
 
 type LifeStateBorn = {
   readonly case: "born"
+}
+type LifeStateCollectEnergy = {
+  readonly case: "collectEnergy"
+  energyAmount: number
 }
 type LifeStateCollectResource = {
   readonly case: "collectResource"
@@ -25,7 +29,12 @@ type LifeStateConstructChild = {
 type LifeStatePregnant = {
   readonly case: "pregnant"
 }
-type LifeState = LifeStateBorn | LifeStateCollectResource | LifeStateReproduction | LifeStateConstructChild | LifeStatePregnant
+type LifeState = LifeStateBorn
+  | LifeStateCollectResource
+  | LifeStateCollectEnergy
+  | LifeStateReproduction
+  | LifeStateConstructChild
+  | LifeStatePregnant
 
 type StaticParameters = {
   readonly moveEnergyConsumption: number
@@ -35,16 +44,17 @@ type StaticParameters = {
   readonly hullId: ModuleId<"hull">
 }
 
-export class MinimumSelfReproductionCode implements SourceCode {
+export class EnergyCollection implements SourceCode {
   private t = 0
   private state: LifeState = {
     case: "born",
   }
 
   private staticParameters = null as StaticParameters | null  // 計算量削減 & 変化しないので一度だけ取得した値を保管する
-  
+
   public constructor(
-    private readonly direction: NeighbourDirection,
+    private direction: NeighbourDirection,
+    private readonly retainRatio: number,
   ) {
   }
 
@@ -57,36 +67,73 @@ export class MinimumSelfReproductionCode implements SourceCode {
       api.action.uptake(channel.id)
     })
 
+    if (this.t % 500 === 499) {
+      this.direction = counterClockwiseDirection(this.direction)
+    }
+
+    const energyAmount = api.status.getEnergyAmount()
+    if (energyAmount > 100) {
+      const retainEnergy = Math.ceil(api.status.getRetainEnergyConsumption() * this.retainRatio)
+      if (retainEnergy > 0 && energyAmount > retainEnergy) {
+        api.action.retain(retainEnergy)
+      }
+    }
+
     switch (this.state.case) {
     case "born":
       if (this.t % 10 === 0) {
-        if (api.status.getEnergyAmount() >= api.status.getMoveEnergyConsumption()) {
+        if (energyAmount >= api.status.getMoveEnergyConsumption()) {
           api.action.move(this.direction)
           this.state = {
-            case: "collectResource",
-            substanceAmount: api.status.getStoredAmount("substance"),
-          }
-        }
-      }
-      break
-
-    case "collectResource":
-      if (this.t % 10 === 0) {
-        const substanceAmount = api.status.getStoredAmount("substance")
-        if (substanceAmount <= this.state.substanceAmount && api.status.getEnergyAmount() >= api.status.getMoveEnergyConsumption()) {
-          api.action.move(this.direction)
-        }
-
-        this.state.substanceAmount = substanceAmount
-
-        if (this.hasEnoughResourceToReproduce(api, this.staticParameters.assembleIngredients) === true) {
-          this.state = {
-            case: "reproduction",
+            case: "collectEnergy",
+            energyAmount: energyAmount,
           }
         }
       }
       break
       
+    case "collectEnergy": {
+      if (this.t % 10 === 0) {
+        if (energyAmount > 400) {
+          this.state = {
+            case: "collectResource",
+            substanceAmount: api.status.getStoredAmount("substance"),
+          }
+        } else {
+          if (energyAmount <= this.state.energyAmount) {
+            api.action.move(this.direction)
+          }
+
+          this.state.energyAmount = energyAmount
+        }
+      }
+      break
+    }
+
+    case "collectResource":
+      if (this.t % 10 === 0) {
+        if (energyAmount < 100) {
+          this.state = {
+            case: "collectEnergy",
+            energyAmount: energyAmount,
+          }
+        } else {
+          const substanceAmount = api.status.getStoredAmount("substance")
+          if (substanceAmount <= this.state.substanceAmount && energyAmount >= api.status.getMoveEnergyConsumption()) {
+            api.action.move(this.direction)
+          }
+
+          this.state.substanceAmount = substanceAmount
+
+          if (this.hasEnoughResourceToReproduce(api, this.staticParameters.assembleIngredients) === true) {
+            this.state = {
+              case: "reproduction",
+            }
+          }
+        }
+      }
+      break
+
     case "reproduction":
       if (this.t % 10 === 0) {
         const children = api.status.getNestedHull()
@@ -141,13 +188,13 @@ export class MinimumSelfReproductionCode implements SourceCode {
       break
 
     default: {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const _: never = this.state
       throw `unexpected state ${(this.state as LifeState).case}`
     }
     }
 
-    api.action.say("M")
+    api.action.say(`${this.retainRatio.toFixed(2)}E`)
 
     this.t += 1
   }
@@ -181,7 +228,7 @@ export class MinimumSelfReproductionCode implements SourceCode {
       if (moduleType === "computer") {
         internalModuleDefinitions.push({
           case: "computer",
-          codeBase: (() => new MinimumSelfReproductionCode(clockwiseDirection(this.direction))),
+          codeBase: (() => new EnergyCollection(clockwiseDirection(this.direction), this.createNewRetainRatio(this.t))),  // TODO: thisがゾンビ化していないか確認する
         })
       } else {
         internalModuleDefinitions.push(...modules)
@@ -225,5 +272,10 @@ export class MinimumSelfReproductionCode implements SourceCode {
       }
     }
     return true
+  }
+
+  private createNewRetainRatio(n: number): number {
+    const newRetainRatio = (((Math.floor(n / 10) % 3) - 1) / 100)
+    return Math.max(0, Math.min(1, this.retainRatio + newRetainRatio))
   }
 }

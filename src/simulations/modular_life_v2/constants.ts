@@ -11,6 +11,8 @@ const physicalConstant: PhysicalConstant = {
   heatLossRate: parameters.parseFloat("heat_loss", { alternativeKey: "ph.h", min: 0 }) ?? 0.25,
   energyHeatConversionRate: parameters.parseFloat("energy_heat_conversion", { alternativeKey: "ph.e", min: 0 }) ?? 0.5,
   heatDamage: parameters.parseFloat("heat_damage", { alternativeKey: "ph.d", min: 0 }) ?? 0.1,
+  retainEnergyConsumptionRate: parameters.parseFloat("retain_energy_consumption_rate", { min: 1 }) ?? 0.01,
+  energyTransferResistance: parameters.parseInt("energy_transfer_resistance", { min: 1 }) ?? 50,
 
   materialProductionRecipe: materialProductionRecipes,
 }
@@ -24,6 +26,9 @@ export const constants = {
     cellSize: parameters.parseInt("cell_size", { alternativeKey: "si.c", min: 1 }) ?? 16,
     worldSize: parameters.parseInt("world_size", { alternativeKey: "si.w", min: 4 }) ?? 40,
     frameSkip: parameters.parseInt("frame_skip", { alternativeKey: "si.f", min: 1 }) ?? 2,
+
+    substanceAmount: parameters.parseInt("substance_amount", { min: 1 }) ?? 500,
+    energyProduction: parameters.parseInt("energy_production", { min: 1 }) ?? 500,
   },
   physicalConstant,
 }

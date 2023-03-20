@@ -1,5 +1,5 @@
 import p5 from "p5"
-import React, { useEffect, useState } from "react"
+import React, { CSSProperties, useEffect, useState } from "react"
 import ReactDOM from "react-dom"
 import { strictEntries } from "../../classes/utilities"
 import { DetailPage, ScreenshotButtonDefault } from "../../react-components/lab/detail_page"
@@ -40,8 +40,29 @@ const App = () => {
     setCurrentState(event, newValue)
   })
 
+  const descriptionStyle: CSSProperties = {
+    margin: DetailPage.defaultContentMargin
+  }
+  const borderStyle: CSSProperties = {
+    backgroundColor: "rgba(212, 214, 245, 1.0)",
+    width: "100%",
+    height: "1px",
+    border: "none",
+  }
+
   return (
     <DetailPage screenshotButtonType={screenshotButton}>
+      <div style={descriptionStyle}>
+        <h2>{document.title}</h2>
+        <hr style={borderStyle}></hr>
+        キー操作：
+        <ul style={{ paddingLeft: "2rem" }}>
+          <li>0: 停止/再開</li>
+          <li>1: エネルギー表示/非表示</li>
+          <li>2: 熱表示/非表示</li>
+          <li>3: 物質表示/非表示</li>
+        </ul>
+      </div>
     </DetailPage>
   )
 }

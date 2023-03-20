@@ -1,5 +1,5 @@
 import { guardPositionArgument, Vector } from "../../classes/physics"
-import { Direction, getDirectionVector, NeighbourDirection } from "./physics/direction"
+import { Direction, getDirectionVector, NeighbourDirection, NeighbourDirections } from "./physics/direction"
 import type { ComputerApi } from "./module/api"
 import { Logger } from "./logger"
 import { Terrain, TerrainCell } from "./terrain"
@@ -7,11 +7,12 @@ import { PhysicalConstant } from "./physics/physical_constant"
 import { Engine, ScopeOperation } from "./engine"
 import { createScopeUpdate, Scope, updateScope } from "./physics/scope"
 import type { ComputeRequestMove, GenericComputeRequest, Life, MaterialTransferRequest, MaterialTransferRequestType } from "./api_request"
-import type { AnyModuleDefinition, HullInterface, ModuleId, ModuleInterface, ModuleType } from "./module/module"
+import type { AnyModuleDefinition, ModuleId, ModuleInterface } from "./module/module"
 import type { MaterialAmountMap, MaterialType } from "./physics/material"
 import { AncestorSpec, Spawner } from "./ancestor/spawner"
 import { InternalModuleType } from "./module/module_object/module_object"
 import { Computer } from "./module/module_object/computer"
+import { Hull, isHull } from "./module/module_object/hull"
 
 type LifeRequestCache = {
   moveRequest: ComputeRequestMove | null
@@ -124,10 +125,10 @@ export class World {
           const destinationCell = this.getTerrainCellAt(destinationPosition)
           destinationCell.scopeUpdate.hullToAdd.add(life)
         })
-
-        this.engine.calculateTerrainCell(cell)
       })
     })
+
+    this.engine.calculateCellEnergyTransfer(this.size, this.terrain.cells)
 
     allScopes.forEach(scope => {
       updateScope(scope, scope.scopeUpdate)
@@ -209,7 +210,13 @@ export class World {
         },
       },
       environment: {
-        getEnvironmentalHeat(): number {
+        movableDirections(): NeighbourDirection[] {
+          if (isHull(scope)) {
+            return []
+          }
+          return Array.from(Object.values(NeighbourDirections))
+        },
+        getHeat(): number {
           return scope.heat
         },
         getWeight(): number {
@@ -226,13 +233,14 @@ export class World {
         getHeat(): number {
           return life.heat
         },
-        getModules<M extends ModuleType>(moduleType: M): ModuleInterface<M>[] {
-          if (moduleType === "hull") {
-            return [life as HullInterface as ModuleInterface<M>]
-          }
-
-          const internalModuleType: InternalModuleType = moduleType
-          return Array.from(Object.values(life.internalModules[internalModuleType]))
+        getInternalModules<M extends InternalModuleType>(moduleType: M): ModuleInterface<M>[] {
+          return Array.from(Object.values(life.internalModules[moduleType]))
+        },
+        getHull(): Hull {
+          return life
+        },
+        getNestedHull(): Hull[] {
+          return [...life.hull]
         },
         getWeight(): number {
           return life.getWeight()
@@ -240,10 +248,20 @@ export class World {
         getMoveEnergyConsumption: (): number => {
           return this.engine.calculateMoveEnergyConsumption(life)
         },
+        getRetainEnergyConsumption: (): number => {
+          return this.engine.getRetainEnergyConsumption(life, scope.heat)
+        },
       },
       action: {
         say(message: string): void {
           life.saying = message
+        },
+        retain(energyAmount: number): void {
+          if (energyAmount > life.scopeUpdate.amount.energy) {
+            throw `not enough retain energy (${energyAmount} > ${life.scopeUpdate.amount.energy})`
+          }
+          life.scopeUpdate.amount.energy -= energyAmount
+          life.retainEnergyBank += energyAmount
         },
         move(direction: NeighbourDirection): void {
           if (Object.keys(life.internalModules.mover).length <= 0) {
@@ -284,14 +302,25 @@ export class World {
             module,
           })
         },
-        assemble(moduleId: ModuleId<"assembler">, moduleDefinition: AnyModuleDefinition): void {
+        assemble(moduleId: ModuleId<"assembler">, hullId: ModuleId<"hull">, moduleDefinition: AnyModuleDefinition): void {
           const module = life.internalModules.assembler[moduleId]
           if (module == null) {
             throw `no module with ID ${moduleId}`
           }
+          const targetHull = ((): Hull => {
+            if (hullId === life.id) {
+              return life
+            }
+            const hull = life.hull.find(x => x.id === hullId)
+            if (hull == null) {
+              throw `no hull with ID ${hullId}`
+            }
+            return hull
+          })()
           addMaterialTransferRequest({
             case: "assemble",
             module,
+            targetHull,
             moduleDefinition,
           })
         },

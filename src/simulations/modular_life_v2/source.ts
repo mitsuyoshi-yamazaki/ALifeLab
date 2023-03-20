@@ -2,7 +2,7 @@ import p5 from "p5"
 import { Vector } from "../../classes/physics"
 import { defaultCanvasParentId } from "../../react-components/common/default_canvas_parent_id"
 import { Ancestor } from "./ancestor/ancestor"
-import { AncestorCode } from "./ancestor/source_code"
+import { EnergyCollection } from "./ancestor/ancestor_source_code/energy_collection"
 import { constants } from "./constants"
 import { Logger } from "./logger"
 import { P5Drawer } from "./p5_drawer"
@@ -138,33 +138,50 @@ export const main = (): ReactConnector => {
 }
 
 function initializeEnergySources(world: World): void {
-  const centerPosition = world.size.div(2).floor()
-  const energyProductionRadius = Math.floor(world.size.x * 0.3)
-  const maxEnergyProduction = 10
-
-  const minimumEnergyProductionPosition = Math.floor(world.size.x / 2 - energyProductionRadius)
-  const maximumEnergyProductionPosition = world.size.x - minimumEnergyProductionPosition
-
-  for (let y = minimumEnergyProductionPosition; y < maximumEnergyProductionPosition; y += 1) {
-    for (let x = minimumEnergyProductionPosition; x < maximumEnergyProductionPosition; x += 1) {
-      const distanceToCenter = (new Vector(x, y)).dist(centerPosition)
-      const closenessToCenter = 1 - (distanceToCenter / energyProductionRadius)
-      const energyProduction = Math.floor(closenessToCenter * maxEnergyProduction)
-      world.setEnergyProductionAt(x, y, energyProduction)
-    }
+  const setEnergyProduction = (position: Vector): void => {
+    world.setEnergyProductionAt(position.x, position.y, constants.simulation.energyProduction)
   }
+
+  const centerPosition = world.size.div(2).floor()
+  setEnergyProduction(centerPosition.div(2).floor())
+  setEnergyProduction(centerPosition)
+  setEnergyProduction(centerPosition.div(2).mult(3).floor())
+  
+
+  // const centerPosition = world.size.div(2).floor()
+  // const energyProductionRadius = Math.floor(world.size.x * 0.3)
+  // const maxEnergyProduction = 10
+
+  // const minimumEnergyProductionPosition = Math.floor(world.size.x / 2 - energyProductionRadius)
+  // const maximumEnergyProductionPosition = world.size.x - minimumEnergyProductionPosition
+
+  // for (let y = minimumEnergyProductionPosition; y < maximumEnergyProductionPosition; y += 1) {
+  //   for (let x = minimumEnergyProductionPosition; x < maximumEnergyProductionPosition; x += 1) {
+  //     const distanceToCenter = (new Vector(x, y)).dist(centerPosition)
+  //     const closenessToCenter = 1 - (distanceToCenter / energyProductionRadius)
+  //     const energyProduction = Math.floor(closenessToCenter * maxEnergyProduction)
+  //     world.setEnergyProductionAt(x, y, energyProduction)
+  //   }
+  // }
 }
 
 function initializeMaterials(world: World): void {
+  const amount = constants.simulation.substanceAmount
+
   for (let y = 0; y < world.size.y; y += 1) {
     for (let x = 0; x < world.size.x; x += 1) {
-      world.addMaterial("substance", 500, x, y)
+      world.addMaterial("substance", amount, x, y)
     }
   }
 }
 
 function initializeAncestors(world: World): void {
-  world.addAncestor(Ancestor.minimumSelfReproduction(() => AncestorCode.minimumSelfReproduction(NeighbourDirections.bottom)), world.size.div(3).floor())
-  world.addAncestor(Ancestor.minimumSelfReproduction(() => AncestorCode.minimumSelfReproduction(NeighbourDirections.right)), world.size.div(2).floor())
-  world.addAncestor(Ancestor.minimumSelfReproduction(() => AncestorCode.minimumSelfReproduction(NeighbourDirections.top)), world.size.div(3).mult(2).floor())
+  world.addAncestor(Ancestor.minimumSelfReproduction(() => (new EnergyCollection(NeighbourDirections.bottom, 1.0))), world.size.div(3).floor())
+  world.addAncestor(Ancestor.minimumSelfReproduction(() => (new EnergyCollection(NeighbourDirections.top, 1.0))), world.size.div(3).floor())
+  world.addAncestor(Ancestor.minimumSelfReproduction(() => (new EnergyCollection(NeighbourDirections.bottom, 0.5))), world.size.div(2).floor())
+  world.addAncestor(Ancestor.minimumSelfReproduction(() => (new EnergyCollection(NeighbourDirections.top, 0.5))), world.size.div(2).floor())
+  world.addAncestor(Ancestor.minimumSelfReproduction(() => (new EnergyCollection(NeighbourDirections.bottom, 0.0))), world.size.div(3).mult(2).floor())
+  world.addAncestor(Ancestor.minimumSelfReproduction(() => (new EnergyCollection(NeighbourDirections.top, 0.0))), world.size.div(3).mult(2).floor())
+
+  // world.addAncestor(Ancestor.minimumSelfReproduction(() => AncestorCode.energyCollection(NeighbourDirections.bottom)), world.size.div(5).mult(2).floor())
 }
