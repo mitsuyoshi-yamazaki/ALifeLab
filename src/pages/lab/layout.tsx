@@ -38,6 +38,7 @@ const App = () => {
         <LinkCard title="多近傍質量保存CA" link="hex_mn_mcca.html" />
         <LinkCard title="人工生命の箱庭 v1" link="modular_life.html" />
         <LinkCard title="人工生命の箱庭 v2" link="modular_life_v2.html?cell_size=16&world_size=60&frame_skip=1&heat_damage=0.2&energy_heat_conversion=0.1&substance_amount=12&energy_transfer_resistance=5&energy_production=100" />
+        <LinkCard title="人工生命の箱庭 v2.4" link="modular_life_v2_4.html?cell_size=16&world_size=60&frame_skip=1&heat_damage=0.2&energy_heat_conversion=0.1&substance_amount=12&energy_transfer_resistance=5&energy_production=100" />
       </div>
       <Footer homePath="../" />
     </ThemeProvider>
