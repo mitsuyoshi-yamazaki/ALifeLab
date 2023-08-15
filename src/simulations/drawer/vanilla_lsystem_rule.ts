@@ -1,4 +1,3 @@
-import { random } from "../../classes/utilities"
 import { Color } from "../../classes/color"
 import { LSystemRule, LSystemCondition, LSystemCoordinate } from "./lsystem_rule"
 
@@ -50,7 +49,8 @@ export class VanillaLSystemRule implements LSystemRule {
     return this._encoded
   }
 
-  private static endOfBranch = "."
+  public static endOfBranch = "."
+  
   private _encoded: string
   private _map: Map<string, LSystemCondition[]>
 
@@ -74,38 +74,6 @@ export class VanillaLSystemRule implements LSystemRule {
       this._map = first
     }
     this.transition = this.calculateTransition()
-  }
-
-  public static random(): VanillaLSystemRule { // FixMe: 適当に書いたので探索範囲が偏っているはず
-    const alphabets = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("")
-    const conditions = alphabets.slice(0, random(alphabets.length, 1))
-    const map = new Map<string, LSystemCondition[]>()
-    const maxConditions = 10
-
-    const randomCondition = (): string => {
-      const index = Math.floor(random(conditions.length))
-
-      return conditions[index]
-    }
-
-    conditions.forEach(condition => {
-      const nextConditions: LSystemCondition[] = []
-      for (let i = 0; i < maxConditions; i += 1) {
-        if (random(1) > 0.5) {
-          break
-        }
-        const angle = Math.floor(random(360, 0)) - 180
-        nextConditions.push(angle)
-        nextConditions.push(randomCondition())
-      }
-      if (nextConditions.length === 0) {
-        nextConditions.push(VanillaLSystemRule.endOfBranch)
-      }
-
-      map.set(condition, nextConditions)
-    })
-
-    return new VanillaLSystemRule(map)
   }
 
   public static encode(map: Map<string, LSystemCondition[]>): string {
