@@ -100,7 +100,8 @@ function createModel(ruleString?: string): Model {
     for (let i = 0; i < constants.simulation.numberOfSeeds; i += 1) {
       const tries = 20
       for (let j = 0; j < tries; j += 1) {
-        const rule = VanillaLSystemRule.trimUnreachableConditions(RandomRuleConstructor.random(), initialCondition)
+        const rule = VanillaLSystemRule.trimUnreachableConditions(RandomRuleConstructor.graph(), initialCondition)
+        console.log("graph")
         if (rule.isCirculated(initialCondition)) {
           rules.push(rule)
           break
@@ -108,6 +109,7 @@ function createModel(ruleString?: string): Model {
       }
     }
     if (rules.length === 0) {
+      console.log("random rule generation failed.. drawing predefined patterns")
       rules.push(new VanillaLSystemRule(randomExampleRule()))
     }
   }
