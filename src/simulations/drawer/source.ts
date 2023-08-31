@@ -8,6 +8,7 @@ import { VanillaLSystemRule } from "./vanilla_lsystem_rule"
 import { exampleRules } from "./rule_examples"
 import { Downloader } from "./downloader"
 import { TransitionColoredModel } from "./transition_colored_model"
+import { RandomRuleConstructor } from "./random_rule_constructor"
 
 let t = 0
 const canvasId = "canvas"
@@ -99,7 +100,7 @@ function createModel(ruleString?: string): Model {
     for (let i = 0; i < constants.simulation.numberOfSeeds; i += 1) {
       const tries = 20
       for (let j = 0; j < tries; j += 1) {
-        const rule = VanillaLSystemRule.trimUnreachableConditions(VanillaLSystemRule.random(), initialCondition)
+        const rule = VanillaLSystemRule.trimUnreachableConditions(RandomRuleConstructor.graph(), initialCondition)
         if (rule.isCirculated(initialCondition)) {
           rules.push(rule)
           break
@@ -107,6 +108,7 @@ function createModel(ruleString?: string): Model {
       }
     }
     if (rules.length === 0) {
+      console.log("random rule generation failed.. drawing predefined patterns")
       rules.push(new VanillaLSystemRule(randomExampleRule()))
     }
   }
