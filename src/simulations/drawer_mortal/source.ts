@@ -8,6 +8,7 @@ import { VanillaLSystemRule } from "../drawer/vanilla_lsystem_rule"
 import { Downloader } from "../drawer/downloader"
 import { exampleRules } from "./rule_examples"
 import { MortalModel } from "./mortal_model"
+import { RandomRuleConstructor } from "../drawer/random_rule_constructor"
 
 let t = 0
 const canvasId = "canvas"
@@ -85,7 +86,7 @@ function createModel(ruleStrings: string[]): Model {
     for (let i = 0; i < constants.simulation.numberOfSeeds; i += 1) {
       const tries = 20
       for (let j = 0; j < tries; j += 1) {
-        const rule = VanillaLSystemRule.trimUnreachableConditions(VanillaLSystemRule.random(), initialCondition)
+        const rule = VanillaLSystemRule.trimUnreachableConditions(RandomRuleConstructor.random(), initialCondition)
         if (rule.isCirculated(initialCondition)) {
           rules.push(rule)
           break
