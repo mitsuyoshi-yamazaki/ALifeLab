@@ -101,7 +101,6 @@ function createModel(ruleString?: string): Model {
       const tries = 20
       for (let j = 0; j < tries; j += 1) {
         const rule = VanillaLSystemRule.trimUnreachableConditions(RandomRuleConstructor.graph(), initialCondition)
-        console.log("graph")
         if (rule.isCirculated(initialCondition)) {
           rules.push(rule)
           break
