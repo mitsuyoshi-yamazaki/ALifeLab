@@ -1,0 +1,9 @@
+services:
+  alife_lab:
+    container_name: alife_lab
+    build: ./
+    ports:
+      - '8012:3000'
+    volumes:
+      - ./src:/var/www/app
+    tty: true
