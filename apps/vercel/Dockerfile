@@ -7,4 +7,3 @@ RUN apk add g++ && apk add make
 WORKDIR /var/www/app
 
 RUN yarn install
-RUN yarn set version berry 
