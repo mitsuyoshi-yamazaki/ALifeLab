@@ -7,3 +7,7 @@ RUN apk add g++ && apk add make
 WORKDIR /var/www/app
 
 RUN yarn install
+
+# Vercel CLIのインストール
+RUN yarn global add vercel@latest
+RUN vercel env pull .env
