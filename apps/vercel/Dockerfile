@@ -10,4 +10,3 @@ RUN yarn install
 
 # Vercel CLIのインストール
 RUN yarn global add vercel@latest
-RUN vercel env pull .env

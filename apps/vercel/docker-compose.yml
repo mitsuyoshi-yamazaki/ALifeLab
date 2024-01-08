@@ -3,7 +3,8 @@ services:
     container_name: alife_lab
     build: ./
     ports:
-      - '8012:3000'
+      - '8012:3000' # 本体
+      - '8020:5555' # Prisma Studio
     volumes:
       - ./src:/var/www/app
     tty: true
