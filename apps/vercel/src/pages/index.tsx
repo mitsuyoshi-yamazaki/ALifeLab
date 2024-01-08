@@ -4,7 +4,17 @@ import Layout from "../components/Layout"
 import Post, { PostProps } from "../components/Post"
 
 export const getStaticProps: GetStaticProps = async () => {
-  const feed = [
+  const feeds = [
+    {
+      id: "2",
+      title: "Mitsuyoshi's Manuscript",
+      content: "",
+      published: false,
+      author: {
+        name: "Mitsuyoshi Yamazaki",
+        email: "-",
+      },
+    },
     {
       id: "1",
       title: "Prisma is the perfect ORM for Next.js",
@@ -17,13 +27,13 @@ export const getStaticProps: GetStaticProps = async () => {
     },
   ]
   return { 
-    props: { feed }, 
+    props: { feeds }, 
     revalidate: 10 
   }
 }
 
 type Props = {
-  feed: PostProps[]
+  feeds: PostProps[]
 }
 
 const Blog: React.FC<Props> = (props) => {
@@ -32,7 +42,7 @@ const Blog: React.FC<Props> = (props) => {
       <div className="page">
         <h1>Public Feed</h1>
         <main>
-          {props.feed.map((post) => (
+          {props.feeds.map((post) => (
             <div key={post.id} className="post">
               <Post post={post} />
             </div>
