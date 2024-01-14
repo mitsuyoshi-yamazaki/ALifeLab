@@ -15,5 +15,11 @@ $ vercel env pull .env
 ## Development
 ### Migration
 ```sh
-$ yarn prisma generate
+# change src/prisma/schema.prisma
+$ yarn prisma db push
+```
+
+### Reset DB
+```sh
+$ yarn prisma db push --force-reset
 ```
