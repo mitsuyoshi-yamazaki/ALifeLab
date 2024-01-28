@@ -1,5 +1,5 @@
 import { random } from "../../classes/utilities"
-import { LSystemCondition } from "./lsystem_rule"
+import { LSystemCondition, LSystemRule } from "./lsystem_rule"
 import { VanillaLSystemRule } from "./vanilla_lsystem_rule"
 
 const alphabets = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("")
@@ -102,5 +102,55 @@ export const RandomRuleConstructor = {
     })
 
     return new VanillaLSystemRule(map)
+  },
+
+  /** @throws */
+  swapMutated(baseRule: LSystemRule): VanillaLSystemRule {
+    const ruleMap = baseRule.mapRepresentation
+    const branches = Array.from(ruleMap.keys())
+    const swaps: [number, number][] = []
+
+    const branchCount = branches.length
+    if (branchCount < 3) {
+      throw `Too few branches (${branchCount}), ${baseRule.encoded}`
+    }
+
+    const getSwapIndices = (): [number, number] => {
+      return [Math.floor(random(branchCount)), Math.floor(random(branchCount))]
+    }
+    const swap = (i: number, j: number): void => {
+      if (i === j) {
+        return
+      }
+      const iKey = branches[i]
+      const jKey = branches[j]
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      const temp = ruleMap.get(iKey)!
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      ruleMap.set(iKey, ruleMap.get(jKey)!)
+      ruleMap.set(jKey, temp)
+    }
+
+    const swapCount = Math.floor(random(1, Math.min(branchCount, 5)))
+
+    for (let i = 0; i < swapCount; i += 1) {
+      const [i, j] = getSwapIndices()
+      swaps.push([i, j])
+      swap(i, j)
+    }
+
+    const newRule = new VanillaLSystemRule(ruleMap)
+    const descriptions: string[] = [
+      "",
+      `Base rule:\n${baseRule.encoded}\n`,
+      `Swapped:\n${newRule.encoded}\n`,
+      "Swap positions:",
+      ...swaps.map(swap => `- ${swap[0]}: ${swap[1]}`),
+      "",
+    ]
+
+    console.log(descriptions.join("\n"))
+
+    return newRule
   },
 }
