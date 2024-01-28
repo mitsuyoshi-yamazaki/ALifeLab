@@ -7,6 +7,7 @@ import { defaultCanvasParentId } from "../../react-components/common/default_can
 import { VanillaLSystemRule } from "../drawer/vanilla_lsystem_rule"
 import { TransitionColoredModel } from "../drawer/transition_colored_model"
 import { FlexibleLsystemRule } from "./flexible_lsystem_rule"
+import { ColorTheme } from "../drawer/color_theme"
 
 const parameterDownloader = new JSONDownloader()
 const screenshotDownloader = new ScreenshotDownloader()
@@ -107,7 +108,7 @@ function createModel(): Model | null {
   const rules = [flexibleRule.ruleOf(n)]
   n += 1
 
-  const modelOf = (colorTheme: string): Model => {
+  const modelOf = (colorTheme: ColorTheme): Model => {
     if (colorTheme === "transition") {
       return new TransitionColoredModel(
         new Vector(fieldSize, fieldSize),

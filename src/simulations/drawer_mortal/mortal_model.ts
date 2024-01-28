@@ -2,6 +2,7 @@ import p5 from "p5"
 import { Vector } from "../../classes/physics"
 import { VanillaLSystemRule } from "../drawer/vanilla_lsystem_rule"
 import { Model } from "../drawer/model"
+import { ColorTheme } from "../drawer/color_theme"
 
 export class MortalModel extends Model {
   private numberOfNodes = 1
@@ -14,7 +15,7 @@ export class MortalModel extends Model {
     public readonly mutationRate: number,
     public readonly lineLifeSpan: number,
     public readonly isContinuous: boolean,
-    colorTheme: string,
+    colorTheme: ColorTheme,
     fixedStartPoint: boolean,
     addObstacle: boolean,
   ) {

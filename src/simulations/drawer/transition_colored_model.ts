@@ -6,6 +6,7 @@ import { LSystemCoordinate } from "./lsystem_rule"
 import { Model } from "./model"
 import { LSystemDrawer } from "./lsystem_drawer"
 import { VanillaLSystemRule } from "./vanilla_lsystem_rule"
+import { ColorTheme } from "./color_theme"
 
 export class TransitionColoredModel extends Model {
   protected checkCompleted(): void {
@@ -31,7 +32,7 @@ export class TransitionColoredModel extends Model {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  protected newDrawer(position: Vector, direction: number, condition: string, rule: VanillaLSystemRule, lineLengthType: number, colorTheme: string): LSystemDrawer {
+  protected newDrawer(position: Vector, direction: number, condition: string, rule: VanillaLSystemRule, lineLengthType: number, colorTheme: ColorTheme): LSystemDrawer {
     return new TransitionColoredDrawer(
       position,
       direction,

@@ -68,6 +68,7 @@ export const constants = {
     showsQuadtree: parameters.boolean("draw.shows_quadtree", false, "d.q"),
 
     // 色の設定
+    // 設定できる値は grayscale, grayscale_black, ascii, depth, direction, transition
     colorTheme: parameters.string("draw.color_theme", "grayscale", "d.c") as ColorTheme,
   },
 }
