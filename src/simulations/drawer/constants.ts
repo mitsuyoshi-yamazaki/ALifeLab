@@ -1,12 +1,9 @@
 import { URLParameterParser } from "../../classes/url_parameter_parser"
-
-/*
- * ascii: 状態により色が決まる
- * depth: ノードの深さ（ルートまでの距離）により色が決まる // 未実装
- */
-type ColorTheme = "grayscale" | "ascii" | "depth" | "direction" | "transition"
+import { ColorTheme } from "./color_theme"
 
 const parameters = new URLParameterParser()
+
+// TODO: 依存関係にあるパラメータをそのように設定できるようにする
 
 // 指定できるURLパラメータの一覧
 // parameters.boolean/int/float/string("パラメータ名", 指定されない場合のデフォルト値, "パラメータ名省略記法")
@@ -40,6 +37,11 @@ export const constants = {
     // L-Systemの **状態の** 突然変異率（ルールの、ではない）
     mutationRate: parameters.float("simulation.mutation_rate", 0, "s.m"),
 
+    // ルールの状態遷移を入れ替える：綺麗そうなパターンの周辺を探索できる
+    // 元となるルールが simulation.lsystem_rule で設定されている必要がある
+    // system.run が 1 になっていなければ探索が進まないので効果がない
+    swap: parameters.boolean("simulation.swap", false),
+
     // system.run=1のとき、同時に実行するL-Systemルールの数
     numberOfSeeds: parameters.int("simulation.number_of_seeds", 1, "s.s"),
 
@@ -63,7 +65,7 @@ export const constants = {
 
       // パラメータ変更が一周するのにかかるstep数
       period: parameters.int("simulation.parameter_period", 360, "s.pp"),
-    }
+    },
   },
   draw: {
     // 1でcanvas境界に配置した境界線を描画
@@ -73,6 +75,7 @@ export const constants = {
     showsQuadtree: parameters.boolean("draw.shows_quadtree", false, "d.q"),
 
     // 色の設定
+    // 設定できる値は grayscale, grayscale_black, ascii, depth, direction, transition
     colorTheme: parameters.string("draw.color_theme", "grayscale", "d.c") as ColorTheme,
   },
 }

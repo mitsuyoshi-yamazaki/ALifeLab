@@ -2,21 +2,88 @@ import p5 from "p5"
 import { constants } from "./constants"
 import { Vector } from "../../classes/physics"
 import { random } from "../../classes/utilities"
-import { ImmortalModel, Model, Result, RuleDescription } from "./model"
+import { ImmortalModel, Model, ModelOptions, Result, RuleDescription } from "./model"
 import { defaultCanvasParentId } from "../../react-components/common/default_canvas_parent_id"
 import { VanillaLSystemRule } from "./vanilla_lsystem_rule"
 import { exampleRules } from "./rule_examples"
 import { Downloader } from "./downloader"
 import { TransitionColoredModel } from "./transition_colored_model"
 import { RandomRuleConstructor } from "./random_rule_constructor"
+import { ColorTheme } from "./color_theme"
 
 let t = 0
 const canvasId = "canvas"
 const fieldSize = constants.system.fieldSize
-const firstRule: string | undefined = constants.system.run ? undefined :
-  (constants.simulation.lSystemRule.length > 0 ? constants.simulation.lSystemRule : randomExampleRule())
-let currentModel = createModel(firstRule)
+
+const firstRuleString = ((): string | undefined => {
+  if (constants.simulation.swap === true) {
+    if (constants.simulation.lSystemRule.length <= 0) {
+      const errorMessage = "simulation.swapを設定する際は同時にsimulation.lsystem_ruleを指定する必要があります"
+      alert(errorMessage)
+      throw errorMessage 
+    }
+    return constants.simulation.lSystemRule
+  }
+
+  if (constants.system.run === true) {
+    return undefined
+  }
+
+  if (constants.simulation.lSystemRule.length > 0) {
+    return constants.simulation.lSystemRule
+  }
+  return randomExampleRule()
+})()
+
+const initialCondition = VanillaLSystemRule.initialCondition
+const generateNewRule = (): VanillaLSystemRule | null => {
+  const tries = 20
+  for (let j = 0; j < tries; j += 1) {
+    const rule = VanillaLSystemRule.trimUnreachableConditions(RandomRuleConstructor.graph(), initialCondition)
+    if (rule.isCirculated(initialCondition)) {
+      return rule
+    }
+  }
+  return null
+}
+
+let currentRule = ((): VanillaLSystemRule => {
+  if (firstRuleString == null) {
+    return generateNewRule() ?? new VanillaLSystemRule(randomExampleRule())
+  }
+  try {
+    return new VanillaLSystemRule(firstRuleString)
+  } catch (error) {
+    console.log(`Invalid rule: ${firstRuleString}`)
+    alert(`Invalid rule: ${firstRuleString}`)
+    throw error
+  }
+})()
+
+let stop = false
+
+let currentModel = createModel([currentRule])
 const downloader = new Downloader()
+
+const backgroundWhite = ((): number => {
+  switch (constants.draw.colorTheme) {
+  case "ascii":
+  case "direction":
+  case "grayscale":
+    return 0x00
+
+  case "depth":
+  case "transition":
+  case "grayscale_black":
+    return 0xFF
+    
+  default: {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const _: never = constants.draw.colorTheme
+    throw `Unknown color theme ${constants.draw.colorTheme}`
+  }
+  }
+})()
 
 export const canvasWidth = fieldSize
 
@@ -35,19 +102,19 @@ export const main = (p: p5): void => {
     canvas.id(canvasId)
     canvas.parent(defaultCanvasParentId)
 
-    p.background(0x0, 0xFF)
+    p.background(backgroundWhite, 0xFF)
   }
 
   p.draw = () => {
+    if (stop === true) {
+      return
+    }
+
     if (downloader.isSaving === true) {
       return
     }
 
-    if (["depth", "transition"].includes(constants.draw.colorTheme)) {
-      p.background(0xFF, 0xFF)
-    } else {
-      p.background(0x0, 0xFF)
-    }
+    p.background(backgroundWhite, 0xFF)
 
     if (t % constants.simulation.executionInterval === 0) {
       currentModel.execute()
@@ -68,7 +135,18 @@ export const main = (p: p5): void => {
       if (constants.system.autoDownload && shouldSave(result)) {
         downloader.save("", rules, t, result.t)
       }
-      currentModel = createModel()
+
+      try {
+        if (constants.simulation.numberOfSeeds > 1) {
+          currentModel = createModel(generateNewRules())
+        } else {
+          currentRule = generateNextRule(currentRule)
+          currentModel = createModel([currentRule])
+        }
+      } catch (error) {
+        alert(error)
+        stop = true
+      }
     }
 
     t += 1
@@ -86,33 +164,42 @@ export const saveCurrentState = (): void => {
   downloader.save("", rules, t, result.t)
 }
 
-function createModel(ruleString?: string): Model {
+const generateNewRules = (): VanillaLSystemRule[] => {
   const rules: VanillaLSystemRule[] = []
-  if (ruleString != null) {
-    try {
-      rules.push(new VanillaLSystemRule(ruleString))
-    } catch (error) {
-      alert(`Invalid rule ${ruleString}`)
-      throw error
-    }
-  } else {
-    const initialCondition = VanillaLSystemRule.initialCondition
-    for (let i = 0; i < constants.simulation.numberOfSeeds; i += 1) {
-      const tries = 20
-      for (let j = 0; j < tries; j += 1) {
-        const rule = VanillaLSystemRule.trimUnreachableConditions(RandomRuleConstructor.graph(), initialCondition)
-        if (rule.isCirculated(initialCondition)) {
-          rules.push(rule)
-          break
-        }
-      }
-    }
-    if (rules.length === 0) {
-      console.log("random rule generation failed.. drawing predefined patterns")
-      rules.push(new VanillaLSystemRule(randomExampleRule()))
+  for (let i = 0; i < constants.simulation.numberOfSeeds; i += 1) {
+    const rule = generateNewRule()
+    if (rule != null) {
+      rules.push(rule)
     }
   }
-  const modelOf = (colorTheme: string): Model => {
+  if (rules.length === 0) {
+    console.error("random rule generation failed.. drawing predefined patterns")
+    rules.push(new VanillaLSystemRule(randomExampleRule()))
+  }
+
+  return rules
+}
+
+const generateNextRule = (rule: VanillaLSystemRule): VanillaLSystemRule => {
+  if (constants.simulation.swap === true) {
+    return RandomRuleConstructor.swapMutated(rule)
+  }
+
+  return generateNewRule() ?? new VanillaLSystemRule(randomExampleRule())
+}
+
+function createModel(rules: VanillaLSystemRule[]): Model {
+  const modelOf = (colorTheme: ColorTheme): Model => {
+    const lineWeight = (() => {
+      if (constants.system.fieldSize >= 1000) {
+        return 1
+      }
+      return 0.5
+    })()
+    const options: ModelOptions = {
+      lineWeight,
+    }
+
     if (colorTheme === "transition") {
       return new TransitionColoredModel(
         new Vector(fieldSize, fieldSize),
@@ -123,6 +210,7 @@ function createModel(ruleString?: string): Model {
         colorTheme,
         constants.simulation.fixedStartPoint,
         constants.simulation.obstacle,
+        options,
       )
     } else {
       return new ImmortalModel(
@@ -134,6 +222,7 @@ function createModel(ruleString?: string): Model {
         colorTheme,
         constants.simulation.fixedStartPoint,
         constants.simulation.obstacle,
+        options,
       )
     }
   }
