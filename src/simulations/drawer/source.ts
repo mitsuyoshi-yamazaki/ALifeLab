@@ -2,13 +2,14 @@ import p5 from "p5"
 import { constants } from "./constants"
 import { Vector } from "../../classes/physics"
 import { random } from "../../classes/utilities"
-import { ImmortalModel, Model, Result, RuleDescription } from "./model"
+import { ImmortalModel, Model, ModelOptions, Result, RuleDescription } from "./model"
 import { defaultCanvasParentId } from "../../react-components/common/default_canvas_parent_id"
 import { VanillaLSystemRule } from "./vanilla_lsystem_rule"
 import { exampleRules } from "./rule_examples"
 import { Downloader } from "./downloader"
 import { TransitionColoredModel } from "./transition_colored_model"
 import { RandomRuleConstructor } from "./random_rule_constructor"
+import { ColorTheme } from "./color_theme"
 
 let t = 0
 const canvasId = "canvas"
@@ -17,6 +18,26 @@ const firstRule: string | undefined = constants.system.run ? undefined :
   (constants.simulation.lSystemRule.length > 0 ? constants.simulation.lSystemRule : randomExampleRule())
 let currentModel = createModel(firstRule)
 const downloader = new Downloader()
+
+const backgroundWhite = ((): number => {
+  switch (constants.draw.colorTheme) {
+  case "ascii":
+  case "direction":
+  case "grayscale":
+    return 0x00
+
+  case "depth":
+  case "transition":
+  case "grayscale_black":
+    return 0xFF
+    
+  default: {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const _: never = constants.draw.colorTheme
+    throw `Unknown color theme ${constants.draw.colorTheme}`
+  }
+  }
+})()
 
 export const canvasWidth = fieldSize
 
@@ -35,7 +56,7 @@ export const main = (p: p5): void => {
     canvas.id(canvasId)
     canvas.parent(defaultCanvasParentId)
 
-    p.background(0x0, 0xFF)
+    p.background(backgroundWhite, 0xFF)
   }
 
   p.draw = () => {
@@ -43,11 +64,7 @@ export const main = (p: p5): void => {
       return
     }
 
-    if (["depth", "transition"].includes(constants.draw.colorTheme)) {
-      p.background(0xFF, 0xFF)
-    } else {
-      p.background(0x0, 0xFF)
-    }
+    p.background(backgroundWhite, 0xFF)
 
     if (t % constants.simulation.executionInterval === 0) {
       currentModel.execute()
@@ -113,7 +130,17 @@ function createModel(ruleString?: string): Model {
       rules.push(new VanillaLSystemRule(randomExampleRule()))
     }
   }
-  const modelOf = (colorTheme: string): Model => {
+  const modelOf = (colorTheme: ColorTheme): Model => {
+    const lineWeight = (() => {
+      if (constants.system.fieldSize >= 1000) {
+        return 1
+      }
+      return 0.5
+    })()
+    const options: ModelOptions = {
+      lineWeight,
+    }
+
     if (colorTheme === "transition") {
       return new TransitionColoredModel(
         new Vector(fieldSize, fieldSize),
@@ -124,6 +151,7 @@ function createModel(ruleString?: string): Model {
         colorTheme,
         constants.simulation.fixedStartPoint,
         constants.simulation.obstacle,
+        options,
       )
     } else {
       return new ImmortalModel(
@@ -135,6 +163,7 @@ function createModel(ruleString?: string): Model {
         colorTheme,
         constants.simulation.fixedStartPoint,
         constants.simulation.obstacle,
+        options,
       )
     }
   }

@@ -4,6 +4,7 @@ import { random } from "../../classes/utilities"
 import { Drawer, Action } from "./drawer"
 import { Line } from "./line"
 import { LSystemCoordinate, LSystemRule } from "./lsystem_rule"
+import { ColorTheme } from "./color_theme"
 
 const alpha = 0x80
 const depthColors: Color[] = []
@@ -57,7 +58,7 @@ export class LSystemDrawer extends Drawer {
     public readonly n: number,
     public readonly rule: LSystemRule,
     public readonly lineLengthType: number, // TODO: 変化しない引数は引き回さなくて済むような作りにする
-    public readonly colorTheme: string, // FixMe: ColorThemeをconstants.tsから剥がして持ってくる
+    public readonly colorTheme: ColorTheme,
   ) {
     super(position, direction)
     this._condition = condition
@@ -96,6 +97,16 @@ export class LSystemDrawer extends Drawer {
       
     case "transition":
       throw new Error("TransitionColoredModelを利用してください")
+      
+    case "grayscale_black":
+      line.color = Color.white(0x00)
+      break
+
+    default: {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const _: never = this.colorTheme
+      break
+    }
     }
 
     const drawerFromCoordinate = (coordinate: LSystemCoordinate): LSystemDrawer => {
