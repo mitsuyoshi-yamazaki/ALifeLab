@@ -1,18 +1,17 @@
 import p5 from "p5"
 import { Vector } from "../../classes/physics"
+import { ColorTheme } from "../drawer/color_theme"
 import { LSystemRule } from "../drawer/lsystem_rule"
 import { Model } from "../drawer/model"
 
 export class GalleryModel extends Model {
-  private _lineWeight = 0.5
-
   public constructor(
     public readonly fieldSize: Vector,
     public readonly maxLineCount: number,
     public readonly lSystemRules: LSystemRule[],
     public readonly mutationRate: number,
     lineLengthType: number,
-    colorTheme: string,
+    colorTheme: ColorTheme,
     fixedStartPoint: boolean,
     addObstacle: boolean,
   ) {

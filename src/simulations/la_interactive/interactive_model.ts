@@ -8,6 +8,7 @@ import { random } from "../../classes/utilities"
 import { QuadtreeNode } from "../drawer/quadtree"
 import { VanillaLSystemRule } from "../drawer/vanilla_lsystem_rule"
 import { CodableRuleInfo } from "./rule_url_parameter_encoder"
+import { ColorTheme } from "../drawer/color_theme"
 
 type RuleState = "growing" | "paused"
 type RuleInfo = {
@@ -42,7 +43,7 @@ export class InteractiveModel extends Model {
     fieldSize: Vector,
     maxLineCount: number,
     private readonly lineLengthType: number,
-    private readonly colorTheme: string,
+    private readonly colorTheme: ColorTheme,
   ) {
     super(
       fieldSize,

@@ -12,6 +12,9 @@ export class SymmetricLSystemRule implements LSystemRule {
   public get encoded(): string {
     return this._encoded
   }
+  public get mapRepresentation(): Map<string, LSystemCondition[]> {
+    return new Map(this._map)
+  }
 
   private static endOfBranch = "."
   private static directionChangeCode = "-"
