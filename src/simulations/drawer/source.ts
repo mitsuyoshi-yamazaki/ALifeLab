@@ -164,6 +164,10 @@ export const saveCurrentState = (): void => {
   downloader.save("", rules, t, result.t)
 }
 
+export const toggleRunning = (): void => {
+  stop = !stop
+}
+
 const generateNewRules = (): VanillaLSystemRule[] => {
   const rules: VanillaLSystemRule[] = []
   for (let i = 0; i < constants.simulation.numberOfSeeds; i += 1) {

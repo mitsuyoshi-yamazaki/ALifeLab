@@ -1,10 +1,24 @@
 import p5 from "p5"
-import React, { CSSProperties } from "react"
+import React, { CSSProperties, useEffect } from "react"
 import ReactDOM from "react-dom"
 import { defaultCanvasParentId } from "../../react-components/common/default_canvas_parent_id"
-import { main } from "../drawer/source"
+import { main, toggleRunning } from "../drawer/source"
+
 
 const App = () => {
+  useEffect(() => {
+    const handleCommand = () => {
+      toggleRunning()
+    }
+
+    window.addEventListener("appCommand", handleCommand)
+
+    // クリーンアップ
+    return () => {
+      window.removeEventListener("appCommand", handleCommand)
+    }
+  }, [])
+
   const canvasStyle: CSSProperties = {
     position: "fixed",
     top: 0,
