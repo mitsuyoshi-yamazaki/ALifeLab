@@ -1,12 +1,24 @@
 import p5 from "p5"
-import React from "react"
+import React, { CSSProperties } from "react"
 import ReactDOM from "react-dom"
-import { DetailPage } from "../../react-components/lab/detail_page"
-import { main, canvasWidth } from "../drawer/source"
+import { defaultCanvasParentId } from "../../react-components/common/default_canvas_parent_id"
+import { main } from "../drawer/source"
 
 const App = () => {
+  const canvasStyle: CSSProperties = {
+    position: "fixed",
+    top: 0,
+    left: 0,
+    width: "100vw",
+    height: "100vh",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "black",
+  }
+  
   return (
-    <DetailPage bodyWidth={canvasWidth} screenshotButtonType={{ kind: "none" }} />
+    <div id={defaultCanvasParentId} style={canvasStyle}></div>
   )
 }
 
