@@ -15,6 +15,7 @@ module.exports = {
     drawer: "./src/simulations/drawer/layout.tsx",
     drawer_mortal: "./src/simulations/drawer_mortal/layout.tsx",
     drawer_symmetry: "./src/simulations/drawer_symmetry/layout.tsx",
+    drawer_mobile: "./src/simulations/drawer_mobile/layout.tsx",
     lines_and_angles: "./src/simulations/lines_and_angles/layout.tsx",
     la_fullscreen: "./src/simulations/la_fullscreen/layout.tsx",
     la_interactive_fullscreen: "./src/simulations/la_interactive_fullscreen/layout.tsx",
