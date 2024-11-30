@@ -2,8 +2,9 @@ import p5 from "p5"
 import React, { CSSProperties, useEffect } from "react"
 import ReactDOM from "react-dom"
 import { defaultCanvasParentId } from "../../react-components/common/default_canvas_parent_id"
-import { main, toggleRunning } from "../drawer/source"
+import { main, setRunning, toggleRunning } from "../drawer/source"
 
+setRunning(false)
 
 const App = () => {
   useEffect(() => {
