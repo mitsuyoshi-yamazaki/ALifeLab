@@ -78,6 +78,7 @@ function createModel(ruleStrings: string[]): Model {
     try {
       rules.push(...ruleStrings.map(rule => new VanillaLSystemRule(rule)))
     } catch (error) {
+      console.log(`Invalid rule: ${error}`)
       alert("Invalid rule")
       throw error
     }
