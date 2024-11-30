@@ -1,17 +1,16 @@
 {
- "editor.detectIndentation": false,
- "editor.tabSize": 2,
- "workbench.colorCustomizations": {
-  "activityBar.background": "#083658"
-},
-"bracket-pair-colorizer-2.colors": [
-
-  "Gold",
-  "Orchid",
-  "LightSkyBlue"
-],
-"python.formatting.provider": "black",
-"editor.codeActionsOnSave": {
-  "source.fixAll.eslint": true
-}
+  "editor.detectIndentation": false,
+  "editor.tabSize": 2,
+  "workbench.colorCustomizations": {
+    "activityBar.background": "#083658"
+  },
+  "bracket-pair-colorizer-2.colors": [
+    "Gold",
+    "Orchid",
+    "LightSkyBlue"
+  ],
+  "python.formatting.provider": "black",
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  }
 }

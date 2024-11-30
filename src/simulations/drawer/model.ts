@@ -5,6 +5,7 @@ import { LSystemRule, defaultInitialCondition } from "./lsystem_rule"
 import { LSystemDrawer } from "./lsystem_drawer"
 import { Line, isCollided } from "./line"
 import { QuadtreeNode } from "./quadtree"
+import { ColorTheme } from "./color_theme"
 // Do not import constants (pass constants via Model.constructor)
 
 export interface RuleDescription {
@@ -23,6 +24,10 @@ export class Result {
     public readonly rules: RuleDescription[],
     public readonly description: string,
   ) { }
+}
+
+export type ModelOptions = {
+  lineWeight?: number,
 }
 
 export class Model {
@@ -51,6 +56,7 @@ export class Model {
   protected __lines: Line[] = []
   protected _result: Result | null
   protected _rootNode: QuadtreeNode
+  protected _lineWeight: number
 
   public constructor(
     public readonly fieldSize: Vector,
@@ -58,9 +64,10 @@ export class Model {
     public readonly lSystemRules: LSystemRule[],
     public readonly mutationRate: number,
     lineLengthType: number,
-    colorTheme: string,
+    colorTheme: ColorTheme,
     fixedStartPoint: boolean,
     addObstacle: boolean,
+    options?: ModelOptions,
   ) {
     this.initializeMembers()
     this._rootNode = new QuadtreeNode(new Vector(0, 0), fieldSize, null)
@@ -69,6 +76,8 @@ export class Model {
       this.setupObstacle()
     }
     this._drawers.push(...this.setupFirstDrawers(lSystemRules, fixedStartPoint, lineLengthType, colorTheme))
+
+    this._lineWeight = options?.lineWeight ?? 0.5
   }
 
   protected initializeMembers(): void {
@@ -97,7 +106,7 @@ export class Model {
     if (showsQuadtree === true) {
       this._rootNode.draw(p)
     }
-    this._lines.forEach(line => this.drawLine(line, 0x80, 0.5, p))
+    this._lines.forEach(line => this.drawLine(line, 0x80, this._lineWeight, p))
   }
 
   protected checkCompleted(): void {
@@ -126,7 +135,7 @@ export class Model {
     p.line(line.start.x, line.start.y, line.end.x, line.end.y)
   }
 
-  protected newDrawer(position: Vector, direction: number, condition: string, rule: LSystemRule, lineLengthType: number, colorTheme: string): LSystemDrawer {
+  protected newDrawer(position: Vector, direction: number, condition: string, rule: LSystemRule, lineLengthType: number, colorTheme: ColorTheme): LSystemDrawer {
     return new LSystemDrawer(
       position,
       direction,
@@ -138,7 +147,7 @@ export class Model {
     )
   }
 
-  protected setupFirstDrawers(rules: LSystemRule[], fixedStartPoint: boolean, lineLengthType: number, colorTheme: string): LSystemDrawer[] {
+  protected setupFirstDrawers(rules: LSystemRule[], fixedStartPoint: boolean, lineLengthType: number, colorTheme: ColorTheme): LSystemDrawer[] {
     const padding = 100
     const position = (): Vector => {
       if (fixedStartPoint && rules.length === 1) {

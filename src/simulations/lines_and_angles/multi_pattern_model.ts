@@ -7,6 +7,7 @@ import { LSystemDrawer } from "../drawer/lsystem_drawer"
 import { random } from "../../classes/utilities"
 import { QuadtreeNode } from "../drawer/quadtree"
 import { VanillaLSystemRule } from "../drawer/vanilla_lsystem_rule"
+import { ColorTheme } from "../drawer/color_theme"
 
 const pauseDuration = 400
 const fadeDuration = 200
@@ -38,7 +39,7 @@ export class MultiPatternModel extends Model {
     lSystemRules: LSystemRule[],
     mutationRate: number,
     private readonly lineLengthType: number,
-    private readonly colorTheme: string,
+    private readonly colorTheme: ColorTheme,
     fixedStartPoint: boolean,
     addObstacle: boolean,
   ) {

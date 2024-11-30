@@ -11,6 +11,7 @@ export interface LSystemCoordinate {
 export interface LSystemRule {
   encoded: string
   possibleConditions: string[]
+  mapRepresentation: Map<string, LSystemCondition[]>
   nextConditions(currentCondition: string): LSystemCondition[]
   nextCoordinates(condition: string, direction: number): LSystemCoordinate[]
   colorOfCondition?(condition: string): Color

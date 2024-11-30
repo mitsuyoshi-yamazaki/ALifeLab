@@ -1,5 +1,7 @@
-node_modules/
+
 .next/
-.DS_STORE
+.vercel/
+node_modules/
 .env
-.vercel
+.DS_STORE
+>>>>>>> main
