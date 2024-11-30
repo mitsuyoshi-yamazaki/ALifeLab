@@ -32,6 +32,7 @@ module.exports = {
     modular_life: "./src/simulations/modular_life/layout.tsx",
     modular_life_v2: "./src/simulations/modular_life_v2/layout.tsx",
     modular_life_v2_4: "./src/simulations/modular_life_v2_4/layout.tsx",
+    corewar: "./src/simulations/corewar/layout.tsx",
   },
   output: {
     path: path.resolve(__dirname, "dist"),
