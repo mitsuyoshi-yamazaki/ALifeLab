@@ -6,11 +6,17 @@ import { changeRule, main } from "./source"
 
 const App = () => {
   const [rule, setRule] = useState("A:-88,A,-152,A")
+  const [ruleValidationError, setRuleValidationError] = useState<string | null>(null)
 
   const ruleDidChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const updatedRule = event.target.value
     setRule(updatedRule)
-    changeRule(updatedRule)
+    const result = changeRule(updatedRule)
+    if (result === "ok") {
+      setRuleValidationError(null)
+    } else {
+      setRuleValidationError(result)
+    }
   }
 
   return (
@@ -23,6 +29,7 @@ const App = () => {
           onChange={ruleDidChange}
           style={{width: "100%"}}
         />
+        {ruleValidationError !== null ? <label style={{color: "red"}}>{ruleValidationError}</label> : null}
       </div>
     </DetailPage>
   )
