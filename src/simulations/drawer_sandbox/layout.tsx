@@ -1,9 +1,10 @@
 import p5 from "p5"
 import React, { useState } from "react"
 import ReactDOM from "react-dom"
-import { DetailPage } from "../../react-components/lab/detail_page"
+import { DetailPage, ScreenshotButtonCustom } from "../../react-components/lab/detail_page"
 import { LSystemRule } from "../drawer/lsystem_rule"
-import { changeRule, getCurrentRule, main } from "./source"
+import { changeRule, getCurrentRule, main, saveCurrentState } from "./source"
+import { Button } from "@material-ui/core"
 
 const App = () => {
   const [rule, setRule] = useState<LSystemRule>(getCurrentRule())
@@ -60,8 +61,18 @@ const App = () => {
 
   const ruleElements = rule.mapRepresentation
 
+  const screenshotButton: ScreenshotButtonCustom = {
+    kind: "custom",
+    button: (
+      <div>
+        <Button variant="contained" color="primary" onClick={() => saveCurrentState()}>Save Screenshot & Parameters</Button>
+        <a id="link" />
+      </div>
+    )
+  }
+
   return (
-    <DetailPage screenshotButtonType={{ kind: "none" }}>
+    <DetailPage screenshotButtonType={screenshotButton}>
       <div>
         <label>Rule:</label>
         <input
