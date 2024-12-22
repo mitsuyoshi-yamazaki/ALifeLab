@@ -69,6 +69,7 @@ export class VanillaLSystemRule implements LSystemRule {
   /** @throws */
   public constructor(encoded: string);
   public constructor(map: Map<string, LSystemCondition[]>);
+  public constructor(first: string | Map<string, LSystemCondition[]>);
   public constructor(first: string | Map<string, LSystemCondition[]>) {
     if (typeof (first) === "string") {
       this._encoded = first

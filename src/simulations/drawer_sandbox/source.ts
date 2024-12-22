@@ -6,6 +6,7 @@ import { defaultCanvasParentId } from "../../react-components/common/default_can
 import { VanillaLSystemRule } from "../drawer/vanilla_lsystem_rule"
 import { Downloader } from "../drawer/downloader"
 import { RandomRuleConstructor } from "../drawer/random_rule_constructor"
+import { LSystemCondition, LSystemRule } from "../drawer/lsystem_rule"
 
 let t = 0
 const canvasId = "canvas"
@@ -61,15 +62,18 @@ export const main = (p: p5): void => {
   }
 }
 
-/** @throws */
-export const changeRule = (ruleString: string): "ok" | string => {
+export const getCurrentRule = (): LSystemRule => {
+  return currentModel.lSystemRules[0]
+}
+
+export const changeRule = (newRule: string | Map<string, LSystemCondition[]>): LSystemRule | string => {
   try {
-    currentModel = createModel(new VanillaLSystemRule(ruleString))
+    currentModel = createModel(new VanillaLSystemRule(newRule))
     if (stop === true) {
       stop = false
     }
-    console.log(`rule updated: ${ruleString}`)
-    return "ok"
+    console.log(`rule updated: ${currentModel.lSystemRules[0].encoded}`)
+    return currentModel.lSystemRules[0]
 
   } catch (error) {
     console.log(`validation error: ${error}`)
