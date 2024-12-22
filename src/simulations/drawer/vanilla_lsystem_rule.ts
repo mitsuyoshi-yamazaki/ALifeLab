@@ -66,6 +66,7 @@ export class VanillaLSystemRule implements LSystemRule {
    * Example:
      * A:-30,A,60,B;B:A
    */
+  /** @throws */
   public constructor(encoded: string);
   public constructor(map: Map<string, LSystemCondition[]>);
   public constructor(first: string | Map<string, LSystemCondition[]>) {
@@ -89,6 +90,7 @@ export class VanillaLSystemRule implements LSystemRule {
     return result.join(";")
   }
 
+  /** @throws */
   public static decode(encoded: string): Map<string, LSystemCondition[]> {
     const map = new Map<string, LSystemCondition[]>()
     encoded.split(";").forEach(pair => {
