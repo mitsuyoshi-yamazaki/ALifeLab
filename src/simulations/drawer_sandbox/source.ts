@@ -1,100 +1,36 @@
 import p5 from "p5"
 import { constants } from "../drawer/constants"
 import { Vector } from "../../classes/physics"
-import { random } from "../../classes/utilities"
-import { ImmortalModel, Model, ModelOptions, Result, RuleDescription } from "../drawer/model"
+import { ImmortalModel, Model, ModelOptions, RuleDescription } from "../drawer/model"
 import { defaultCanvasParentId } from "../../react-components/common/default_canvas_parent_id"
 import { VanillaLSystemRule } from "../drawer/vanilla_lsystem_rule"
-import { exampleRules } from "../drawer/rule_examples"
 import { Downloader } from "../drawer/downloader"
-import { TransitionColoredModel } from "../drawer/transition_colored_model"
 import { RandomRuleConstructor } from "../drawer/random_rule_constructor"
-import { ColorTheme } from "../drawer/color_theme"
 
 let t = 0
 const canvasId = "canvas"
 const fieldSize = constants.system.fieldSize
 
-const firstRuleString = ((): string | undefined => {
-  if (constants.simulation.swap === true) {
-    if (constants.simulation.lSystemRule.length <= 0) {
-      const errorMessage = "simulation.swapを設定する際は同時にsimulation.lsystem_ruleを指定する必要があります"
-      alert(errorMessage)
-      throw errorMessage
-    }
-    return constants.simulation.lSystemRule
-  }
-
-  if (constants.system.run === true) {
-    return undefined
-  }
-
-  if (constants.simulation.lSystemRule.length > 0) {
-    return constants.simulation.lSystemRule
-  }
-  return randomExampleRule()
-})()
 
 const initialCondition = VanillaLSystemRule.initialCondition
-const generateNewRule = (): VanillaLSystemRule | null => {
-  const tries = 20
+const generateNewRule = (): VanillaLSystemRule => {
+  const tries = 40
   for (let j = 0; j < tries; j += 1) {
     const rule = VanillaLSystemRule.trimUnreachableConditions(RandomRuleConstructor.graph(), initialCondition)
     if (rule.isCirculated(initialCondition)) {
       return rule
     }
   }
-  return null
+  return VanillaLSystemRule.trimUnreachableConditions(RandomRuleConstructor.graph(), initialCondition) // FixMe: isCirculatedチェックがない
 }
-
-let currentRule = ((): VanillaLSystemRule => {
-  if (firstRuleString == null) {
-    return generateNewRule() ?? new VanillaLSystemRule(randomExampleRule())
-  }
-  try {
-    return new VanillaLSystemRule(firstRuleString)
-  } catch (error) {
-    console.log(`Invalid rule: ${firstRuleString}`)
-    alert(`Invalid rule: ${firstRuleString}`)
-    throw error
-  }
-})()
 
 let stop = false
 
-let currentModel = createModel([currentRule])
+let currentModel = createModel(generateNewRule())
 const downloader = new Downloader()
-
-const backgroundWhite = ((): number => {
-  switch (constants.draw.colorTheme) {
-  case "ascii":
-  case "direction":
-  case "grayscale":
-    return 0x00
-
-  case "depth":
-  case "transition":
-  case "grayscale_black":
-    return 0xFF
-
-  default: {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const _: never = constants.draw.colorTheme
-    throw `Unknown color theme ${constants.draw.colorTheme}`
-  }
-  }
-})()
-
+const backgroundWhite = 0x00
 export const canvasWidth = fieldSize
 
-export function upload(url: string): void {
-  const body = {
-    text: "Zapier webhookのテスト"
-  }
-
-  const request = new Request(url, { method: "POST", body: JSON.stringify(body) })
-  fetch(request)
-}
 
 export const main = (p: p5): void => {
   p.setup = () => {
@@ -121,35 +57,25 @@ export const main = (p: p5): void => {
     }
     currentModel.draw(p, constants.draw.showsQuadtree)
 
-    if (constants.system.run && currentModel.result != null) {
-      const result = currentModel.result
-      const status = `${result.status.numberOfLines} lines, ${result.status.numberOfNodes} nodes`
-      const rules = result.rules.sort((lhs: RuleDescription, rhs: RuleDescription) => {
-        if (lhs.numberOfDrawers === rhs.numberOfDrawers) {
-          return 0
-        }
-        return lhs.numberOfDrawers < rhs.numberOfDrawers ? 1 : -1
-      })
-      const ruleDescription = rules.reduce((r, rule) => `${r}\n${rule.numberOfDrawers} drawers: ${rule.rule}`, "")
-      console.log(`completed at ${t} (${result.t} steps, ${result.reason}, ${status}) ${result.description}\n${ruleDescription}`)
-      if (constants.system.autoDownload && shouldSave(result)) {
-        downloader.save("", rules, t, result.t)
-      }
-
-      try {
-        if (constants.simulation.numberOfSeeds > 1) {
-          currentModel = createModel(generateNewRules())
-        } else {
-          currentRule = generateNextRule(currentRule)
-          currentModel = createModel([currentRule])
-        }
-      } catch (error) {
-        alert(error)
-        stop = true
-      }
-    }
-
     t += 1
+  }
+}
+
+/** @throws */
+export const changeRule = (ruleString: string): "ok" | string => {
+  try {
+    currentModel = createModel(new VanillaLSystemRule(ruleString))
+    if (stop === true) {
+      stop = false
+    }
+    console.log(`rule updated: ${ruleString}`)
+    return "ok"
+
+  } catch (error) {
+    console.log(`validation error: ${error}`)
+    stop = true
+
+    return `${error}`
   }
 }
 
@@ -172,84 +98,38 @@ export const toggleRunning = (): void => {
   stop = !stop
 }
 
-const generateNewRules = (): VanillaLSystemRule[] => {
-  const rules: VanillaLSystemRule[] = []
-  for (let i = 0; i < constants.simulation.numberOfSeeds; i += 1) {
-    const rule = generateNewRule()
-    if (rule != null) {
-      rules.push(rule)
+function createModel(rule: VanillaLSystemRule): Model {
+  const mutationRate = 0
+  const lineLengthType = 0
+  const colorTheme = "grayscale"
+  const fixedStartPoint = true
+  const obstacle = false
+  const lineWeight = (() => {
+    if (constants.system.fieldSize >= 1000) {
+      return 1
     }
-  }
-  if (rules.length === 0) {
-    console.error("random rule generation failed.. drawing predefined patterns")
-    rules.push(new VanillaLSystemRule(randomExampleRule()))
-  }
-
-  return rules
-}
-
-const generateNextRule = (rule: VanillaLSystemRule): VanillaLSystemRule => {
-  if (constants.simulation.swap === true) {
-    return RandomRuleConstructor.swapMutated(rule)
+    return 0.5
+  })()
+  const options: ModelOptions = {
+    lineWeight,
   }
 
-  return generateNewRule() ?? new VanillaLSystemRule(randomExampleRule())
-}
+  const model = new ImmortalModel(
+    new Vector(fieldSize, fieldSize),
+    constants.simulation.maxLineCount,
+    [rule],
+    mutationRate,
+    lineLengthType,
+    colorTheme,
+    fixedStartPoint,
+    obstacle,
+    options,
+  )
 
-function createModel(rules: VanillaLSystemRule[]): Model {
-  const modelOf = (colorTheme: ColorTheme): Model => {
-    const lineWeight = (() => {
-      if (constants.system.fieldSize >= 1000) {
-        return 1
-      }
-      return 0.5
-    })()
-    const options: ModelOptions = {
-      lineWeight,
-    }
-
-    if (colorTheme === "transition") {
-      return new TransitionColoredModel(
-        new Vector(fieldSize, fieldSize),
-        constants.simulation.maxLineCount,
-        rules,
-        constants.simulation.mutationRate,
-        constants.simulation.lineLengthType,
-        colorTheme,
-        constants.simulation.fixedStartPoint,
-        constants.simulation.obstacle,
-        options,
-      )
-    } else {
-      return new ImmortalModel(
-        new Vector(fieldSize, fieldSize),
-        constants.simulation.maxLineCount,
-        rules,
-        constants.simulation.mutationRate,
-        constants.simulation.lineLengthType,
-        colorTheme,
-        constants.simulation.fixedStartPoint,
-        constants.simulation.obstacle,
-        options,
-      )
-    }
-  }
-  const model = modelOf(constants.draw.colorTheme)
   model.showsBorderLine = constants.draw.showsBorderLine
   model.lineCollisionEnabled = constants.simulation.lineCollisionEnabled
   model.quadtreeEnabled = constants.system.quadtreeEnabled
   model.concurrentExecutionNumber = constants.simulation.concurrentExecutionNumber
 
   return model
-}
-
-function shouldSave(result: Result): boolean {
-  if (result.status.numberOfLines < 100) {
-    return false
-  }
-  return true
-}
-
-function randomExampleRule(): string {
-  return exampleRules[Math.floor(random(exampleRules.length))]
 }
