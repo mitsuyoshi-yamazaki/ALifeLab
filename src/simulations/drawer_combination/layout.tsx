@@ -7,7 +7,27 @@ import { Button } from "@material-ui/core"
 
 type LocalPattern = {
   readonly imagePath: string
-  readonly rule: string
+  readonly defaultAngle: number
+  readonly ruleConstructor: (angleInput: number) => string
+}
+
+const AngleInput = (props: { angle: number, didChangeAngle: (angle: number) => void }) => {
+  const didChangeAngle = (event: React.ChangeEvent<HTMLInputElement>): void => {
+    const newAngle = parseInt(event.target.value, 10)
+    if (isNaN(newAngle)) {
+      console.log(`Program error: angle is NaN (${event.target.value})`)
+      return
+    }
+    props.didChangeAngle(newAngle)
+  }
+
+  return (<input
+    type="range"
+    min="-180"
+    max="180"
+    value={props.angle}
+    onChange={event => didChangeAngle(event)}
+  />)
 }
 
 const PatternGallery = (props: {patterns: LocalPattern[], selectingPatternIndex: number, didSelectRule: (index: number) => void}) => {
@@ -55,23 +75,25 @@ const App = () => {
   }
   
   const stemPatterns: LocalPattern[] = [
-    { imagePath: "", rule: "A:0,Z" },
-    { imagePath: "../src/simulations/drawer_combination/images/001.png", rule: "A:0,B;B:0,C;C:0,A,0,Z" },
-    { imagePath: "../src/simulations/drawer_combination/images/002.png", rule: "A:0,B;B:2,C;C:2,A,0,Z" },
-    { imagePath: "../src/simulations/drawer_combination/images/003.png", rule: "A:4,A,0,Z" },
-    { imagePath: "../src/simulations/drawer_combination/images/004.png", rule: "A:9,A,-18,A,0,Z" },
-    { imagePath: "../src/simulations/drawer_combination/images/005.png", rule: "A:20,A,-21,B;B:0,A,0,Z" },
+    { imagePath: "", defaultAngle: 0, ruleConstructor: () => "A:0,Z" },
+    { imagePath: "../src/simulations/drawer_combination/images/001.png", defaultAngle: 0, ruleConstructor: angle => `A:0,B;B:${angle},C;C:0,A,0,Z` },
   ]
   const leafPatterns: LocalPattern[] = [
-    { imagePath: "", rule: "Z:." },
-    { imagePath: "", rule: "Z:0,Y;Y:-101,X;X:0,X,5,X" },
+    { imagePath: "", defaultAngle: 0, ruleConstructor: () => "Z:." },
+    { imagePath: "", defaultAngle: 5, ruleConstructor: angle => `Z:0,Y;Y:-101,X;X:0,X,${angle},X` },
   ]
 
   const [selectedStemIndex, setSelectedStemIndex] = useState<number>(0)
   const [selectedLeafIndex, setSelectedLeafIndex] = useState<number>(0)
 
-  const stemRule = stemPatterns[selectedStemIndex].rule
-  const leafRule = leafPatterns[selectedLeafIndex].rule
+  const stemPattern = stemPatterns[selectedStemIndex]
+  const leafPattern = leafPatterns[selectedLeafIndex]
+
+  const [stemAngle, setStemAngle] = useState<number>(stemPattern.defaultAngle)
+  const [leafAngle, setLeafAngle] = useState<number>(leafPattern.defaultAngle)
+
+  const stemRule = stemPattern.ruleConstructor(stemAngle)
+  const leafRule = leafPattern.ruleConstructor(leafAngle)
   const constructedRule = stemRule + ";" + leafRule
 
   console.log(`Rule changed to: ${stringRepresentation(constructedRule)}`)
@@ -82,8 +104,11 @@ const App = () => {
       <h2>パターンを選択する</h2>
       <h3>{`幹：${stringRepresentation(stemRule)}`}</h3>
       <PatternGallery patterns={stemPatterns} selectingPatternIndex={selectedStemIndex} didSelectRule={index => setSelectedStemIndex(index)} />
+      <AngleInput angle={stemAngle} didChangeAngle={setStemAngle} />
+      <hr />
       <h3>{`葉：${stringRepresentation(leafRule)}`}</h3>
       <PatternGallery patterns={leafPatterns} selectingPatternIndex={selectedLeafIndex} didSelectRule={index => setSelectedLeafIndex(index)} />
+      <AngleInput angle={leafAngle} didChangeAngle={setLeafAngle} />
     </DetailPage>
   )
 }
