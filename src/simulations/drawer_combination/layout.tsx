@@ -54,11 +54,11 @@ const App = () => {
     getDescription: () => document.location.search
   }
   const patterns: LocalPattern[] = [
-    { imagePath: "", rule: "A:2A" },
-    { imagePath: "", rule: "A:10A" },
-    { imagePath: "", rule: "A:20A" },
-    { imagePath: "", rule: "A:30A" },
-    { imagePath: "", rule: "A:40A" },
+    { imagePath: "../src/simulations/drawer_combination/images/001.png", rule: "A:0,A" },
+    { imagePath: "../src/simulations/drawer_combination/images/002.png", rule: "A:2,A" },
+    { imagePath: "../src/simulations/drawer_combination/images/003.png", rule: "A:4,A" },
+    { imagePath: "../src/simulations/drawer_combination/images/004.png", rule: "A:9,A,-18,A" },
+    { imagePath: "../src/simulations/drawer_combination/images/005.png", rule: "A:20,A,-21,B;B:0,A" },
   ]
 
   return (
