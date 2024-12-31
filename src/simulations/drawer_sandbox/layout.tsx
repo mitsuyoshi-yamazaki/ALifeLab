@@ -124,7 +124,7 @@ const App = () => {
                       value={angle}
                       onChange={event => angleDidChange(branch, nextBranch, event)}
                     />
-                    <span>{angle}</span>
+                    <span>{`${nextBranch}: ${angle}`}</span>
                   </div>
                 ))
               }
