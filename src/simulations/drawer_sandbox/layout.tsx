@@ -59,7 +59,16 @@ const App = () => {
     }
   }
 
-  const ruleElements = rule.mapRepresentation
+  const ruleElements = Array.from(rule.mapRepresentation.entries())
+  ruleElements.sort((lhs, rhs) => {
+    if (lhs < rhs) {
+      return -1
+    }
+    if (lhs > rhs) {
+      return 1
+    }
+    return 0
+  })
 
   const screenshotButton: ScreenshotButtonCustom = {
     kind: "custom",
@@ -84,7 +93,7 @@ const App = () => {
         {ruleValidationError !== null ? <label style={{color: "red"}}>{ruleValidationError}</label> : null}
       </div>
       <div>
-        {Array.from(ruleElements.entries()).map(([branch, conditions]) => (
+        {ruleElements.map(([branch, conditions]) => (
           <div key={branch}>
             <label>{`${branch}: `}</label>
             {((): JSX.Element[] => {
@@ -124,7 +133,7 @@ const App = () => {
                       value={angle}
                       onChange={event => angleDidChange(branch, nextBranch, event)}
                     />
-                    <span>{angle}</span>
+                    <span>{`${nextBranch}: ${angle}`}</span>
                   </div>
                 ))
               }
