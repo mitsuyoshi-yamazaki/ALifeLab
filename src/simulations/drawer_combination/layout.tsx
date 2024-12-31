@@ -1,8 +1,9 @@
 import p5 from "p5"
 import React, { useState } from "react"
 import ReactDOM from "react-dom"
-import { DetailPage, ScreenshotButtonDefault } from "../../react-components/lab/detail_page"
-import { main, getTimestamp } from "./source"
+import { DetailPage, ScreenshotButtonCustom } from "../../react-components/lab/detail_page"
+import { changeRule, main, saveCurrentState } from "../drawer_sandbox/source"
+import { Button } from "@material-ui/core"
 
 type LocalPattern = {
   readonly imagePath: string
@@ -43,12 +44,18 @@ const stringRepresentation = (rule: string): string => {
 }
 
 const App = () => {
-  const screenshotButton: ScreenshotButtonDefault = {
-    kind: "default",
-    getTimestamp,
-    getDescription: () => document.location.search
+  const screenshotButton: ScreenshotButtonCustom = {
+    kind: "custom",
+    button: (
+      <div>
+        <Button variant="contained" color="primary" onClick={() => saveCurrentState()}>Save Screenshot & Parameters</Button>
+        <a id="link" />
+      </div>
+    )
   }
+  
   const stemPatterns: LocalPattern[] = [
+    { imagePath: "", rule: "A:0,Z" },
     { imagePath: "../src/simulations/drawer_combination/images/001.png", rule: "A:0,A,0,Z" },
     { imagePath: "../src/simulations/drawer_combination/images/002.png", rule: "A:2,A,0,Z" },
     { imagePath: "../src/simulations/drawer_combination/images/003.png", rule: "A:4,A,0,Z" },
@@ -56,6 +63,7 @@ const App = () => {
     { imagePath: "../src/simulations/drawer_combination/images/005.png", rule: "A:20,A,-21,B;B:0,A,0,Z" },
   ]
   const leafPatterns: LocalPattern[] = [
+    { imagePath: "", rule: "Z:." },
     { imagePath: "", rule: "Z:0,Y;Y:-101,Y,101,Y,5,Y" },
   ]
 
@@ -67,7 +75,8 @@ const App = () => {
   const constructedRule = stemRule + ";" + leafRule
 
   console.log(`Rule changed to: ${stringRepresentation(constructedRule)}`)
-
+  changeRule(constructedRule)
+  
   return (
     <DetailPage screenshotButtonType={screenshotButton}>
       <h2>パターンを選択する</h2>
