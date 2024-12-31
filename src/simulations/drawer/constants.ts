@@ -55,6 +55,7 @@ export const constants = {
     lineLifeSpan: parameters.int("simulation.line_life_span", 10, "s.ls"),
     lineLengthType: parameters.int("simulation.line_line_length_type", 0, "s.ll"),
     symmetric: parameters.boolean("simulation.force_simmetric", false, "s.sy"),
+    lineWeight: parameters.float("simulation.line_weight", -1, "s.w"),
 
     // drawer_change_parameter.html でのみ有効
     changeParameter: {
