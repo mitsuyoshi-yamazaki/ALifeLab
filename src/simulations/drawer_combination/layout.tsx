@@ -56,15 +56,15 @@ const App = () => {
   
   const stemPatterns: LocalPattern[] = [
     { imagePath: "", rule: "A:0,Z" },
-    { imagePath: "../src/simulations/drawer_combination/images/001.png", rule: "A:0,A,0,Z" },
-    { imagePath: "../src/simulations/drawer_combination/images/002.png", rule: "A:2,A,0,Z" },
+    { imagePath: "../src/simulations/drawer_combination/images/001.png", rule: "A:0,B;B:0,C;C:0,A,0,Z" },
+    { imagePath: "../src/simulations/drawer_combination/images/002.png", rule: "A:0,B;B:2,C;C:2,A,0,Z" },
     { imagePath: "../src/simulations/drawer_combination/images/003.png", rule: "A:4,A,0,Z" },
     { imagePath: "../src/simulations/drawer_combination/images/004.png", rule: "A:9,A,-18,A,0,Z" },
     { imagePath: "../src/simulations/drawer_combination/images/005.png", rule: "A:20,A,-21,B;B:0,A,0,Z" },
   ]
   const leafPatterns: LocalPattern[] = [
     { imagePath: "", rule: "Z:." },
-    { imagePath: "", rule: "Z:0,Y;Y:-101,Y,101,Y,5,Y" },
+    { imagePath: "", rule: "Z:0,Y;Y:-101,X;X:0,X,5,X" },
   ]
 
   const [selectedStemIndex, setSelectedStemIndex] = useState<number>(0)
