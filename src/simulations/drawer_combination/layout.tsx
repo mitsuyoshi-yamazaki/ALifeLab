@@ -7,7 +7,7 @@ import { Button } from "@material-ui/core"
 
 type LocalPattern = {
   readonly imagePath: string
-  readonly defaultAngle: number
+  angle: number
   readonly ruleConstructor: (angleInput: number) => string
 }
 
@@ -63,6 +63,20 @@ const stringRepresentation = (rule: string): string => {
   return rule.replace(/,/g, "").replace(/;/g, ", ").replace(/:/g, "→")
 }
 
+const stemPatterns: LocalPattern[] = [
+  { imagePath: "", angle: 0, ruleConstructor: () => "A:0,Z" },
+  { imagePath: "../src/simulations/drawer_combination/images/001.png", angle: 0, ruleConstructor: angle => `A:0,B;B:${angle},C;C:0,A,0,Z` },
+  { imagePath: "../src/simulations/drawer_combination/images/003.png", angle: 0, ruleConstructor: angle => `A:0,B;B:${angle},C,${-2 * angle},C;C:0,A,0,Z` },
+  { imagePath: "../src/simulations/drawer_combination/images/003.png", angle: 2, ruleConstructor: angle => `A:0,B;B:0,C;C:${angle},A,${-2 * angle},A,0,Z` },
+  { imagePath: "../src/simulations/drawer_combination/images/003.png", angle: 2, ruleConstructor: angle => `A:0,B;B:${angle},C,${-2 * angle},C;C:0,D;D:0,E;E:A,0,Z` },
+]
+
+const leafPatterns: LocalPattern[] = [
+  { imagePath: "", angle: 0, ruleConstructor: () => "Z:." },
+  { imagePath: "", angle: -6, ruleConstructor: angle => `Z:0,Y;Y:-101,X;X:0,X,${angle},X` },
+]
+
+
 const App = () => {
   const screenshotButton: ScreenshotButtonCustom = {
     kind: "custom",
@@ -73,15 +87,6 @@ const App = () => {
       </div>
     )
   }
-  
-  const stemPatterns: LocalPattern[] = [
-    { imagePath: "", defaultAngle: 0, ruleConstructor: () => "A:0,Z" },
-    { imagePath: "../src/simulations/drawer_combination/images/001.png", defaultAngle: 0, ruleConstructor: angle => `A:0,B;B:${angle},C;C:0,A,0,Z` },
-  ]
-  const leafPatterns: LocalPattern[] = [
-    { imagePath: "", defaultAngle: 0, ruleConstructor: () => "Z:." },
-    { imagePath: "", defaultAngle: 5, ruleConstructor: angle => `Z:0,Y;Y:-101,X;X:0,X,${angle},X` },
-  ]
 
   const [selectedStemIndex, setSelectedStemIndex] = useState<number>(0)
   const [selectedLeafIndex, setSelectedLeafIndex] = useState<number>(0)
@@ -89,8 +94,8 @@ const App = () => {
   const stemPattern = stemPatterns[selectedStemIndex]
   const leafPattern = leafPatterns[selectedLeafIndex]
 
-  const [stemAngle, setStemAngle] = useState<number>(stemPattern.defaultAngle)
-  const [leafAngle, setLeafAngle] = useState<number>(leafPattern.defaultAngle)
+  const [stemAngle, setStemAngle] = useState<number>(stemPattern.angle)
+  const [leafAngle, setLeafAngle] = useState<number>(leafPattern.angle)
 
   const stemRule = stemPattern.ruleConstructor(stemAngle)
   const leafRule = leafPattern.ruleConstructor(leafAngle)
@@ -98,16 +103,31 @@ const App = () => {
 
   console.log(`Rule changed to: ${stringRepresentation(constructedRule)}`)
   changeRule(constructedRule)
+
+  const changeStem = (index: number): void => {
+    stemPattern.angle = stemAngle
+    setSelectedStemIndex(index)
+    setStemAngle(stemPatterns[index].angle)
+
+    console.log(`[S] current: ${stemAngle} => index: ${index}, ${stemPatterns[index].angle}; ${stemPattern === stemPatterns[selectedStemIndex]}, ${stemPatterns[selectedStemIndex].angle}`)
+  }
+  const changeLeaf = (index: number): void => {
+    leafPattern.angle = stemAngle
+    setSelectedLeafIndex(index)
+    setLeafAngle(leafPatterns[index].angle)
+
+    console.log(`[L] current: ${leafAngle} => index: ${index}, ${leafPatterns[index].angle}`)
+  }
   
   return (
     <DetailPage screenshotButtonType={screenshotButton}>
       <h2>パターンを選択する</h2>
       <h3>{`幹：${stringRepresentation(stemRule)}`}</h3>
-      <PatternGallery patterns={stemPatterns} selectingPatternIndex={selectedStemIndex} didSelectRule={index => setSelectedStemIndex(index)} />
+      <PatternGallery patterns={stemPatterns} selectingPatternIndex={selectedStemIndex} didSelectRule={index => changeStem(index)} />
       <AngleInput angle={stemAngle} didChangeAngle={setStemAngle} />
       <hr />
       <h3>{`葉：${stringRepresentation(leafRule)}`}</h3>
-      <PatternGallery patterns={leafPatterns} selectingPatternIndex={selectedLeafIndex} didSelectRule={index => setSelectedLeafIndex(index)} />
+      <PatternGallery patterns={leafPatterns} selectingPatternIndex={selectedLeafIndex} didSelectRule={index => changeLeaf(index)} />
       <AngleInput angle={leafAngle} didChangeAngle={setLeafAngle} />
     </DetailPage>
   )
