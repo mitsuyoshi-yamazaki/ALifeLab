@@ -199,6 +199,9 @@ const generateNextRule = (rule: VanillaLSystemRule): VanillaLSystemRule => {
 function createModel(rules: VanillaLSystemRule[]): Model {
   const modelOf = (colorTheme: ColorTheme): Model => {
     const lineWeight = (() => {
+      if (constants.simulation.lineWeight !== -1) {
+        return constants.simulation.lineWeight
+      }
       if (constants.system.fieldSize >= 1000) {
         return 1
       }
