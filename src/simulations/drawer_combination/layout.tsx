@@ -74,6 +74,8 @@ const stemPatterns: LocalPattern[] = [
 const leafPatterns: LocalPattern[] = [
   { imagePath: "", angle: 0, ruleConstructor: () => "Z:." },
   { imagePath: "", angle: -6, ruleConstructor: angle => `Z:0,Y;Y:-101,X;X:0,X,${angle},X` },
+  { imagePath: "", angle: 66, ruleConstructor: angle => `Z:${angle},Z,${186 - angle},Y;Y:174,Z` }, // 元：A:66,A,120,B;B:174,A // 折り返し以外の線
+  { imagePath: "", angle: 6, ruleConstructor: angle => `Z:${60 + angle},Z,120,Y;Y:${180 - angle},Z` }, // 元：A:66,A,120,B;B:174,A // 折り返し角度の変更
 ]
 
 
